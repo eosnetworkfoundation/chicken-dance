@@ -7,10 +7,18 @@ from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
+from werkzeug.utils import redirect
 from report_templates import ReportTemplate
 from replay_configuration import ReplayConfigManager
 from job_status import JobManager
 from job_summary import JobSummary
+
+def return_html_contents(file_name):
+    file_path = args.html_dir + file_name
+    with open(file_path, 'r', encoding='utf-8') as file:
+        # Read the file's contents into a string
+        file_contents = file.read()
+    return file_contents
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
@@ -227,32 +235,60 @@ def application(request):
                 content_type='text/plain; charset=uft-8')
 
     elif request.path == '/login':
-        response = Response('Hello, World!', \
-            content_type='text/plain; charset=uft-8')
-
+        referer = request.headers.get('Referer', '/progress')
+        logging.info(f"Referer is {referer}")
+        response = redirect(referer)
         # Calculate the expiration time, 1 week (7 days) from now
         expires = datetime.utcnow() + timedelta(days=7)
 
         # Set an HTTP cookie with the expiration time, with highest security
         response.set_cookie('replay_auth',
-            'fakename',
+            '**fakename**',
             expires=expires,
             secure=True,
             httponly=True,
             samesite='Strict')
         return response
 
-    elif request.path == '/progress':
+    elif request.path == '/logout':
+        response = redirect('/progress')
+        response.delete_cookie('replay_auth')
+        return response
+
+    elif request.path in ['/progress', '/grid', '/control']:
+
+        main_content = 'progress.html'
+        if request.path == '/progress':
+            main_content = 'progress.html'
+        elif request.path == '/grid':
+            main_content = 'grid.html'
+        elif request.path == '/control':
+            main_content = 'control.html'
+
+        html_content = return_html_contents('header.html') \
+        + f'''<div class="topbar">
+              <a href="/login">
+              <span class="material-symbols-outlined">account_circle</span>
+              </a>
+        </div>''' \
+        + return_html_contents('not_authorized.html') \
+        + return_html_contents('footer.html')
+
         if 'replay_auth' in request.cookies:
             # Retrieve the auth cookie
             cookie_value = request.cookies.get('replay_auth')
-            return Response(f'Cookie value: {cookie_value}')
-        else:
-            # Auth Cookie Does Not exist 
-            return Response('Cookie does not exist.')
+            html_content = return_html_contents('header.html') \
+            + f'''<div class="topbar">
+                  <a href="/logout">
+                  <span class="material-symbols-outlined">account_circle</span>
+                  </a>
+                  <p>{cookie_value}</p>
+             </div>''' \
+            + return_html_contents('navbar.html') \
+            + return_html_contents(main_content) \
+            + return_html_contents('footer.html')
 
-        return Response('Hello World!', \
-            content_type='text/html')
+        return Response(html_content, content_type='text/html')
 
     return Response("Not found", status=404)
 
@@ -262,6 +298,8 @@ to manage tests to replay on the antelope blockchain')
     parser.add_argument('--config', '-c', type=str, help='Path to config json')
     parser.add_argument('--port', type=int, default=4000, help='Port for web service')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Listening service name or ip')
+    parser.add_argument('--html-dir', type=str, default='/var/www/html/',
+        help='path to static html files')
     parser.add_argument('--log', type=str, default="orchestration.log",
         help="log file for service")
 
