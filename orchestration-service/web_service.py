@@ -3,6 +3,7 @@ import argparse
 import json
 import logging
 import sys
+from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
@@ -224,6 +225,34 @@ def application(request):
             # Converting to simple Text format
             return Response(ReportTemplate.summary_text_report(report_obj), \
                 content_type='text/plain; charset=uft-8')
+
+    elif request.path == '/login':
+        response = Response('Hello, World!', \
+            content_type='text/plain; charset=uft-8')
+
+        # Calculate the expiration time, 1 week (7 days) from now
+        expires = datetime.utcnow() + timedelta(days=7)
+
+        # Set an HTTP cookie with the expiration time, with highest security
+        response.set_cookie('replay_auth',
+            'fakename',
+            expires=expires,
+            secure=True,
+            httponly=True,
+            samesite='Strict')
+        return response
+
+    elif request.path == '/progress':
+        if 'replay_auth' in request.cookies:
+            # Retrieve the auth cookie
+            cookie_value = request.cookies.get('replay_auth')
+            return Response(f'Cookie value: {cookie_value}')
+        else:
+            # Auth Cookie Does Not exist 
+            return Response('Cookie does not exist.')
+
+        return Response('Hello World!', \
+            content_type='text/html')
 
     return Response("Not found", status=404)
 
