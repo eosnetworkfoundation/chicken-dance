@@ -13,7 +13,9 @@ from replay_configuration import ReplayConfigManager
 from job_status import JobManager
 from job_summary import JobSummary
 
+# pylint: disable=used-before-assignment
 def return_html_contents(file_name):
+    """Return contents of html files"""
     file_path = args.html_dir + file_name
     with open(file_path, 'r', encoding='utf-8') as file:
         # Read the file's contents into a string
@@ -236,7 +238,6 @@ def application(request):
 
     elif request.path == '/login':
         referer = request.headers.get('Referer', '/progress')
-        logging.info(f"Referer is {referer}")
         response = redirect(referer)
         # Calculate the expiration time, 1 week (7 days) from now
         expires = datetime.utcnow() + timedelta(days=7)

@@ -4,7 +4,7 @@ init-hook='import sys; sys.path.append("/usr/local/lib/python3.10/site-packages"
 
 [MESSAGES CONTROL]
 
-disable=duplicate-code
+disable=duplicate-code, f-string-without-interpolation
 
 [DESIGN]
 
