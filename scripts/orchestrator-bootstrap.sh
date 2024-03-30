@@ -32,6 +32,6 @@ systemctl reload nginx
 
 ## startup service in background ##
 sudo -i -u "${USER}" python3 /home/"${USER}"/replay-test/orchestration-service/web_service.py \
-    --config /home/"${USER}"/replay-test/meta-data/full-production-run-20231130.json \
+    --config /home/"${USER}"/replay-test/meta-data/full-production-run-20240101.json \
     --host 0.0.0.0 \
     --log /home/"${USER}"/orch-complete-timings.log &
