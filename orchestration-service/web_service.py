@@ -10,27 +10,24 @@ from werkzeug.http import generate_etag
 from werkzeug.utils import redirect
 from report_templates import ReportTemplate
 from replay_configuration import ReplayConfigManager
+from html_page import HtmlPage
 from job_status import JobManager
 from job_summary import JobSummary
-
-# pylint: disable=used-before-assignment
-def return_html_contents(file_name):
-    """Return contents of html files"""
-    file_path = args.html_dir + file_name
-    with open(file_path, 'r', encoding='utf-8') as file:
-        # Read the file's contents into a string
-        file_contents = file.read()
-    return file_contents
+from env_store import EnvStore
+from github_oauth import GitHubOauth
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
-# pylint: disable=too-many-statements
+# pylint: disable=too-many-statements disable=used-before-assignment
 def application(request):
     """
     using werkzeug and python create a web application that supports
     /job
     /status
     /healthcheck
+    /process /control /grid
+    /login /logout
+    /oauthback
     """
 
     # /job GET request
@@ -236,66 +233,83 @@ def application(request):
             return Response(ReportTemplate.summary_text_report(report_obj), \
                 content_type='text/plain; charset=uft-8')
 
-    elif request.path == '/login':
-        referer = request.headers.get('Referer', '/progress')
-        response = redirect(referer)
-        # Calculate the expiration time, 1 week (7 days) from now
-        expires = datetime.utcnow() + timedelta(days=7)
-
-        # Set an HTTP cookie with the expiration time, with highest security
-        response.set_cookie('replay_auth',
-            '**fakename**',
-            expires=expires,
-            secure=True,
-            httponly=True,
-            samesite='Strict')
-        return response
-
     elif request.path == '/logout':
         response = redirect('/progress')
         response.delete_cookie('replay_auth')
         return response
 
     elif request.path in ['/progress', '/grid', '/control']:
-
-        main_content = 'progress.html'
-        if request.path == '/progress':
-            main_content = 'progress.html'
-        elif request.path == '/grid':
-            main_content = 'grid.html'
-        elif request.path == '/control':
-            main_content = 'control.html'
-
-        html_content = return_html_contents('header.html') \
-        + f'''<div class="topbar">
-              <a href="/login">
-              <span class="material-symbols-outlined">account_circle</span>
-              </a>
-        </div>''' \
-        + return_html_contents('not_authorized.html') \
-        + return_html_contents('footer.html')
+        # save the referer for later
+        # used in path /oauthback
+        env_name_values.set('refering_url',
+            "https://" + request.headers.get('Host') + request.path)
 
         if 'replay_auth' in request.cookies:
             # Retrieve the auth cookie
             cookie_value = request.cookies.get('replay_auth')
-            html_content = return_html_contents('header.html') \
-            + f'''<div class="topbar">
-                  <a href="/logout">
-                  <span class="material-symbols-outlined">account_circle</span>
-                  </a>
-                  <p>{cookie_value}</p>
-             </div>''' \
-            + return_html_contents('navbar.html') \
-            + return_html_contents(main_content) \
-            + return_html_contents('footer.html')
+            login, avatar_url = oauth.str_to_profile(cookie_value)
+            html_content = html_factory.contents('header.html') \
+            + html_factory.profile_top_bar_html(login, avatar_url) \
+            + html_factory.contents('navbar.html') \
+            + html_factory.contents(request.path) \
+            + html_factory.contents('footer.html')
+        else:
+            html_content = html_factory.contents('header.html') \
+            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
+            + html_factory.not_authorized() \
+            + html_factory.contents('footer.html')
 
         return Response(html_content, content_type='text/html')
+
+    elif request.path == '/oauthback':
+        if not oauth.valid_state(request.args.get('state')):
+            bad_state_html = html_factory.contents('header.html') \
+            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
+            + html_factory.not_authorized("Warning: Response may have been tampered with.\
+ OAuth Failed due to mismatched state") \
+            + html_factory.contents('footer.html')
+            return Response(bad_state_html, content_type='text/html')
+
+        # build request to get access token from code
+        code = request.args.get('code')
+        if oauth.get_access_token(code):
+            if oauth.get_public_profile():
+                # Calculate the expiration time, 1 week (7 days) from now
+                expires = datetime.utcnow() + timedelta(days=7)
+
+                # Set an HTTP cookie with the expiration time, with highest security
+                response.set_cookie('replay_auth',
+                    oauth.profile_to_str(),
+                    expires=expires,
+                    secure=True,
+                    httponly=True,
+                    samesite='Strict')
+            else:
+                # failed to get profile data
+                no_profile_html = html_factory.contents('header.html') \
+                + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
+                + html_factory.not_authorized("Auth Failed Could Not Retreive \
+ Profile Information: Try Again") \
+                + html_factory.contents('footer.html')
+                return Response(no_profile_html, status=403)
+        else:
+            # failed to get access token
+            no_token_html = html_factory.contents('header.html') \
+            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
+            + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
+            + html_factory.contents('footer.html')
+            return Response(no_token_html, status=403)
 
     return Response("Not found", status=404)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Orchestration Service \
-to manage tests to replay on the antelope blockchain')
+    # env is only intended to hold oauth client, secret, and urls
+    env_name_values = EnvStore('env')
+    oauth = GitHubOauth(env_name_values)
+
+    parser = argparse.ArgumentParser(
+        description='Orchestration Service to manage tests to replay on the antelope blockchain'
+    )
     parser.add_argument('--config', '-c', type=str, help='Path to config json')
     parser.add_argument('--port', type=int, default=4000, help='Port for web service')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Listening service name or ip')
@@ -314,6 +328,8 @@ to manage tests to replay on the antelope blockchain')
             level=logging.DEBUG)
     logging.info("Orchestration Web Service Starting Up")
     logger = logging.getLogger('OrchWebSrv')
+
+    html_factory = HtmlPage(args.html_dir)
 
     # remove this if Local config works
     if args.config is None:
