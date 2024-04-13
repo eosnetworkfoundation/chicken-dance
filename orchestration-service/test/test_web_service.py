@@ -17,12 +17,12 @@ def setup_module():
 
     setup['json_headers'] = {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
     }
 
     setup['html_headers'] = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Accept': 'text/html, application/xhtml+xml',
+        'Content-Type': 'text/html; charset=utf-8',
     }
     return setup
 
@@ -293,20 +293,37 @@ def test_healthcheck(setup_module):
 def test_summary(setup_module):
     """Test Summary Report Page"""
     cntx = setup_module
-    html_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['html_headers'])
     text_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['plain_text_headers'])
     json_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['json_headers'])
 
-    assert html_response.status_code == 200
     assert text_response.status_code == 200
     assert json_response.status_code == 200
-    html_content = html_response.content.decode('utf-8')
     text_content = text_response.content.decode('utf-8')
     json_content = json_response.content.decode('utf-8')
-    assert len(html_content) > 10
     assert len(text_content) > 10
     assert len(json_content) > 10
 
-    assert html_content != text_content
     assert text_content != json_response
-    assert json_response != html_content
+
+def test_dynamic_html(setup_module):
+    """Test progress , grid and controll"""
+    cntx = setup_module
+    progress_response = requests.get(cntx['base_url'] + '/progress',headers=cntx['html_headers'])
+    grid_response = requests.get(cntx['base_url'] + '/grid',headers=cntx['html_headers'])
+    control_response = requests.get(cntx['base_url'] + '/control',headers=cntx['html_headers'])
+
+    assert progress_response.status_code == 200
+    assert grid_response.status_code == 200
+    assert control_response.status_code == 200
+
+    progress_html = progress_response.content.decode('utf-8')
+    grid_html = grid_response.content.decode('utf-8')
+    control_html = control_response.content.decode('utf-8')
+
+    assert len(progress_html) > 20
+    assert len(grid_html) > 20
+    assert len(control_html) > 20
+
+    assert progress_html != grid_html
+    assert progress_html != control_html
+    assert grid_html != control_html

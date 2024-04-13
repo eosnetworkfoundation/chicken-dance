@@ -20,6 +20,14 @@ Select launch instance from template
 Select `LowEndOrchestrator` and use the default template.
 ![OrchTemplaceSelect](docs/images/CDOrchTemplateSelect.png)
 
+## Configuring OAuth
+Authentication and Access control is managed through an OAuth to GitHub. Starting the system for the first time requires a file named `env` in current working directory. An example `env.development` is provided that you may copy, and update to match the `secret`, `client_id`, and `callback_url` of your OAuth app. If the `env` file is not present, the application will not start, and it will emit the error `Can't find file env in current directory, not able to parse env properties, exiting.`  
+
+If no `env` file is present in the working directory, the AWS User Data script will create one, in the home directory, using the contents of `env.defaults`. The default configuration is not correct, and OAuth will fail. Using the default configuration will allow the application to start, and respond to healthchecks. Please make sure to review the `env` file if you have any issues with authentication.
+
+### Access Control
+To gain access to the application, a user must have write access to specific GitHub repositories. These repositories are also found in the `env` file.
+
 ## Updating Orchestrator Job Configuration
 By default the setup will spin up a webservice with [Production Run from Jan 2024](meta-data/full-production-run-20240101.json). To change the job configuration you need to create your own JSON configuration, and restart the service to use the new JSON. **Note** need to use `nohup` on python webservice to keep the process running after ssh-shell exit.
 - Create your own JSON following the example formate from `test-simple-jobs.json`
@@ -31,7 +39,7 @@ By default the setup will spin up a webservice with [Production Run from Jan 202
 ## Replay Setup
 You can spin up as many replay nodes as you need. Replay nodes will continuously pick and process new jobs. Each replay host works on one job at a time before picking up the next job. Therefore a small number of replay hosts will process all the jobs given enough time. For example, if there are 100 replay slices configured at most 100 replay hosts, and as few as 1 replay host, may be utilized.
 
-Before running the script for the first time you must populate the correct subnet, security group, and region information into a file on the orchestration node. You will find that file `~/replay-test/scripts/replayhost/env`. Not setting the correct values will prevent the script from starting instances. 
+Before running the script for the first time you must populate the correct subnet, security group, and region information into a file on the orchestration node. You will find that file `~/replay-test/scripts/replayhost/env`. Not setting the correct values will prevent the script from starting instances.
 
 To run the replay nodes ssh into the orchestrator node and run [run-replay-instance.sh](scripts/replayhost/run-replay-instance.sh). The script takes two arguments the first is the number of replay hosts to spin up. The second argument indicates this is a dry run, and don't start up the hosts.
 ```

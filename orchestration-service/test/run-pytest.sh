@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 export PYTHONPATH=..:meta-data:orchestration-service:orchestration-service/test:$PYTHONPATH
+# copy in env file for testing purposes
+cp -f ../../env.development env
 # setup test file for persistance testing
 cp ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json
 pytest test_summary_report.py
@@ -22,7 +24,7 @@ rm ../../meta-data/test-modify-jobs.json
 
 cp ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json
 # integration tests start up service
-{ python3 ../web_service.py --config "../../meta-data/test-modify-jobs.json" --host 127.0.0.1 > /dev/null 2>&1 & }
+{ python3 ../web_service.py --config "../../meta-data/test-modify-jobs.json" --host 127.0.0.1 --html-dir "../../webcontent/" > /dev/null 2>&1 & }
 WEB_SERVICE_PID=$!
 # prevent tests running before service is up
 sleep 3
@@ -30,7 +32,7 @@ sleep 3
 # now test web service
 pytest test_web_service.py
 
-sleep 3
+sleep 1
 
 DIFF_CNT=$(diff ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json | grep "^>" | wc -l)
 if [ "$DIFF_CNT" -lt 1 ]; then
@@ -42,4 +44,5 @@ fi
 # shutdown service clean up file
 kill "$WEB_SERVICE_PID"
 rm ../../meta-data/test-modify-jobs.json
-rm orchestration.log 
+rm orchestration.log
+rm ./env

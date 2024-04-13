@@ -59,6 +59,14 @@ li p {
   padding: var(--padding);
   text-align: right;
 }
+.topbar img {
+  height: 1em;
+}
+.topbar p {
+  display: block;
+  margin-top: 0px;
+  font-size: .75em;
+}
 .maincontent {
   padding-left: var(--media-gutter);
 }

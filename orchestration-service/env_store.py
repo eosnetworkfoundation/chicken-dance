@@ -26,7 +26,7 @@ class EnvStore():
                         continue
                     self.env_name_values[name.strip()] = value.strip()
         else:
-            sys.exit(f"Can't find file {file} in current directory, not able to parse env properites, exiting.")
+            sys.exit(f"Can't find file {file} in current directory, not able to parse env properties, exiting.")
 
     def get(self, key):
         """get values"""
@@ -42,7 +42,7 @@ class EnvStore():
         """set values"""
         self.env_name_values[key] = value
 
-    def setdefault(self, key, default_value):
+    def set_default(self, key, default_value):
         """if key does not exist nor has previous value set"""
         if key not in self.env_name_values or not self.env_name_values[key]:
             self.env_name_values[key] = default_value

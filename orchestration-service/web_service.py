@@ -4,6 +4,7 @@ import json
 import logging
 import sys
 from datetime import datetime, timedelta
+from urllib.parse import quote
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
@@ -239,15 +240,14 @@ def application(request):
         return response
 
     elif request.path in ['/progress', '/grid', '/control']:
-        # save the referer for later
-        # used in path /oauthback
-        env_name_values.set('refering_url',
-            "https://" + request.headers.get('Host') + request.path)
+        # save the referer passed back in /oauthback
+        # quote url encodes string
+        referring_url = quote(request.headers.get('Host') + request.path)
 
         if 'replay_auth' in request.cookies:
             # Retrieve the auth cookie
             cookie_value = request.cookies.get('replay_auth')
-            login, avatar_url = oauth.str_to_profile(cookie_value)
+            login, avatar_url = GitHubOauth.str_to_profile(cookie_value)
             html_content = html_factory.contents('header.html') \
             + html_factory.profile_top_bar_html(login, avatar_url) \
             + html_factory.contents('navbar.html') \
@@ -255,57 +255,65 @@ def application(request):
             + html_factory.contents('footer.html')
         else:
             html_content = html_factory.contents('header.html') \
-            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
+            + html_factory.default_top_bar_html(\
+                GitHubOauth.assemble_oauth_url(referring_url, env_name_values)\
+            ) \
             + html_factory.not_authorized() \
             + html_factory.contents('footer.html')
 
         return Response(html_content, content_type='text/html')
 
     elif request.path == '/oauthback':
-        if not oauth.valid_state(request.args.get('state')):
-            bad_state_html = html_factory.contents('header.html') \
-            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
-            + html_factory.not_authorized("Warning: Response may have been tampered with.\
- OAuth Failed due to mismatched state") \
-            + html_factory.contents('footer.html')
-            return Response(bad_state_html, content_type='text/html')
+        # this is where we do the login
+        # state passed from the user, just the URL to redirect back to
+        callback_state = request.args.get('state')
 
         # build request to get access token from code
         code = request.args.get('code')
-        if oauth.get_access_token(code):
-            if oauth.get_public_profile():
+
+        # hold token for very short time
+        bearer_token = GitHubOauth.get_access_token(code, env_name_values)
+        if bearer_token:
+            profile_data = GitHubOauth.get_public_profile(bearer_token, env_name_values)
+            login, avatar_url = GitHubOauth.str_to_profile(profile_data)
+            is_authorized = GitHubOauth.is_authorized(bearer_token, login)
+            # wipe out token after getting profile data, and checking authorization
+            bearer_token = None
+            if profile_data and is_authorized:
                 # Calculate the expiration time, 1 week (7 days) from now
                 expires = datetime.utcnow() + timedelta(days=7)
 
+                # state passed back has original referal
+                # use that to go back to page originating the login
+                if callback_state:
+                    callback_state = 'https://' + callback_state
+                else:
+                    callback_state = '/progress'
+                response = redirect(callback_state)
+
+                # Build an html page using the referal path
                 # Set an HTTP cookie with the expiration time, with highest security
+                # Return response
                 response.set_cookie('replay_auth',
-                    oauth.profile_to_str(),
+                    profile_data,
                     expires=expires,
                     secure=True,
                     httponly=True,
                     samesite='Strict')
-            else:
-                # failed to get profile data
-                no_profile_html = html_factory.contents('header.html') \
-                + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
-                + html_factory.not_authorized("Auth Failed Could Not Retreive \
- Profile Information: Try Again") \
-                + html_factory.contents('footer.html')
-                return Response(no_profile_html, status=403)
-        else:
-            # failed to get access token
-            no_token_html = html_factory.contents('header.html') \
-            + html_factory.default_top_bar_html(oauth.assemble_oauth_url()) \
-            + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
-            + html_factory.contents('footer.html')
-            return Response(no_token_html, status=403)
+                return response
+
+        # failed to get access token
+        no_token_html = html_factory.contents('header.html') \
+        + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(callback_state, env_name_values)) \
+        + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
+        + html_factory.contents('footer.html')
+        return Response(no_token_html, status=403, content_type='text/html')
 
     return Response("Not found", status=404)
 
 if __name__ == '__main__':
     # env is only intended to hold oauth client, secret, and urls
     env_name_values = EnvStore('env')
-    oauth = GitHubOauth(env_name_values)
 
     parser = argparse.ArgumentParser(
         description='Orchestration Service to manage tests to replay on the antelope blockchain'
