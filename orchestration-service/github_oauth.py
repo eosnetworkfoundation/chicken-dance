@@ -61,7 +61,6 @@ class GitHubOauth():
         """Check for team membership"""
         if not login:
             return False
-               https://api.github.com/orgs/ORG/teams/TEAM_SLUG/members
         url = 'https://api.github.com/orgs/AntelopeIO/teams/engineering/members'
         membership_check = requests.get(url,
             timeout=3,
