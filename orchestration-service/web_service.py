@@ -303,7 +303,7 @@ def application(request):
 
         # failed to get access token
         no_token_html = html_factory.contents('header.html') \
-        + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(callback_state, env_name_values)) \
+        + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
         + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
         + html_factory.contents('footer.html')
         return Response(no_token_html, status=403, content_type='text/html')
