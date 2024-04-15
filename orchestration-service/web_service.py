@@ -279,7 +279,7 @@ def application(request):
             is_authorized = GitHubOauth.is_authorized(bearer_token, login)
             # wipe out token after getting profile data, and checking authorization
             bearer_token = None
-            if profile_data and is_authorized:
+            if is_authorized:
                 # Calculate the expiration time, 1 week (7 days) from now
                 expires = datetime.utcnow() + timedelta(days=7)
 

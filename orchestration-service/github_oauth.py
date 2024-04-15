@@ -61,14 +61,15 @@ class GitHubOauth():
         """Check for team membership"""
         if not login:
             return False
-
+               https://api.github.com/orgs/ORG/teams/TEAM_SLUG/members
         url = 'https://api.github.com/orgs/AntelopeIO/teams/engineering/members'
         membership_check = requests.get(url,
             timeout=3,
             headers={
                 'Accept': 'application/vnd.github+json',
                 'Authorization': f'Bearer {bearer_token}',
-                'X-GitHub-Api-Version': '2022-11-28'
+                'X-GitHub-Api-Version': '2022-11-28',
+                'User-Agent': 'AntelopeIO/leap/team/engineering'
             })
         if membership_check.status_code == 200:
             members_list = json.loads(membership_check.content.decode('utf-8'))
