@@ -22,7 +22,7 @@ str += '<tbody>'
 
 if (dataObj != undefined) {
   dataObj.forEach(function(job) {
-    str += '<tr onclick="location.href=\'/detail.html?jobid='
+    str += '<tr onclick="location.href=\'/detail?jobid='
         +job.job_id+'&sliceid='+job.replay_slice_id+'\';">'
     str += '<td>'+job.replay_slice_id+'</td>';
     str += '<td>'+formateDateTime(job.start_time)+'</td>'

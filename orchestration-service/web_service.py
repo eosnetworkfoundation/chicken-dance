@@ -238,7 +238,7 @@ def application(request):
         response.delete_cookie('replay_auth')
         return response
 
-    elif request.path in ['/progress', '/grid', '/control']:
+    elif request.path in ['/progress', '/grid', '/control', '/detail']:
         # save the referer passed back in /oauthback
         # quote url encodes string
         referring_url = request.path

@@ -49,7 +49,7 @@ var str = ''
 if (dataObj.hasOwnProperty('failed_jobs') && dataObj.failed_jobs != undefined) {
   dataObj.failed_jobs.forEach(function(job) {
     str += '<div class="card link" '
-    str +=       'onclick="location.href=\'/detail.html'
+    str +=       'onclick="location.href=\'/detail'
     str +=       '?jobid='+job.jobid+'&sliceid='+job.configid+'\';">'
     str += '<h3>Job '+job.configid+'</h3>'
     str += '<p class="subtext">'+job.status+'</p>'

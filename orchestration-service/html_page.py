@@ -16,6 +16,8 @@ class HtmlPage:
             file_name = 'grid.html'
         elif file_name == '/control':
             file_name = 'control.html'
+        elif file_name == '/detail':
+            file_name = 'detail.html'
 
         file_path = self.html_dir + file_name
         with open(file_path, 'r', encoding='utf-8') as file:
