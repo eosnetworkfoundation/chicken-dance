@@ -68,7 +68,7 @@ class GitHubOauth():
                 'Accept': 'application/vnd.github+json',
                 'Authorization': f'Bearer {bearer_token}',
                 'X-GitHub-Api-Version': '2022-11-28',
-                'User-Agent': 'AntelopeIO/leap/team/engineering'
+                'User-Agent': 'App/OAuth/ReplayTest'
             })
         if membership_check.status_code == 200:
             members_list = json.loads(membership_check.content.decode('utf-8'))

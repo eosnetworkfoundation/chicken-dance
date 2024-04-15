@@ -4,7 +4,6 @@ import json
 import logging
 import sys
 from datetime import datetime, timedelta
-from urllib.parse import quote
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
@@ -242,7 +241,7 @@ def application(request):
     elif request.path in ['/progress', '/grid', '/control']:
         # save the referer passed back in /oauthback
         # quote url encodes string
-        referring_url = quote(request.headers.get('Host') + request.path)
+        referring_url = request.path
 
         if 'replay_auth' in request.cookies:
             # Retrieve the auth cookie
@@ -265,8 +264,8 @@ def application(request):
 
     elif request.path == '/oauthback':
         # this is where we do the login
-        # state passed from the user, just the URL to redirect back to
-        callback_state = request.args.get('state')
+        # state passed from the user, just the path to return to
+        referral_path = request.args.get('state')
 
         # build request to get access token from code
         code = request.args.get('code')
@@ -283,13 +282,13 @@ def application(request):
                 # Calculate the expiration time, 1 week (7 days) from now
                 expires = datetime.utcnow() + timedelta(days=7)
 
-                # state passed back has original referal
-                # use that to go back to page originating the login
-                if callback_state:
-                    callback_state = 'https://' + callback_state
-                else:
-                    callback_state = '/progress'
-                response = redirect(callback_state)
+                html_content = html_factory.contents('header.html') \
+                + html_factory.profile_top_bar_html(login, avatar_url) \
+                + html_factory.contents('navbar.html') \
+                + html_factory.contents(referral_path) \
+                + html_factory.contents('footer.html')
+
+                response = Response(html_content, content_type='text/html')
 
                 # Build an html page using the referal path
                 # Set an HTTP cookie with the expiration time, with highest security

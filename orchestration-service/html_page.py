@@ -40,7 +40,7 @@ class HtmlPage:
         <span class="material-symbols-outlined">account_circle</span>
     </a> </div>'''
 
-    def not_authorized(self, message="Not Autorized: Please Log In"):
+    def not_authorized(self, message="Not Authorized: Please Log In"):
         """return not autorized page contents"""
         return f'''    <div class="maincontent">
         <h2>{message}</h2>
