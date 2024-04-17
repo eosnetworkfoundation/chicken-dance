@@ -9,7 +9,7 @@
 - logout
 - process - Dynamic HTML for summary page
 - grid - Dynamic HTML with grid of jobs
-- control - Dynamic HTML with controls to operate replays 
+- control - Dynamic HTML with controls to operate replays
 - healthcheck - gets 200/0K always
 
 ## Job
@@ -73,9 +73,9 @@ Content Type Support.
 
 ## Authentication
 
-There are two request `/oauthback` and `/logout`.
-- `/oauthback` is the call back from the OAuth provider, and is is used to set the authentication cookie. This call performs separate web calls to make sure the user has the correct privileges and may be allowed access.
-- `/logout` clears the cookie prevents access to the application.
+There are two request, `/oauthback` and `/logout`.
+- `/oauthback` is the call back from the OAuth provider, and it is used to set the authentication cookie. This call performs separate web calls to make sure the user has the correct privileges and may be allowed access.
+- `/logout` clears the cookie preventing access to the application.
 
 
 ## Healthcheck

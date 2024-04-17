@@ -275,7 +275,7 @@ def application(request):
         if bearer_token:
             profile_data = GitHubOauth.get_public_profile(bearer_token, env_name_values)
             login, avatar_url = GitHubOauth.str_to_profile(profile_data)
-            is_authorized = GitHubOauth.is_authorized(bearer_token, login)
+            is_authorized = GitHubOauth.is_authorized(bearer_token, login, env_name_values.get('team'))
             # wipe out token after getting profile data, and checking authorization
             bearer_token = None
             if is_authorized:

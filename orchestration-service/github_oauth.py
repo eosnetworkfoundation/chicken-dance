@@ -57,11 +57,12 @@ class GitHubOauth():
         return None
 
     @staticmethod
-    def is_authorized(bearer_token, login):
+    def is_authorized(bearer_token, login, team_string):
         """Check for team membership"""
         if not login:
             return False
-        url = 'https://api.github.com/orgs/AntelopeIO/teams/engineering/members'
+        org, team = team_string.split('/',1)
+        url = f'https://api.github.com/orgs/{org}/teams/{team}/members'
         membership_check = requests.get(url,
             timeout=3,
             headers={
