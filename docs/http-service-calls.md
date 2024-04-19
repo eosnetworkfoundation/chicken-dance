@@ -5,6 +5,11 @@
 - status - gets a replay nodes progress and state
 - config - get/sets the configuration data used to initialize the job
 - summary - progress of current run and reports any failed jobs
+- oauthback - login callback from OAuth provider
+- logout
+- process - Dynamic HTML for summary page
+- grid - Dynamic HTML with grid of jobs
+- control - Dynamic HTML with controls to operate replays
 - healthcheck - gets 200/0K always
 
 ## Job
@@ -53,7 +58,7 @@ When running replay tests we don't always known the expected integrity hash. For
 ## Summary (Progress)
 
 ### GET
-Returns the following
+`/summary` Returns the following
 - number of blocks processed
 - total number of blocks to process
 - jobs completed
@@ -66,9 +71,15 @@ Content Type Support.
 - If the Accepts header is text-html returns html
 - If Accepts header is application/json returns json
 
+## Authentication
+
+There are two request, `/oauthback` and `/logout`.
+- `/oauthback` is the call back from the OAuth provider, and it is used to set the authentication cookie. This call performs separate web calls to make sure the user has the correct privileges and may be allowed access.
+- `/logout` clears the cookie preventing access to the application.
+
 
 ## Healthcheck
-Always returns same value used for healthchecks
+`/healthcheck` Always returns same value used for healthchecks
 
 ### GET
 Only get request is supported. Always returns body of `OK` with status `200`

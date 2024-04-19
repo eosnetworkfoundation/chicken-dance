@@ -6,11 +6,13 @@ import subprocess
 import argparse
 import logging
 import requests
+from s3Interface import S3Interface
 from bs4 import BeautifulSoup
 
-# 1 - Connect to web page and parse out list of snapshots
+# 1 - Connect to S3 and parse out list of snapshots
+#   - Alternatively connect to web page and parse out list of snapshots
 # 2 - process list and create data structure, snapshot_manifest
-# python3.10 generate_manifest_from_eosnation.py --source-net mainnet --leap-version 5.0.0-rc2
+# python3.10 generate_manifest_from_eosnation.py --source-net mainnet --leap-version 5.0.2
 
 class ParseSnapshots:
     """Parse HTML page with list of snapshots"""
@@ -95,7 +97,8 @@ class ParseSnapshots:
         url_list.append("https://ops.store.eosnation.io/eos-snapshots/snapshot-2018-06-10-01-eos-v6-0000000000.bin.zst") # pylint: disable=line-too-long
         return url_list
 
-    def filter_by_block_range(self, snapshots, min_block_num, max_block_num):
+    @staticmethod
+    def filter_by_block_range(snapshots, min_block_num, max_block_num):
         """filter out snapshots outside the given range"""
         index = 0
         number_of_snapshots = len(snapshots)
@@ -117,9 +120,28 @@ class ParseSnapshots:
 
         return filter_snapshots
 
+class BuildSnapshotsFromS3: # pylint: disable=too-few-public-methods
+    """Build URL list of snapshots from S3 repo"""
+    def __init__(self, bucket, snap_dir):
+        self.bucket = bucket
+        self.snap_dir = snap_dir
+
+    def get_urls(self):
+        """builds a list of URLs from snapshots in S3 Bucket"""
+        logging.debug("s3 path %s",
+            S3Interface.build_s3_loc(self.bucket,self.snap_dir+'/snapshots/'))
+        snaps_list  = S3Interface.list(self.bucket, self.snap_dir +'/snapshots/', True)
+        url_list = []
+        # add one fake snapshot for genesis
+        url_list.append("https://eosio.null.com/chicken/snapshot-2018-06-10-01-eos-v6-0000000000.bin.zst") # pylint: disable=line-too-long
+        for snapshot in snaps_list:
+            url_list.append("https://eosio.null.com/chicken/"+snapshot)
+        return url_list
+
+
 class Manifest:
     """Builds manifest and prints json config from list of snapshots"""
-    def __init__(self, snapshots, source_net, leap_verison, min_block_increment=500000):
+    def __init__(self, snapshots, source_net, leap_verison, min_block_increment=5000):
         self.snapshots = snapshots
         self.source_net = source_net
         self.leap_version = leap_verison
@@ -335,7 +357,9 @@ if __name__ == '__main__':
         help='version of snapshot, default v6')
     parser.add_argument('--leap-version', type=str, default='5.0.0',
         help='version of leap, default 5.0.0')
-    parser.add_argument('--block-space-between-slices', type=int, default=500000, \
+    parser.add_argument('--source-eosnation', action=argparse.BooleanOptionalAction, \
+        default=False, help='build snapshots from eosnation snapshots list')
+    parser.add_argument('--block-space-between-slices', type=int, default=5000, \
         help='min number of blocks between slices, cuts down on the number of slices created')
     parser.add_argument('--upload-snapshots', action=argparse.BooleanOptionalAction, \
         default=False, help='upload snapshot to cloud storage, warning this takes time')
@@ -353,25 +377,34 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.ERROR)
 
-    search_title = f"{args.source_net} - {args.snapshot_version}"
-    if args.source_net.lower() == "mainnet":
-        search_title = f"EOS Mainnet - {args.snapshot_version}"
-    if "jungle" in args.source_net.lower():
-        search_title = f"Jungle 4 Testnet - {args.snapshot_version}"
-    if "kylin" in args.source_net.lower():
-        search_title = f"Kylin Testnet - {args.snapshot_version}"
+    list_of_snapshots = []
+    # execute code to source snapshot list from eosnation
+    # otherwise default is to pull snapshot list from S3 snapshot
+    if args.source_eosnation:
+        search_title = f"{args.source_net} - {args.snapshot_version}"
+        if args.source_net.lower() == "mainnet":
+            search_title = f"EOS Mainnet - {args.snapshot_version}"
+        if "jungle" in args.source_net.lower():
+            search_title = f"Jungle 4 Testnet - {args.snapshot_version}"
+        if "kylin" in args.source_net.lower():
+            search_title = f"Kylin Testnet - {args.snapshot_version}"
 
-    parser = ParseSnapshots("https://snapshots.eosnation.io/", search_title)
-    list_of_snapshots = parser.get_content()
+        parser = ParseSnapshots("https://snapshots.eosnation.io/", search_title)
+
+    else:
+        builder = BuildSnapshotsFromS3("chicken-dance",args.source_net.lower())
+        list_of_snapshots = builder.get_urls()
+
     # filter only when max or min defined
     if args.min_block_height or args.max_block_height:
-        list_of_snapshots = parser.filter_by_block_range(
+        list_of_snapshots = ParseSnapshots.filter_by_block_range(
             list_of_snapshots,
             args.min_block_height,
             args.max_block_height
         )
     else:
         logging.debug("FILTER: no filter to run")
+
     # hmm something went wrong
     if not list_of_snapshots:
         logging.error("Failed to match, no sources found")

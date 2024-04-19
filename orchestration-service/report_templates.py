@@ -1,4 +1,5 @@
 """Templates for reports HTML headers, CSS, any JS"""
+
 class ReportTemplate:
     """Static method for reports. Headers, footers, and item listings"""
 

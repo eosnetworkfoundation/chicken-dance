@@ -3,75 +3,31 @@ import argparse
 import json
 import logging
 import sys
+from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
+from werkzeug.utils import redirect
 from report_templates import ReportTemplate
 from replay_configuration import ReplayConfigManager
+from html_page import HtmlPage
 from job_status import JobManager
-from job_status import JobStatusEnum
-
-def create_summary(job_manager):
-    """Creates report object for summary report"""
-    report = {
-        'total_blocks': 0,
-        'blocks_processed': 0,
-        'total_jobs': 0,
-        'jobs_succeeded': 0,
-        'jobs_failed': 0,
-        'failed_jobs': []
-    }
-    for this_job_obj in job_manager.get_all().items():
-        # jobid = this_job_obj[0]
-        job = this_job_obj[1]
-        # caculate progress
-        if job.slice_config.end_block_id > job.slice_config.start_block_id \
-          and job.slice_config.start_block_id > 0:
-            report['total_blocks'] += job.slice_config.end_block_id \
-                - job.slice_config.start_block_id
-        if job.last_block_processed > 0:
-            report['blocks_processed'] += job.last_block_processed \
-                - job.slice_config.start_block_id
-
-        # try to fix errors, where expected integrity hash was populated after job finish
-        # this race condition leaves job incorrectly marked as HASH_MISMATCH, and we can fix
-        if job.status == JobStatusEnum.HASH_MISMATCH:
-            if job.slice_config.expected_integrity_hash == job.actual_integrity_hash:
-                job.status = JobStatusEnum.COMPLETE
-        # look for COMPLETE jobs witch hash mistmatch, mark status
-        if job.status == JobStatusEnum.COMPLETE \
-            and job.slice_config.expected_integrity_hash != job.actual_integrity_hash:
-            job.status = JobStatusEnum.HASH_MISMATCH
-        # look for ERROR state both hashes are None/Empty
-        if job.status == JobStatusEnum.COMPLETE \
-            and not job.slice_config.expected_integrity_hash \
-            and not job.actual_integrity_hash:
-            job.status = JobStatusEnum.ERROR
-        # process succceed jobs
-        report['total_jobs'] += 1
-        if job.status == JobStatusEnum.COMPLETE \
-            and job.slice_config.expected_integrity_hash == job.actual_integrity_hash:
-            report['jobs_succeeded'] += 1
-        # process failed jobs
-        if job.status in (JobStatusEnum.ERROR, JobStatusEnum.TIMEOUT, JobStatusEnum.HASH_MISMATCH):
-            report['jobs_failed'] += 1
-            report['failed_jobs'].append(
-            {
-                'status': job.status.name,
-                'jobid': job.job_id ,
-                'configid': job.slice_config.replay_slice_id
-            })
-    return report
+from job_summary import JobSummary
+from env_store import EnvStore
+from github_oauth import GitHubOauth
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
-# pylint: disable=too-many-statements
+# pylint: disable=too-many-statements disable=used-before-assignment
 def application(request):
     """
     using werkzeug and python create a web application that supports
     /job
     /status
     /healthcheck
+    /process /control /grid
+    /login /logout
+    /oauthback
     """
 
     # /job GET request
@@ -89,6 +45,19 @@ def application(request):
     Content Type {request.headers.get('Content-Type')}
     Accept  {request.headers.get('Accept')}
     ETag {request.headers.get('ETag')}""")
+
+    # auth check /progress /grid /control /detail are HTML pages
+    # /healthcheck does not require acess control
+    # /oauthback is called before access control is avalible
+    # they have their own auth flow and messages, so we skip them for out auth check
+    # this protects API calls
+    if request.path not in ['/progress', '/grid', '/control', '/detail', '/healthcheck', '/oauthback'] and \
+        not (ALWAYS_ALLOW or GitHubOauth.is_authorized(request.cookies,
+            request.headers.get('Authorization'),
+            env_name_values.get('user_info_url'),
+            env_name_values.get('team'))):
+        return Response("Not Authorized", status=403)
+
     if request.path == '/job':
         # Work through GET Requests first
         if request.method == 'GET':
@@ -257,7 +226,7 @@ def application(request):
         return Response("OK",content_type='text/plain; charset=uft-8')
 
     elif request.path == '/summary':
-        report_obj = create_summary(jobs)
+        report_obj = JobSummary.create(jobs)
         # Format based on content type
         # content type is None when no content-type passed in
         # HTML
@@ -277,18 +246,108 @@ def application(request):
             return Response(ReportTemplate.summary_text_report(report_obj), \
                 content_type='text/plain; charset=uft-8')
 
+    elif request.path == '/logout':
+        response = redirect('/progress')
+        response.delete_cookie('replay_auth')
+        return response
+
+    elif request.path in ['/progress', '/grid', '/control', '/detail']:
+        # save the referer passed back in /oauthback
+        # quote url encodes string
+        referring_url = request.path
+
+        if ALWAYS_ALLOW or \
+            GitHubOauth.is_authorized(request.cookies,
+            request.headers.get('Authorization'),
+            env_name_values.get('user_info_url'),
+            env_name_values.get('team')):
+            # Retrieve the auth cookie
+            cookie_value = request.cookies.get('replay_auth')
+            login, avatar_url = GitHubOauth.str_to_public_profile(cookie_value)
+            html_content = html_factory.contents('header.html') \
+            + html_factory.profile_top_bar_html(login, avatar_url) \
+            + html_factory.contents('navbar.html') \
+            + html_factory.contents(request.path) \
+            + html_factory.contents('footer.html')
+        else:
+            html_content = html_factory.contents('header.html') \
+            + html_factory.default_top_bar_html(\
+                GitHubOauth.assemble_oauth_url(referring_url, env_name_values)\
+            ) \
+            + html_factory.not_authorized() \
+            + html_factory.contents('footer.html')
+
+        return Response(html_content, content_type='text/html')
+
+    elif request.path == '/oauthback':
+        # this is where we do the login
+        # state passed from the user, just the path to return to
+        referral_path = request.args.get('state')
+
+        # build request to get access token from code
+        code = request.args.get('code')
+
+        # hold token for very short time
+        bearer_token = GitHubOauth.get_oauth_access_token(code, env_name_values)
+        if bearer_token:
+            profile_data = GitHubOauth.create_auth_string(bearer_token, env_name_values.get('user_info_url'))
+            login, avatar_url = GitHubOauth.str_to_public_profile(profile_data)
+            is_authorized_member = GitHubOauth.check_membership(bearer_token,
+                login,
+                env_name_values.get('team'))
+            # wipe out token after getting profile data, and checking authorization
+            bearer_token = None
+            if is_authorized_member:
+                # Calculate the expiration time, 1 week (7 days) from now
+                expires = datetime.utcnow() + timedelta(days=7)
+
+                html_content = html_factory.contents('header.html') \
+                + html_factory.profile_top_bar_html(login, avatar_url) \
+                + html_factory.contents('navbar.html') \
+                + html_factory.contents(referral_path) \
+                + html_factory.contents('footer.html')
+
+                response = Response(html_content, content_type='text/html')
+
+                # Build an html page using the referal path
+                # Set an HTTP cookie with the expiration time, with highest security
+                # Return response
+                response.set_cookie('replay_auth',
+                    profile_data,
+                    expires=expires,
+                    secure=True,
+                    httponly=True,
+                    samesite='Strict')
+                return response
+
+        # failed to get access token
+        no_token_html = html_factory.contents('header.html') \
+        + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
+        + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
+        + html_factory.contents('footer.html')
+        return Response(no_token_html, status=403, content_type='text/html')
+
     return Response("Not found", status=404)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Orchestration Service \
-to manage tests to replay on the antelope blockchain')
+    # env is only intended to hold oauth client, secret, and urls
+    env_name_values = EnvStore('env')
+
+    parser = argparse.ArgumentParser(
+        description='Orchestration Service to manage tests to replay on the antelope blockchain'
+    )
     parser.add_argument('--config', '-c', type=str, help='Path to config json')
     parser.add_argument('--port', type=int, default=4000, help='Port for web service')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Listening service name or ip')
+    parser.add_argument('--html-dir', type=str, default='/var/www/html/',
+        help='path to static html files')
     parser.add_argument('--log', type=str, default="orchestration.log",
         help="log file for service")
+    parser.add_argument('--disable-auth', action='store_true',
+        help="when set disables access control, used for testing")
 
     args = parser.parse_args()
+    ALWAYS_ALLOW = args.disable_auth
 
     # setup logging
     logging.basicConfig(filename=args.log,
@@ -298,6 +357,8 @@ to manage tests to replay on the antelope blockchain')
             level=logging.DEBUG)
     logging.info("Orchestration Web Service Starting Up")
     logger = logging.getLogger('OrchWebSrv')
+
+    html_factory = HtmlPage(args.html_dir)
 
     # remove this if Local config works
     if args.config is None:

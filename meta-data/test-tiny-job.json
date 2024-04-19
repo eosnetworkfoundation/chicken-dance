@@ -5,6 +5,6 @@
     "snapshot_path": "s3://chicken-dance/test/snapshots/snapshot-2018-08-01-16-eos-v6-0008918217.bin.zst",
     "storage_type": "s3",
     "expected_integrity_hash": "6785307acd1ad9c927c46ee8f76ff3dfd6b6d71e9b3148d48c5312212fdbfcfa",
-    "leap_version": "5.0.0-rc2"
+    "leap_version": "5.0.2"
   }
 ]

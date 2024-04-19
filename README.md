@@ -20,8 +20,23 @@ Select launch instance from template
 Select `LowEndOrchestrator` and use the default template.
 ![OrchTemplaceSelect](docs/images/CDOrchTemplateSelect.png)
 
+## Configuring OAuth
+Authentication and Access control is managed through an OAuth to GitHub. Starting the system for the first time requires a file named `env` in current working directory. An example `env.development` is provided that you may copy, and update to match the `secret`, `client_id`, and `callback_url` of your OAuth app.
+
+If the `env` file is not present, the application will not start, and it will emit the error `Can't find file env in current directory, not able to parse env properties, exiting.` If no `env` file is present in the working directory, when you deploy a new orchestration instances in AWS, the AWS User Data script will create one, in the home directory, using the contents of `env.defaults`. The default configuration is not correct, and OAuth will fail. Using the default configuration will allow the application to start, and respond to healthchecks. Please make sure to review the `env` file if you have any issues with authentication.
+
+### Access Control
+To gain access to the application, a user must have membership in specific GitHub teams. The org and teams checked for membership are found in the `env` file. You may use multiple teams for access control by providing a comma separated list in the `env` file. Access to the application is checked on every HTTP request, and the application makes HTTP calls to GitHub to ensure the user has sufficient privileges to perform the requested action. There are two methods of access control:
+- Using a web browser via OAuth: Click on the person icon in the top right corner to login. You will be redirected to GitHub to authenticate.
+- Using HTTP command line: Pass the header `Authorization` with your valid GitHub token. The GitHub token must have `read:org` scope for the organization specified in the `env` file.
+
+Example of command line access
+```
+curl -H 'Accept: application/json' -H 'Authorization: gho_bBB1bB1BBbbBbb1BBbBbBB1bbbb1BbbBB' http://127.0.0.1:4000/status
+```
+
 ## Updating Orchestrator Job Configuration
-By default the setup will spin up a webservice with [Production Run from Nov 2023](meta-data/full-production-run-20231130.json). To change the job configuration you need to create your own JSON configuration, and restart the service to use the new JSON. **Note** need to use `nohup` on python webservice to keep the process running after ssh-shell exit.
+By default the setup will spin up a webservice with [Production Run from Jan 2024](meta-data/full-production-run-20240101.json). To change the job configuration you need to create your own JSON configuration, and restart the service to use the new JSON. **Note** need to use `nohup` on python webservice to keep the process running after ssh-shell exit.
 - Create your own JSON following the example formate from `test-simple-jobs.json`
 - Upload the file to the orchestrator node
 - Log into the orchestrator node as `ubuntu` user
@@ -30,6 +45,8 @@ By default the setup will spin up a webservice with [Production Run from Nov 202
 
 ## Replay Setup
 You can spin up as many replay nodes as you need. Replay nodes will continuously pick and process new jobs. Each replay host works on one job at a time before picking up the next job. Therefore a small number of replay hosts will process all the jobs given enough time. For example, if there are 100 replay slices configured at most 100 replay hosts, and as few as 1 replay host, may be utilized.
+
+Before running the script for the first time you must populate the correct subnet, security group, and region information into a file on the orchestration node. You will find that file `~/replay-test/scripts/replayhost/env`. Not setting the correct values will prevent the script from starting instances.
 
 To run the replay nodes ssh into the orchestrator node and run [run-replay-instance.sh](scripts/replayhost/run-replay-instance.sh). The script takes two arguments the first is the number of replay hosts to spin up. The second argument indicates this is a dry run, and don't start up the hosts.
 ```
@@ -61,10 +78,10 @@ See [Operating Details](docs/operating-details.md) for list of scripts, logs, an
 For testing options see [Running Tests](docs/running-tests.md)
 
 ## Generating Manifests
-The python script `replay-test/scripts/manifest/generate_manifest_from_eosnation.py` will build a manifest off the list of eos nation snapshots. A manifest may be validated for valid JSON and a contiguous block range using the [validate_manifest.py](scripts/manifest/validate_manifest.py) script
+The python script `replay-test/scripts/manifest/generate_manifest.py` will build a manifest off either the snapshots listed in S3 or the list of eos nation snapshots. By default connects to S3 to build snapshot list, and requires `aws cli` and read permissions. A manifest may be validated for valid JSON and a contiguous block range using the [validate_manifest.py](scripts/manifest/validate_manifest.py) script
 
 Redirect of stdout is recommended to separate the debug messages printed on stderr
-`python3 generate_manifest_from_eosnation.py --source-net mainnet 1> ./manifest-config.json`  
+`python3 generate_manifest.py --source-net mainnet 1> ./manifest-config.json`  
 
 ### Options
 In this release `block-space-between-slices`, `max-block-height`, and `min-block-height`.
@@ -72,6 +89,7 @@ In this release `block-space-between-slices`, `max-block-height`, and `min-block
 - `--source-net` Defaults to `mainnet`. Which chain to target. Options include mainnet, kylin, and jungle
 - `--leap-version` Defaults to `5.0.0`. Specify the version of leap to use from the builds
 - `--snapshot-version` Defaults to v6.
+- `--source-eosnation` Build manifest from eos-nation webpage of snapshots
 - `--upload-snapshots` Flag takes no values, and defaults to false. This uploads snapshots to AWS S3. Must have `aws cli` and permission to upload.
 - `--block-space-between-slices` Min number of blocks between slices, cuts down on the number of slices created
 - `--max-block-height` Limits manifest by not processing starting block ranges above value

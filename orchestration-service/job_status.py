@@ -1,4 +1,4 @@
-"""Module provides now and job status"""
+"""Module provides job status"""
 import json
 from datetime import datetime
 from enum import Enum

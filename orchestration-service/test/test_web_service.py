@@ -17,28 +17,32 @@ def setup_module():
 
     setup['json_headers'] = {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
     }
 
     setup['html_headers'] = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Accept': 'text/html, application/xhtml+xml',
+        'Content-Type': 'text/html; charset=utf-8',
     }
-    return setup
 
+    session = requests.Session()
+    session.cookies.set('replay_auth', 'ghb_12334dfjkhaf:foobar:https://example.com/myavatar.gif')
+
+    return setup, session
 
 def test_job_redirect(setup_module):
     """Equivalent results request a job using the redirect, and request with 'nextjob' param"""
-    cntx = setup_module
+    cntx, session = setup_module
 
     # request a job test that /job follows redirect to /job?nextjob
     # both /job and /job?nextjob should result in the same response
-    follow_redir_response = requests.get(cntx['base_url'] + '/job', headers=cntx['plain_text_headers'])
-    assert len(follow_redir_response.headers['ETag']) > 30
+    follow_redir_response = session.get(cntx['base_url'] + '/job', headers=cntx['plain_text_headers'])
     assert follow_redir_response.status_code == 200
+    assert len(follow_redir_response.headers['ETag']) > 30
+
 
     params = { 'nextjob': 1 }
-    direct_response = requests.get(cntx['base_url'] + '/job',
+    direct_response = session.get(cntx['base_url'] + '/job',
         params=params,
         headers=cntx['plain_text_headers'])
 
@@ -49,10 +53,11 @@ def test_job_redirect(setup_module):
 
 def test_get_nextjob(setup_module):
     """Validate the data returned differs by Content Type"""
-    cntx = setup_module
+    cntx, session = setup_module
+
     # test plain text
     params = { 'nextjob': 1 }
-    response_plain = requests.get(cntx['base_url'] + '/job', params=params, headers=cntx['plain_text_headers'])
+    response_plain = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['plain_text_headers'])
 
     assert response_plain.status_code == 200
     print(response_plain.content.decode('utf-8'))
@@ -62,7 +67,7 @@ def test_get_nextjob(setup_module):
 
     # test json
     params = { 'nextjob': 1 }
-    response_json = requests.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
+    response_json = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
 
     assert response_json.status_code == 200
     # print (response_json.content.decode('utf-8'))
@@ -72,10 +77,11 @@ def test_get_nextjob(setup_module):
 
 def test_update_job(setup_module):
     """Get a job update the status and validate the change is in place"""
-    cntx = setup_module
+    cntx, session = setup_module
+
     # test plain text
     params = { 'nextjob': 1 }
-    response_first = requests.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
+    response_first = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
     assert response_first.status_code == 200
     etag_value = response_first.headers['ETag']
 
@@ -91,7 +97,7 @@ def test_update_job(setup_module):
     # serialized dict to JSON when passing in
     # Add ETag Header
     cntx['json_headers']['ETag'] = etag_value
-    updated_first = requests.post(cntx['base_url'] + '/job',
+    updated_first = session.post(cntx['base_url'] + '/job',
         params=params,
         headers=cntx['json_headers'],
         data=json.dumps(job_first_request))
@@ -101,7 +107,7 @@ def test_update_job(setup_module):
     # fetch again to validate update
     # validate status after change
     params = { 'jobid': job_first_request['job_id'] }
-    validate_job_request = requests.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
+    validate_job_request = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
     validate_job = json.loads(validate_job_request.content.decode('utf-8'))
     assert validate_job['status'] == 'STARTED'
 
@@ -110,7 +116,7 @@ def test_update_job(setup_module):
     jobparams = { 'jobid': validate_job['job_id'] }
     # add ETag Header
     cntx['json_headers']['ETag'] = etag_value
-    updated = requests.post(cntx['base_url'] + '/job',
+    updated = session.post(cntx['base_url'] + '/job',
         params=jobparams,
         headers=cntx['json_headers'],
         data=json.dumps(validate_job))
@@ -124,7 +130,7 @@ def test_update_job(setup_module):
     jobparams = { 'jobid': validate_job['job_id'] }
     # add previous older and bad ETag Header
     cntx['json_headers']['ETag'] = etag_value
-    updated = requests.post(cntx['base_url'] + '/job',
+    updated = session.post(cntx['base_url'] + '/job',
         params=jobparams,
         headers=cntx['json_headers'],
         data=json.dumps(validate_job))
@@ -135,7 +141,8 @@ def test_update_job(setup_module):
 
 def test_no_more_jobs(setup_module):
     """Using nextjob loop over the jobs updating status; eventually no more jobs and None is returned"""
-    cntx = setup_module
+    cntx, session = setup_module
+
     params = { 'nextjob': 1 }
 
     _ok = True
@@ -148,7 +155,7 @@ def test_no_more_jobs(setup_module):
 
     while _ok:
         nextjobparams = { 'nextjob': 1 }
-        response = requests.get(cntx['base_url'] + '/job', params=nextjobparams, headers=cntx['json_headers'])
+        response = session.get(cntx['base_url'] + '/job', params=nextjobparams, headers=cntx['json_headers'])
         # end on not found 404
         if response.status_code == 404:
             _ok = False
@@ -171,7 +178,7 @@ def test_no_more_jobs(setup_module):
             jobparams = { 'jobid': job['job_id'] }
             # add ETag to Request
             cntx['json_headers']['ETag'] = etag_value
-            updated = requests.post(cntx['base_url'] + '/job',
+            updated = session.post(cntx['base_url'] + '/job',
                 params=jobparams,
                 headers=cntx['json_headers'],
                 data=json.dumps(job))
@@ -191,7 +198,7 @@ def test_no_more_jobs(setup_module):
         jobparams = { 'jobid': job['job_id'] }
         # Add ETag
         cntx['json_headers']['ETag'] = etag_db[job['job_id']]
-        updated = requests.post(cntx['base_url'] + '/job',
+        updated = session.post(cntx['base_url'] + '/job',
             params=jobparams,
             headers=cntx['json_headers'],
             data=json.dumps(job))
@@ -200,30 +207,30 @@ def test_no_more_jobs(setup_module):
 
 def test_status_reports(setup_module):
     """Request full status and check results"""
-    cntx = setup_module
+    cntx, session = setup_module
 
-    response = requests.get(cntx['base_url'] + '/status', headers=cntx['json_headers'])
+    response = session.get(cntx['base_url'] + '/status', headers=cntx['json_headers'])
     assert response.status_code == 200
     assert len(response.content) > 500
-    response = requests.get(cntx['base_url'] + '/status', headers=cntx['plain_text_headers'])
+    response = session.get(cntx['base_url'] + '/status', headers=cntx['plain_text_headers'])
     assert response.status_code == 200
     assert len(response.content) > 500
-    response = requests.get(cntx['base_url'] + '/status', headers=cntx['html_headers'])
+    response = session.get(cntx['base_url'] + '/status', headers=cntx['html_headers'])
     assert response.status_code == 200
     assert len(response.content) > 500
     # check position arg
     params = { 'sliceid': 1 }
-    response = requests.get(cntx['base_url'] + '/status',
+    response = session.get(cntx['base_url'] + '/status',
         params=params,
         headers=cntx['json_headers'])
     assert response.status_code == 200
     assert len(response.content) > 50
-    response = requests.get(cntx['base_url'] + '/status',
+    response = session.get(cntx['base_url'] + '/status',
         params=params,
         headers=cntx['plain_text_headers'])
     assert response.status_code == 200
     assert len(response.content) > 50
-    response = requests.get(cntx['base_url'] + '/status',
+    response = session.get(cntx['base_url'] + '/status',
         params=params,
         headers=cntx['html_headers'])
     assert response.status_code == 200
@@ -231,17 +238,17 @@ def test_status_reports(setup_module):
 
 def test_config_reports(setup_module):
     """Request full status and check results"""
-    cntx = setup_module
+    cntx, session = setup_module
 
     params = { 'sliceid': 1 }
-    response = requests.get(cntx['base_url'] + '/config',
+    response = session.get(cntx['base_url'] + '/config',
         params=params,
         headers=cntx['json_headers'])
     assert response.status_code == 200
     assert len(response.content) > 200
 
     params = { 'sliceid': 1 }
-    response = requests.get(cntx['base_url'] + '/config',
+    response = session.get(cntx['base_url'] + '/config',
         params=params,
         headers=cntx['html_headers'])
     assert response.status_code == 200
@@ -249,7 +256,7 @@ def test_config_reports(setup_module):
 
 def test_post_config(setup_module):
     """Update Config"""
-    cntx = setup_module
+    cntx, session = setup_module
 
     config = {
         "end_block_num": 324302525,
@@ -257,7 +264,7 @@ def test_post_config(setup_module):
     }
 
     params = { 'sliceid': 3 }
-    responseBefore = requests.get(cntx['base_url'] + '/config',
+    responseBefore = session.get(cntx['base_url'] + '/config',
         params=params,
         headers=cntx['json_headers'])
     assert responseBefore.status_code == 200
@@ -265,14 +272,14 @@ def test_post_config(setup_module):
     assert configBefore['expected_integrity_hash'] != config['integrity_hash']
 
     # make POST call; json passed in as string
-    update_config_response = requests.post(cntx['base_url'] + '/config',
+    update_config_response = session.post(cntx['base_url'] + '/config',
         headers=cntx['json_headers'],
         timeout=3,
         data=json.dumps(config))
     assert update_config_response.status_code == 200
 
     params = { 'sliceid': 3 }
-    responseAfter = requests.get(cntx['base_url'] + '/config',
+    responseAfter = session.get(cntx['base_url'] + '/config',
         params=params,
         headers=cntx['json_headers'])
     assert responseAfter.status_code == 200
@@ -281,32 +288,62 @@ def test_post_config(setup_module):
     # all references should have the same value
     assert configAfter['expected_integrity_hash'] != configBefore['expected_integrity_hash']
 
-def test_index(setup_module):
-    """Test Home Page"""
-    cntx = setup_module
-    html_response = requests.get(cntx['base_url'] + '/',headers=cntx['html_headers'])
+def test_healthcheck(setup_module):
+    """Test Healthcheck"""
+    cntx, session = setup_module
+
+    html_response = requests.get(cntx['base_url'] + '/healthcheck',headers=cntx['html_headers'])
 
     assert html_response.status_code == 200
-    html_content = html_response.content.decode('utf-8')
-    assert len(html_content) > 10
+    content = html_response.content.decode('utf-8')
+    assert content == "OK"
 
 def test_summary(setup_module):
     """Test Summary Report Page"""
-    cntx = setup_module
-    html_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['html_headers'])
-    text_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['plain_text_headers'])
-    json_response = requests.get(cntx['base_url'] + '/summary',headers=cntx['json_headers'])
+    cntx, session = setup_module
 
-    assert html_response.status_code == 200
+    text_response = session.get(cntx['base_url'] + '/summary',headers=cntx['plain_text_headers'])
+    json_response = session.get(cntx['base_url'] + '/summary',headers=cntx['json_headers'])
+
     assert text_response.status_code == 200
     assert json_response.status_code == 200
-    html_content = html_response.content.decode('utf-8')
     text_content = text_response.content.decode('utf-8')
     json_content = json_response.content.decode('utf-8')
-    assert len(html_content) > 10
     assert len(text_content) > 10
     assert len(json_content) > 10
 
-    assert html_content != text_content
     assert text_content != json_response
-    assert json_response != html_content
+
+def test_detail(setup_module):
+    """Test the Detail Job Page"""
+    cntx, session = setup_module
+
+    response = session.get(cntx['base_url'] + '/detail', headers=cntx['html_headers'])
+
+    assert response.status_code == 200
+    html_content = response.content.decode('utf-8')
+    assert len(html_content) > 10
+
+def test_dynamic_html(setup_module):
+    """Test progress , grid and controll"""
+    cntx, session = setup_module
+
+    progress_response = session.get(cntx['base_url'] + '/progress',headers=cntx['html_headers'])
+    grid_response = session.get(cntx['base_url'] + '/grid',headers=cntx['html_headers'])
+    control_response = session.get(cntx['base_url'] + '/control',headers=cntx['html_headers'])
+
+    assert progress_response.status_code == 200
+    assert grid_response.status_code == 200
+    assert control_response.status_code == 200
+
+    progress_html = progress_response.content.decode('utf-8')
+    grid_html = grid_response.content.decode('utf-8')
+    control_html = control_response.content.decode('utf-8')
+
+    assert len(progress_html) > 1065
+    assert len(grid_html) > 1065
+    assert len(control_html) > 1065
+
+    assert progress_html != grid_html
+    assert progress_html != control_html
+    assert grid_html != control_html

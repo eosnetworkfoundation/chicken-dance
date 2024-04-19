@@ -9,12 +9,12 @@ import copy
 from datetime import datetime
 from replay_configuration import ReplayConfigManager
 from job_status import JobStatusEnum, JobStatus, JobManager
-from web_service import create_summary
+from job_summary import JobSummary
 
 def test_summary_report():
     replay_config_manager = ReplayConfigManager('../../meta-data/test-simple-jobs.json')
     jobs = JobManager(replay_config_manager)
-    report = create_summary(jobs)
+    report = JobSummary.create(jobs)
     assert report['total_jobs'] == 3
     assert report['blocks_processed'] == 0
 
@@ -36,7 +36,7 @@ def test_repair_hashmismatch():
             job.last_block_processed = job.slice_config.end_block_id
             job.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
     # run report, should have 1 failure with HASH_MISMATCH status
-    report = create_summary(job_manager)
+    report = JobSummary.create(job_manager)
     assert report['total_jobs'] == 3
     assert report['blocks_processed'] > 0
     assert report['jobs_failed'] == 1
@@ -49,7 +49,7 @@ def test_repair_hashmismatch():
         if job.slice_config.expected_integrity_hash is None:
             job.slice_config.expected_integrity_hash = expected_integrity_hash
     # re-run report, and now 1 job success with status COMPLETE, 0 jobs failed
-    report = create_summary(job_manager)
+    report = JobSummary.create(job_manager)
     assert report['total_jobs'] == 3
     assert report['blocks_processed'] > 0
     assert report['jobs_failed'] == 0
