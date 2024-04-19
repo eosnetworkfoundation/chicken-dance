@@ -16,7 +16,7 @@ class GitHubOauth():
             + f"&allow_signup=false"
 
     @staticmethod
-    def get_access_token(code, properties):
+    def get_oauth_access_token(code, properties):
         """build url for the get token request"""
         # construct http call to exchange tempory code for access token
         params = {
@@ -41,10 +41,10 @@ class GitHubOauth():
         return None
 
     @staticmethod
-    def get_public_profile(bearer_token, properties):
+    def create_auth_string(bearer_token, user_info_url):
         """get public profile information using token"""
         # https request to get public profile data, login and avatar_url
-        user_avatar_response = requests.get(properties.get('user_info_url'),
+        user_avatar_response = requests.get(user_info_url,
             timeout=3,
             headers={
                 'Accept': 'application/vnd.github+json',
@@ -53,11 +53,11 @@ class GitHubOauth():
             })
         if user_avatar_response.status_code == 200:
             user_data = json.loads(user_avatar_response.content.decode('utf-8'))
-            return GitHubOauth.profile_to_str(user_data['login'],user_data['avatar_url'])
+            return GitHubOauth.credentials_to_str(user_data['login'],user_data['avatar_url'],bearer_token)
         return None
 
     @staticmethod
-    def is_authorized(bearer_token, login, team_string):
+    def check_membership(bearer_token, login, team_string):
         """Check for team membership"""
         if not login:
             return False
@@ -79,13 +79,44 @@ class GitHubOauth():
         return False
 
     @staticmethod
-    def profile_to_str(login, avatar_url):
-        """converts profile data to string sep by :"""
-        return login + ":" + avatar_url
+    def is_authorized(cookies, header_token, user_info_url, team_string):
+        """check for authorized token or cookie"""
+
+        token = None
+        if 'replay_auth' in cookies and cookies['replay_auth']:
+            token = GitHubOauth.extract_token(cookies['replay_auth'])
+        if header_token:
+            token = header_token
+        if not token:
+            return False
+
+        auth_string = GitHubOauth.create_auth_string(token, user_info_url)
+        login = GitHubOauth.extract_login(auth_string)
+        return GitHubOauth.check_membership(token, login, team_string)
 
     @staticmethod
-    def str_to_profile(data):
+    def credentials_to_str(login, avatar_url, token):
+        """converts profile data to string sep by :"""
+        return token + ":" + login + ":" + avatar_url
+
+    @staticmethod
+    def str_to_public_profile(data):
         """converts str to array of profile data"""
         if not data:
             return []
-        return data.split(':', 1)
+        # return public profile data leaving off bearer token
+        return data.split(':', 2)[1:]
+
+    @staticmethod
+    def extract_token(data):
+        """grabs the bearer token from string"""
+        if not data:
+            return []
+        return data.split(':', 2)[0]
+
+    @staticmethod
+    def extract_login(data):
+        """grabs the bearer token from string"""
+        if not data:
+            return []
+        return data.split(':', 2)[1]

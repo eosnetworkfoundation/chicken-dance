@@ -45,6 +45,16 @@ def application(request):
     Content Type {request.headers.get('Content-Type')}
     Accept  {request.headers.get('Accept')}
     ETag {request.headers.get('ETag')}""")
+
+    # auth check /progress /grid /control /detail are HTML pages
+    # healthcheck does not require auth
+    # they have their own auth flow and messages, so we skip them for out auth check
+    # this protects API calls
+    if request.path not in ['/progress', '/grid', '/control', '/detail', '/healthcheck', '/oauthback'] and \
+        not (ALWAYS_ALLOW or GitHubOauth.is_authorized(request.cookies, None,
+            env_name_values.get('user_info_url'), env_name_values.get('team'))):
+        return Response("Not Authorized", status=403)
+
     if request.path == '/job':
         # Work through GET Requests first
         if request.method == 'GET':
@@ -243,10 +253,12 @@ def application(request):
         # quote url encodes string
         referring_url = request.path
 
-        if 'replay_auth' in request.cookies:
+        if ALWAYS_ALLOW or \
+            GitHubOauth.is_authorized(request.cookies, None,
+            env_name_values.get('user_info_url'), env_name_values.get('team')):
             # Retrieve the auth cookie
             cookie_value = request.cookies.get('replay_auth')
-            login, avatar_url = GitHubOauth.str_to_profile(cookie_value)
+            login, avatar_url = GitHubOauth.str_to_public_profile(cookie_value)
             html_content = html_factory.contents('header.html') \
             + html_factory.profile_top_bar_html(login, avatar_url) \
             + html_factory.contents('navbar.html') \
@@ -271,14 +283,16 @@ def application(request):
         code = request.args.get('code')
 
         # hold token for very short time
-        bearer_token = GitHubOauth.get_access_token(code, env_name_values)
+        bearer_token = GitHubOauth.get_oauth_access_token(code, env_name_values)
         if bearer_token:
-            profile_data = GitHubOauth.get_public_profile(bearer_token, env_name_values)
-            login, avatar_url = GitHubOauth.str_to_profile(profile_data)
-            is_authorized = GitHubOauth.is_authorized(bearer_token, login, env_name_values.get('team'))
+            profile_data = GitHubOauth.create_auth_string(bearer_token, env_name_values.get('user_info_url'))
+            login, avatar_url = GitHubOauth.str_to_public_profile(profile_data)
+            is_authorized_member = GitHubOauth.check_membership(bearer_token,
+                login,
+                env_name_values.get('team'))
             # wipe out token after getting profile data, and checking authorization
             bearer_token = None
-            if is_authorized:
+            if is_authorized_member:
                 # Calculate the expiration time, 1 week (7 days) from now
                 expires = datetime.utcnow() + timedelta(days=7)
 
@@ -324,8 +338,11 @@ if __name__ == '__main__':
         help='path to static html files')
     parser.add_argument('--log', type=str, default="orchestration.log",
         help="log file for service")
+    parser.add_argument('--disable-auth', action='store_true',
+        help="when set disables access control, used for testing")
 
     args = parser.parse_args()
+    ALWAYS_ALLOW = args.disable_auth
 
     # setup logging
     logging.basicConfig(filename=args.log,
