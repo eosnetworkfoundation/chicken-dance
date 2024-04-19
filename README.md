@@ -21,12 +21,19 @@ Select `LowEndOrchestrator` and use the default template.
 ![OrchTemplaceSelect](docs/images/CDOrchTemplateSelect.png)
 
 ## Configuring OAuth
-Authentication and Access control is managed through an OAuth to GitHub. Starting the system for the first time requires a file named `env` in current working directory. An example `env.development` is provided that you may copy, and update to match the `secret`, `client_id`, and `callback_url` of your OAuth app. If the `env` file is not present, the application will not start, and it will emit the error `Can't find file env in current directory, not able to parse env properties, exiting.`  
+Authentication and Access control is managed through an OAuth to GitHub. Starting the system for the first time requires a file named `env` in current working directory. An example `env.development` is provided that you may copy, and update to match the `secret`, `client_id`, and `callback_url` of your OAuth app.
 
-If no `env` file is present in the working directory, the AWS User Data script will create one, in the home directory, using the contents of `env.defaults`. The default configuration is not correct, and OAuth will fail. Using the default configuration will allow the application to start, and respond to healthchecks. Please make sure to review the `env` file if you have any issues with authentication.
+If the `env` file is not present, the application will not start, and it will emit the error `Can't find file env in current directory, not able to parse env properties, exiting.` If no `env` file is present in the working directory, when you deploy a new orchestration instances in AWS, the AWS User Data script will create one, in the home directory, using the contents of `env.defaults`. The default configuration is not correct, and OAuth will fail. Using the default configuration will allow the application to start, and respond to healthchecks. Please make sure to review the `env` file if you have any issues with authentication.
 
 ### Access Control
-To gain access to the application, a user must have write access to specific GitHub repositories. These repositories are also found in the `env` file.
+To gain access to the application, a user must have membership in specific GitHub teams. The org and teams checked for membership are found in the `env` file. You may use multiple teams for access control by providing a comma separated list in the `env` file. Access to the application is checked on every HTTP request, and the application makes HTTP calls to GitHub to ensure the user has sufficient privileges to perform the requested action. There are two methods of access control:
+- Using a web browser via OAuth: Click on the person icon in the top right corner to login. You will be redirected to GitHub to authenticate.
+- Using HTTP command line: Pass the header `Authorization` with your valid GitHub token. The GitHub token must have `read:org` scope for the organization specified in the `env` file.
+
+Example of command line access
+```
+curl -H 'Accept: application/json' -H 'Authorization: gho_bBB1bB1BBbbBbb1BBbBbBB1bbbb1BbbBB' http://127.0.0.1:4000/status
+```
 
 ## Updating Orchestrator Job Configuration
 By default the setup will spin up a webservice with [Production Run from Jan 2024](meta-data/full-production-run-20240101.json). To change the job configuration you need to create your own JSON configuration, and restart the service to use the new JSON. **Note** need to use `nohup` on python webservice to keep the process running after ssh-shell exit.

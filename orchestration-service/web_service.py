@@ -47,12 +47,15 @@ def application(request):
     ETag {request.headers.get('ETag')}""")
 
     # auth check /progress /grid /control /detail are HTML pages
-    # healthcheck does not require auth
+    # /healthcheck does not require acess control
+    # /oauthback is called before access control is avalible
     # they have their own auth flow and messages, so we skip them for out auth check
     # this protects API calls
     if request.path not in ['/progress', '/grid', '/control', '/detail', '/healthcheck', '/oauthback'] and \
-        not (ALWAYS_ALLOW or GitHubOauth.is_authorized(request.cookies, None,
-            env_name_values.get('user_info_url'), env_name_values.get('team'))):
+        not (ALWAYS_ALLOW or GitHubOauth.is_authorized(request.cookies,
+            request.headers.get('Authorization'),
+            env_name_values.get('user_info_url'),
+            env_name_values.get('team'))):
         return Response("Not Authorized", status=403)
 
     if request.path == '/job':
@@ -254,8 +257,10 @@ def application(request):
         referring_url = request.path
 
         if ALWAYS_ALLOW or \
-            GitHubOauth.is_authorized(request.cookies, None,
-            env_name_values.get('user_info_url'), env_name_values.get('team')):
+            GitHubOauth.is_authorized(request.cookies,
+            request.headers.get('Authorization'),
+            env_name_values.get('user_info_url'),
+            env_name_values.get('team')):
             # Retrieve the auth cookie
             cookie_value = request.cookies.get('replay_auth')
             login, avatar_url = GitHubOauth.str_to_public_profile(cookie_value)

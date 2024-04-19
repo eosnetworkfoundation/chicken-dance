@@ -61,21 +61,25 @@ class GitHubOauth():
         """Check for team membership"""
         if not login:
             return False
-        org, team = team_string.split('/',1)
-        url = f'https://api.github.com/orgs/{org}/teams/{team}/members'
-        membership_check = requests.get(url,
-            timeout=3,
-            headers={
-                'Accept': 'application/vnd.github+json',
-                'Authorization': f'Bearer {bearer_token}',
-                'X-GitHub-Api-Version': '2022-11-28',
-                'User-Agent': 'App/OAuth/ReplayTest'
-            })
-        if membership_check.status_code == 200:
-            members_list = json.loads(membership_check.content.decode('utf-8'))
-            for member in members_list:
-                if member['login'] == login:
-                    return True
+        # many contain many teams
+        for unit in team_string.split(','):
+            org, team = unit.split('/',1)
+            org = org.strip()
+            team = team.strip()
+            url = f'https://api.github.com/orgs/{org}/teams/{team}/members'
+            membership_check = requests.get(url,
+                timeout=3,
+                headers={
+                    'Accept': 'application/vnd.github+json',
+                    'Authorization': f'Bearer {bearer_token}',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    'User-Agent': 'App/OAuth/ReplayTest'
+                })
+            if membership_check.status_code == 200:
+                members_list = json.loads(membership_check.content.decode('utf-8'))
+                for member in members_list:
+                    if member['login'] == login:
+                        return True
         return False
 
     @staticmethod
@@ -85,8 +89,8 @@ class GitHubOauth():
         token = None
         if 'replay_auth' in cookies and cookies['replay_auth']:
             token = GitHubOauth.extract_token(cookies['replay_auth'])
-        if header_token:
-            token = header_token
+        elif header_token:
+            token = header_token.replace("Bearer ","")
         if not token:
             return False
 
