@@ -30,8 +30,13 @@ ln -s /etc/nginx/sites-available/nginx-replay-test.conf /etc/nginx/sites-enabled
 cp -r /home/"${USER}"/replay-test/webcontent/* /var/www/html/
 systemctl reload nginx
 
+# copy the default env so the system will start
+if [ ! -s /home/"${USER}"/env ]; then
+  cp /home/"${USER}"/replay-test/env.default /home/"${USER}"/env
+fi
+
 ## startup service in background ##
 sudo -i -u "${USER}" python3 /home/"${USER}"/replay-test/orchestration-service/web_service.py \
-    --config /home/"${USER}"/replay-test/meta-data/full-production-run-20231130.json \
+    --config /home/"${USER}"/replay-test/meta-data/full-production-run-20240101.json \
     --host 0.0.0.0 \
     --log /home/"${USER}"/orch-complete-timings.log &

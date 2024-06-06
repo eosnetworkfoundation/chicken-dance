@@ -17,7 +17,6 @@ All scripts are under the `ubunutu` user. The `replay-test` github repository is
 - /home/ubuntu/scripts/process_orchestration_log.py : parses log to produce stats on timing
 
 ## Replay hosts
-
 All scripts are under the `enf-replay` user. The `replay-test` github repository is cloned into this directory.
 
 ### `Top Level Items`
@@ -33,7 +32,7 @@ All scripts are under the `enf-replay` user. The `replay-test` github repository
   - nodoes.log : log from syncing runing
   - nodeos-readonly.log : log from readonly spinup of nodoes
 
-  ### `Additional Items`
+### `Additional Items`
   - /home/enf-replay/replay-test/replay-client/background_status_update.sh : background job that send progress updates to orchestration service
   - /home/enf-replay/replay-test/replay-client/config_operations.py : python script to HTTP POST integrity hash updates
   - /home/enf-replay/replay-test/replay-client/create-nodeos-dir-struct.sh : init dir structure
