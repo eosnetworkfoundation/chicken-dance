@@ -1,8 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-# install nodeos locally 
-
+# install nodeos locally
 LEAP_VERSION="${1}"
 OS="ubuntu22.04"
 if [ "${LEAP_VERSION:0:1}" == "4" ]; then
