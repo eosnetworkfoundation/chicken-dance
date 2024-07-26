@@ -16,8 +16,7 @@ fi
 
 ## root setup ##
 # clean out un-needed files
-for not_needed_deb_file in "${HOME:?}"/leap_*.deb
-do
+for not_needed_deb_file in "${HOME:?}"/leap_*.deb; do
     if [ "${not_needed_deb_file}" != "${HOME:?}"/"${DEB_FILE}" ]; then
         echo "Removing not needed deb ${not_needed_deb_file}"
         rm -rf ${not_needed_deb_file}
