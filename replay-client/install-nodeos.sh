@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # install nodeos locally 
 
