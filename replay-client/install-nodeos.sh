@@ -6,13 +6,11 @@ set -eo pipefail
 LEAP_VERSION="${1}"
 OS="ubuntu22.04"
 if [ "${LEAP_VERSION:0:1}" == "4" ]; then
-    v4_DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
-    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${v4_DEB_FILE}"
-    DEB_FILE=${v4_DEB_FILE}
+    DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
+    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 else
-    v5_DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
-    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${v5_DEB_FILE}"
-    DEB_FILE=${v5_DEB_FILE}
+    DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
+    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 fi
 
 ## root setup ##
