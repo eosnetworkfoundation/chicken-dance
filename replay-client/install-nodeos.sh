@@ -15,6 +15,17 @@ else  # spring
     DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 fi
 
+## dry-run
+if [[ "${DRY_RUN}" == 'true' ]]; then
+    prinf "\e[1;33mWARNING: DRY-RUN is set!\e[0m\n"
+    echo "LEAP_VERSION='${LEAP_VERSION}'"
+    echo "OS='${OS}'"
+    echo "DEB_FILE='${DEB_FILE}'"
+    echo "DEB_URL='${DEB_URL}'"
+    echo 'Exiting...'
+    exit 0
+fi
+
 ## root setup ##
 # clean out un-needed files
 for not_needed_deb_file in "${HOME:?}"/leap_*.deb; do
