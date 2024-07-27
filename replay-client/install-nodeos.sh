@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # install nodeos locally
-LEAP_VERSION="${1}"
+LEAP_VERSION="${1#v}"
 OS="ubuntu22.04"
 if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
