@@ -22,7 +22,7 @@ if [[ "${DRY_RUN}" == 'true' ]]; then
     echo "OS='${OS}'"
     echo "DEB_FILE='${DEB_FILE}'"
     echo "DEB_URL='${DEB_URL}'"
-    echo 'Exiting...'
+    echo "Exiting... - ${BASH_SOURCE[0]}"
     exit 0
 fi
 
@@ -45,3 +45,5 @@ echo "Installing nodeos ${LEAP_VERSION} locally"
 [ -d "${HOME:?}/nodeos" ] && rm -rf "${HOME:?}/nodeos"
 mkdir "${HOME:?}/nodeos"
 dpkg -x "${HOME:?}/${DEB_FILE}" "${HOME:?}/nodeos"
+
+echo "Done. - ${BASH_SOURCE[0]}"
