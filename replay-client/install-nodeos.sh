@@ -16,6 +16,7 @@ else  # spring
 fi
 
 ## dry-run
+[[ "$(echo "$2" | grep -icP '^DRY(-_)>RUN$')" == '1' ]] && export DRY_RUN='true'
 if [[ "${DRY_RUN}" == 'true' ]]; then
     prinf "\e[1;33mWARNING: DRY-RUN is set!\e[0m\n"
     echo "LEAP_VERSION='${LEAP_VERSION}'"
