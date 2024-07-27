@@ -9,30 +9,30 @@ INSTANCE_ID=${1:ALL}
 DRY_RUN=${2}
 
 if [ -n "$DRY_RUN" ]; then
-  DRY_RUN="--dry-run"
+    DRY_RUN="--dry-run"
 else
-  DRY_RUN="--no-dry-run"
+    DRY_RUN="--no-dry-run"
 fi
 # remove hypens for later string compare
 DRY_RUN_CMPT=$(echo $DRY_RUN | tr -d  '-')
 
 # All instances
 if [ "$INSTANCE_ID" == "ALL" ]; then
-  # check file exists and has contents
-  if [[ -e "$INSTANCE_FILE" && -s "$INSTANCE_FILE" ]]; then
-    ALL_INSTANCES=$(paste -s -d ' ' "$INSTANCE_FILE")
-    aws ec2 terminate-instances "$DRY_RUN" --instance-ids $ALL_INSTANCES
-    # not dry-run remove file
-    if [ "$DRY_RUN_CMPT" == "nodryrun" ]; then
-      rm "$INSTANCE_FILE"
+    # check file exists and has contents
+    if [[ -e "$INSTANCE_FILE" && -s "$INSTANCE_FILE" ]]; then
+        ALL_INSTANCES=$(paste -s -d ' ' "$INSTANCE_FILE")
+        aws ec2 terminate-instances "$DRY_RUN" --instance-ids $ALL_INSTANCES
+        # not dry-run remove file
+        if [ "$DRY_RUN_CMPT" == "nodryrun" ]; then
+            rm "$INSTANCE_FILE"
+        fi
     fi
-  fi
 # Single instance
 else
-  if [ -n "$INSTANCE_ID" ]; then
-     aws ec2 terminate-instances "$DRY_RUN" --instance-ids $INSTANCE_ID
-  else
-    echo "Must provide AWS instance ID or ALL as first arg"
-    exit 1
-  fi
+    if [ -n "$INSTANCE_ID" ]; then
+        aws ec2 terminate-instances "$DRY_RUN" --instance-ids $INSTANCE_ID
+    else
+        echo "Must provide AWS instance ID or ALL as first arg"
+        exit 1
+    fi
 fi

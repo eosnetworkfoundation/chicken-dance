@@ -30,7 +30,7 @@ systemctl reload nginx
 
 # copy the default env so the system will start
 if [ ! -s /home/"${USER}"/env ]; then
-  cp /home/"${USER}"/replay-test/env.default /home/"${USER}"/env
+    cp /home/"${USER}"/replay-test/env.default /home/"${USER}"/env
 fi
 
 ## startup service in background ##

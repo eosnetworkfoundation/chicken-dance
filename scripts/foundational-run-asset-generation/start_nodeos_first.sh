@@ -29,21 +29,21 @@ SNAP=snapshot-2021-01-17-16-eos-v6-0163499038.bin.zst ; START_NUM=163999999; END
 
 # start with a snapshot and run in background
 if [ $START_NUM == 0 ]; then
-  aws s3 cp s3://chicken-dance/mainnet/mainnet-genesis.json /data/nodeos/genesis.json
+    aws s3 cp s3://chicken-dance/mainnet/mainnet-genesis.json /data/nodeos/genesis.json
 
-  nohup nodeos \
-    --genesis-json "${NODEOS_DIR}"/genesis.json \
-    --data-dir "${NODEOS_DIR}"/data/ \
-    --config "${CONFIG_DIR}"/sync-config.ini \
-    --terminate-at-block ${END_NUM} \
-      > "${NODEOS_DIR}"/log/nodeos.log &
+    nohup nodeos \
+        --genesis-json "${NODEOS_DIR}"/genesis.json \
+        --data-dir "${NODEOS_DIR}"/data/ \
+        --config "${CONFIG_DIR}"/sync-config.ini \
+        --terminate-at-block ${END_NUM} \
+            > "${NODEOS_DIR}"/log/nodeos.log &
 else
-  aws s3 cp s3://chicken-dance/mainnet/snapshots/${SNAP} /data/nodeos/snapshot
-  zstd -d /data/nodeos/snapshot/${SNAP}
+    aws s3 cp s3://chicken-dance/mainnet/snapshots/${SNAP} /data/nodeos/snapshot
+    zstd -d /data/nodeos/snapshot/${SNAP}
 
-  nohup nodeos --snapshot /data/nodeos/snapshot/${SNAP%.*} \
-    --data-dir "${NODEOS_DIR}"/data/ \
-    --config "${CONFIG_DIR}"/sync-config.ini \
-    --terminate-at-block ${END_NUM} \
-      > "${NODEOS_DIR}"/log/nodeos.log &
+    nohup nodeos --snapshot /data/nodeos/snapshot/${SNAP%.*} \
+        --data-dir "${NODEOS_DIR}"/data/ \
+        --config "${CONFIG_DIR}"/sync-config.ini \
+        --terminate-at-block ${END_NUM} \
+            > "${NODEOS_DIR}"/log/nodeos.log &
 fi

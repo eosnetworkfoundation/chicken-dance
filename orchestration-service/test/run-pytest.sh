@@ -11,14 +11,14 @@ pytest test_jobs_class.py
 # dump and remove file used for persistance testing
 DIFF_CNT=$(diff ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json | grep "^>" | wc -l)
 if [ "$DIFF_CNT" -lt 1 ]; then
-  echo "ERROR first pass meta-data File was not modified"
-  cat ../../meta-data/test-modify-jobs.json
-  exit 1
+    echo "ERROR first pass meta-data File was not modified"
+    cat ../../meta-data/test-modify-jobs.json
+    exit 1
 fi
 if [ "$DIFF_CNT" -gt 15 ]; then
-  echo "Meta-data file was not updated correctly, in first test pass"
-  cat ../../meta-data/text-modify-jobs.json
-  exit 1
+    echo "Meta-data file was not updated correctly, in first test pass"
+    cat ../../meta-data/text-modify-jobs.json
+    exit 1
 fi
 rm ../../meta-data/test-modify-jobs.json
 
@@ -36,9 +36,9 @@ sleep 1
 
 DIFF_CNT=$(diff ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json | grep "^>" | wc -l)
 if [ "$DIFF_CNT" -lt 1 ]; then
-  echo "ERROR second pass meta-data File was not modified"
-  cat ../../meta-data/test-modify-jobs.json
-  exit 1
+    echo "ERROR second pass meta-data File was not modified"
+    cat ../../meta-data/test-modify-jobs.json
+    exit 1
 fi
 
 # shutdown and cleanup
@@ -59,8 +59,8 @@ sleep 1
 
 DIFF_CNT=$(diff ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json | grep "^>" | wc -l)
 if [ "$DIFF_CNT" -ne 0 ]; then
-  echo "ERROR meta-data modified during auth check expected no changes"
-  exit 1
+    echo "ERROR meta-data modified during auth check expected no changes"
+    exit 1
 fi
 
 # shutdown service clean up file

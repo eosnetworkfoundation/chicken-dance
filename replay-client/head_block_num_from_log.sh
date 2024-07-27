@@ -13,12 +13,12 @@ BLOCK_NUM_FROM_REPLAY=$(grep 'net_plugin.cpp:' "${NODEOS_DIR}"/log/nodeos.log | 
 
 # nothing from Block Log or Relay Log Num is Greater
 if [ -z $BLOCK_NUM_FROM_LOG ] || [ ${BLOCK_NUM_FROM_REPLAY:--1} -gt $BLOCK_NUM_FROM_LOG ]; then
-  echo "$BLOCK_NUM_FROM_REPLAY"
+    echo "$BLOCK_NUM_FROM_REPLAY"
 else
-  echo "$BLOCK_NUM_FROM_LOG"
+    echo "$BLOCK_NUM_FROM_LOG"
 fi
 
 # detect error
 if [ -z $BLOCK_NUM_FROM_LOG ] && [ -z $BLOCK_NUM_FROM_REPLAY ]; then
-  echo "NA-ERROR"
+    echo "NA-ERROR"
 fi
