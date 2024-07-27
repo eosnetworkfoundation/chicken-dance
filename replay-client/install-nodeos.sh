@@ -4,7 +4,7 @@ set -eo pipefail
 # install nodeos locally
 LEAP_VERSION="${1}"
 OS="ubuntu22.04"
-if [ "${LEAP_VERSION:0:1}" == "4" ]; then
+if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 else
