@@ -28,14 +28,12 @@ do
     # update status
     if [ $HASH_SIZE -gt 63 ]; then
       STATUS="WORKING"
-      python3 "${REPLAY_CLIENT_DIR}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
-         --operation update-status --status "${STATUS}" --job-id ${JOBID}
+      python3 "${REPLAY_CLIENT_DIR}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-status --status "${STATUS}" --job-id ${JOBID}
       # write hash to file
       echo $HASH > "$NODEOS_DIR"/log/start_integrity_hash.txt
     fi
   else
     BLOCK_NUM=$("${REPLAY_CLIENT_DIR}"/head_block_num_from_log.sh "$NODEOS_DIR")
-    python3 "${REPLAY_CLIENT_DIR}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
-        --operation update-progress --block-processed "$BLOCK_NUM" --job-id ${JOBID}
+    python3 "${REPLAY_CLIENT_DIR}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-progress --block-processed "$BLOCK_NUM" --job-id ${JOBID}
   fi
 done

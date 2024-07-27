@@ -149,8 +149,7 @@ fi
 
 ## update status that snapshot is loading ##
 echo "Job status updated to LOADING_SNAPSHOT"
-python3 ${REPLAY_CLIENT_DIR}/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
-        --operation update-status --status "LOADING_SNAPSHOT" --job-id ${JOBID}
+python3 ${REPLAY_CLIENT_DIR}/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-status --status "LOADING_SNAPSHOT" --job-id ${JOBID}
 
 #################
 # 4) starts nodeos loads the snapshot, syncs to end block, and terminates
@@ -169,19 +168,19 @@ if [ $START_BLOCK == 0 ]; then
   aws s3 cp s3://chicken-dance/"$SOURCE_TYPE"/"$SOURCE_TYPE"-genesis.json /data/nodeos/genesis.json
 
   nodeos \
-       --genesis-json "${NODEOS_DIR}"/genesis.json \
-       --data-dir "${NODEOS_DIR}"/data/ \
-       --config "${CONFIG_DIR}"/sync-config.ini \
-       --terminate-at-block ${END_BLOCK} \
-       --integrity-hash-on-start \
-       &> "${NODEOS_DIR}"/log/nodeos.log
+    --genesis-json "${NODEOS_DIR}"/genesis.json \
+    --data-dir "${NODEOS_DIR}"/data/ \
+    --config "${CONFIG_DIR}"/sync-config.ini \
+    --terminate-at-block ${END_BLOCK} \
+    --integrity-hash-on-start \
+      &> "${NODEOS_DIR}"/log/nodeos.log
 else
   nodeos \
-      --snapshot "${NODEOS_DIR}"/snapshot/snapshot.bin \
-      --data-dir "${NODEOS_DIR}"/data/ \
-      --config "${CONFIG_DIR}"/sync-config.ini \
-      --terminate-at-block ${END_BLOCK} \
-      --integrity-hash-on-start \
+    --snapshot "${NODEOS_DIR}"/snapshot/snapshot.bin \
+    --data-dir "${NODEOS_DIR}"/data/ \
+    --config "${CONFIG_DIR}"/sync-config.ini \
+    --terminate-at-block ${END_BLOCK} \
+    --integrity-hash-on-start \
       &> "${NODEOS_DIR}"/log/nodeos.log
 fi
 
@@ -202,9 +201,9 @@ echo "Step 6 of 7: restart nodeos read-only mode to get final integrity hash"
 # remove blocks logs to prevent additional replay of logs past our desired $END_BLOCK
 rm -f "${NODEOS_DIR}"/data/blocks/blocks.log "${NODEOS_DIR}"/data/blocks/blocks.index
 nodeos \
-     --data-dir "${NODEOS_DIR}"/data/ \
-     --config "${CONFIG_DIR}"/readonly-config.ini \
-     &> "${NODEOS_DIR}"/log/nodeos-readonly.log &
+  --data-dir "${NODEOS_DIR}"/data/ \
+  --config "${CONFIG_DIR}"/readonly-config.ini \
+    &> "${NODEOS_DIR}"/log/nodeos-readonly.log &
 BACKGROUND_NODEOS_PID=$!
 sleep 20
 
@@ -219,8 +218,7 @@ echo "$END_BLOCK_ACTUAL_INTEGRITY_HASH" > "$NODEOS_DIR"/log/end_integrity_hash.t
 # POST back to config with expected integrity hash
 if [ $START_BLOCK -gt 0 ]; then
   echo "Updating Configuration with expected integrity hash"
-  python3 "${REPLAY_CLIENT_DIR:?}"/config_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
-    --end-block-num "$START_BLOCK" --integrity-hash "$START_BLOCK_ACTUAL_INTEGRITY_HASH"
+  python3 "${REPLAY_CLIENT_DIR:?}"/config_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --end-block-num "$START_BLOCK" --integrity-hash "$START_BLOCK_ACTUAL_INTEGRITY_HASH"
 else
   echo "Processing from genesis no expected integrity hash to update"
 fi
@@ -232,11 +230,7 @@ kill $BACKGROUND_NODEOS_PID
 # 7) http POST completed status for configured block range
 #################
 echo "Step 7 of 7: Sending COMPLETE status"
-python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
-    --operation complete --job-id ${JOBID} \
-    --block-processed ${END_BLOCK} \
-    --end-time "${END_TIME}" \
-    --integrity-hash "${END_BLOCK_ACTUAL_INTEGRITY_HASH}"
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation complete --job-id ${JOBID} --block-processed ${END_BLOCK} --end-time "${END_TIME}" --integrity-hash "${END_BLOCK_ACTUAL_INTEGRITY_HASH}"
 
 [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
 

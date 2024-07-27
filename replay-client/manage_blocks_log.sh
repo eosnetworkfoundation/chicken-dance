@@ -84,9 +84,7 @@ if [ $CNT -gt 1 ]; then
   # move blocks out of the way before merge
   mv "$NODEOS_DIR"/data/blocks/blocks-*.log "$NODEOS_DIR"/source-blocks/
   mv "$NODEOS_DIR"/data/blocks/blocks-*.index "$NODEOS_DIR"/source-blocks/
-  leap-util block-log merge-blocks \
-      --blocks-dir "$NODEOS_DIR"/source-blocks/ \
-      --output-dir "$NODEOS_DIR"/data/blocks/ > /dev/null 2>&1 || FAILED_MERGE=true
+  leap-util block-log merge-blocks --blocks-dir "$NODEOS_DIR"/source-blocks/ --output-dir "$NODEOS_DIR"/data/blocks/ > /dev/null 2>&1 || FAILED_MERGE=true
   if [ $FAILED_MERGE ]; then
     echo "Failed to merge blocks logs from ${NODEOS_DIR}/source-blocks/ into ${NODEOS_DIR}/data/blocks/"
     exit 127

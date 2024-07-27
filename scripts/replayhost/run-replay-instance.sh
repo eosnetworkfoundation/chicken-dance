@@ -66,23 +66,27 @@ do
   esac
 
   cp /tmp/aws-run-instance-out.json /tmp/aws-run-instance-out.json.bak
-  aws ec2 run-instances --launch-template LaunchTemplateName=${AWS_REPLAY_TEMPLATE},Version=${AWS_REPLAY_TEMPLATE_VERSION} \
-  --placement AvailabilityZone=$AZ \
-  --network-interfaces "[{\"DeviceIndex\":0,\"SubnetId\":\"${SUBNET}\",\"AssociatePublicIpAddress\":true,\"Groups\":[\"${SECURITY_GROUP}\"]}]" \
-  --user-data file://"${SCRIPTS_DIR}"/replay-node-bootstrap.sh \
-  --count $ZONE_NUM_INSTANCES $DRY_RUN >> /tmp/aws-run-instance-out.json
+  aws ec2 run-instances \
+    --launch-template LaunchTemplateName=${AWS_REPLAY_TEMPLATE},Version=${AWS_REPLAY_TEMPLATE_VERSION} \
+    --placement AvailabilityZone=$AZ \
+    --network-interfaces "[{\"DeviceIndex\":0,\"SubnetId\":\"${SUBNET}\",\"AssociatePublicIpAddress\":true,\"Groups\":[\"${SECURITY_GROUP}\"]}]" \
+    --user-data file://"${SCRIPTS_DIR}"/replay-node-bootstrap.sh \
+    --count $ZONE_NUM_INSTANCES $DRY_RUN \
+      >> /tmp/aws-run-instance-out.json
 
   # if request failed try request again with half as many replay hosts
   # a smaller number might be allocated
   if [ $? -ne 0 ]; then
     cp /tmp/aws-run-instance-out.json.bak /tmp/aws-run-instance-out.json
     echo "Trying again to allocate ${HALF_ZONE_NUM_INSTANCES} in ${AZ}"
-    aws ec2 run-instances --launch-template LaunchTemplateName=${AWS_REPLAY_TEMPLATE},Version=${AWS_REPLAY_TEMPLATE_VERSION} \
-    --placement AvailabilityZone=$AZ \
-    --network-interfaces "[{\"DeviceIndex\":0,\"SubnetId\":\"${SUBNET}\",\"AssociatePublicIpAddress\":true,\"Groups\":[\"${SECURITY_GROUP}\"]}]" \
-    --user-data file://"${SCRIPTS_DIR}"/replay-node-bootstrap.sh \
-    --count $HALF_ZONE_NUM_INSTANCES $DRY_RUN >> /tmp/aws-run-instance-out.json \
-    && echo "Half Allocation Succeeded"
+    aws ec2 run-instances \
+      --launch-template LaunchTemplateName=${AWS_REPLAY_TEMPLATE},Version=${AWS_REPLAY_TEMPLATE_VERSION} \
+      --placement AvailabilityZone=$AZ \
+      --network-interfaces "[{\"DeviceIndex\":0,\"SubnetId\":\"${SUBNET}\",\"AssociatePublicIpAddress\":true,\"Groups\":[\"${SECURITY_GROUP}\"]}]" \
+      --user-data file://"${SCRIPTS_DIR}"/replay-node-bootstrap.sh \
+      --count $HALF_ZONE_NUM_INSTANCES $DRY_RUN \
+        >> /tmp/aws-run-instance-out.json \
+          && echo "Half Allocation Succeeded"
   else
     echo "Full Allocation Succeeded"
     rm /tmp/aws-run-instance-out.json.bak

@@ -35,7 +35,8 @@ if [ $START_NUM == 0 ]; then
     --genesis-json "${NODEOS_DIR}"/genesis.json \
     --data-dir "${NODEOS_DIR}"/data/ \
     --config "${CONFIG_DIR}"/sync-config.ini \
-    --terminate-at-block ${END_NUM} > "${NODEOS_DIR}"/log/nodeos.log &
+    --terminate-at-block ${END_NUM} \
+      > "${NODEOS_DIR}"/log/nodeos.log &
 else
   aws s3 cp s3://chicken-dance/mainnet/snapshots/${SNAP} /data/nodeos/snapshot
   zstd -d /data/nodeos/snapshot/${SNAP}
@@ -43,5 +44,6 @@ else
   nohup nodeos --snapshot /data/nodeos/snapshot/${SNAP%.*} \
     --data-dir "${NODEOS_DIR}"/data/ \
     --config "${CONFIG_DIR}"/sync-config.ini \
-    --terminate-at-block ${END_NUM} > "${NODEOS_DIR}"/log/nodeos.log &
+    --terminate-at-block ${END_NUM} \
+      > "${NODEOS_DIR}"/log/nodeos.log &
 fi
