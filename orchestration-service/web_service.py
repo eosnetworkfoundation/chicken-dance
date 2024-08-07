@@ -3,6 +3,7 @@ import argparse
 import json
 import logging
 import sys
+import re
 from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -39,7 +40,9 @@ def application(request):
     #
     # how the results are reported depends on content-type passed in
     # results could come page as text or json
-    print (f"""\nSTART: Request Path {request.path}
+    print (f"""\nSTART:
+    Request URL {request.base_url}
+    Request Path {request.path}
     Method {request.method}
     Params {request.args.keys()}
     Content Type {request.headers.get('Content-Type')}
@@ -49,9 +52,14 @@ def application(request):
     # auth check /progress /grid /control /detail are HTML pages
     # /healthcheck does not require acess control
     # /oauthback is called before access control is avalible
-    # they have their own auth flow and messages, so we skip them for out auth check
-    # this protects API calls
+    # API calls can only go to port 4000 and are secured by a firewall.
+    #    We allow all calls going to port 4000 as those made it past firewalls
+    #    Pattern matches IPv4 addresses only
+    pattern = r'^http[s]*://\d+\.\d+\.\d+\.\d+:(\d+)/[a-zA-Z0-9_-]+'
+    auth_match = re.match(pattern, request.base_url)
+
     if request.path not in ['/progress', '/grid', '/control', '/detail', '/healthcheck', '/oauthback'] and \
+        not (auth_match and auth_match.group(1) == "4000") and \
         not (ALWAYS_ALLOW or GitHubOauth.is_authorized(request.cookies,
             request.headers.get('Authorization'),
             env_name_values.get('user_info_url'),
