@@ -4,7 +4,10 @@ set -eo pipefail
 # install nodeos locally
 LEAP_VERSION="${1#v}"
 OS="ubuntu22.04"
-if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
+if [[ "$(echo "$LEAP_VERSION" | grep ic 'local')" == '1' ]]; then
+    DEB_FILE="antelope-spring_${LEAP_VERSION}-${OS}_amd64.deb"
+    DEB_URL="https://replay.enf.land/packages/${DEB_FILE}"
+elif [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
