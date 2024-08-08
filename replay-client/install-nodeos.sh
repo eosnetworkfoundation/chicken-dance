@@ -11,7 +11,7 @@ if [[ "$(echo "$LEAP_VERSION" | grep -ic 'local')" == '1' ]]; then
         echo "empty orchestration IP when downloading deb package"
         exit 127
     fi
-    DEB_URL="https://${ORCH_IP}/packages/${DEB_FILE}"
+    DEB_URL="http://${ORCH_IP}/packages/${DEB_FILE}"
 elif [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
