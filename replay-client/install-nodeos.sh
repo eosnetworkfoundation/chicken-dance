@@ -5,7 +5,7 @@ set -eo pipefail
 LEAP_VERSION="${1#v}"
 ORCH_IP="${2}"
 OS="ubuntu22.04"
-if [[ "$(echo "$LEAP_VERSION" | grep ic 'local')" == '1' ]]; then
+if [[ "$(echo "$LEAP_VERSION" | grep -ic 'local')" == '1' ]]; then
     DEB_FILE="antelope-spring_${LEAP_VERSION}-${OS}_amd64.deb"
     if [ -z ${ORCH_IP} ]; then
         echo "empty orchestration IP when downloading deb package"
