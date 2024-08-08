@@ -28,7 +28,7 @@ def setup_module():
     return setup
 
 def test_api_calls(setup_module):
-    """Run through all API calls and make sure they fail with 403"""
+    """Run through all API calls and make sure they go through"""
     cntx = setup_module
 
     params = { 'nextjob': 1, 'sliceid': 3 }
@@ -38,4 +38,4 @@ def test_api_calls(setup_module):
             params=params,
             timeout=3,
             headers=cntx['json_headers'])
-        assert response.status_code == 403
+        assert response.status_code == 200
