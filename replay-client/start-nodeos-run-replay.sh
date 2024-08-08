@@ -112,7 +112,7 @@ SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
 #################
 echo "Step 3 of 7: local non-priv install of nodeos"
 "${REPLAY_CLIENT_DIR:?}"/install-nodeos.sh $LEAP_VERSION $ORCH_IP
-PATH=${PATH}:${HOME}/nodeos/usr/bin
+PATH=${PATH}:${HOME}/nodeos/usr/bin:${HOME}/nodeos/usr/local/bin
 export PATH
 
 ## copy snapshot ##
@@ -174,6 +174,7 @@ if [ $START_BLOCK == 0 ]; then
        --config "${CONFIG_DIR}"/sync-config.ini \
        --terminate-at-block ${END_BLOCK} \
        --integrity-hash-on-start \
+       --integrity-hash-on-stop \
        &> "${NODEOS_DIR}"/log/nodeos.log
 else
   nodeos \
@@ -182,6 +183,7 @@ else
       --config "${CONFIG_DIR}"/sync-config.ini \
       --terminate-at-block ${END_BLOCK} \
       --integrity-hash-on-start \
+      --integrity-hash-on-stop \
       &> "${NODEOS_DIR}"/log/nodeos.log
 fi
 
@@ -195,6 +197,7 @@ echo "Step 5 of 7: Reached End Block ${END_BLOCK}, getting replay details from l
 END_TIME=$(date '+%Y-%m-%dT%H:%M:%S')
 START_BLOCK_ACTUAL_INTEGRITY_HASH=$("${REPLAY_CLIENT_DIR:?}"/get_integrity_hash_from_log.sh "started" "$NODEOS_DIR")
 
+END_BLOCK_ACTUAL_INTEGRITY_HASH=$("${REPLAY_CLIENT_DIR:?}"/get_integrity_hash_from_log.sh "stopped" "$NODEOS_DIR")
 #################
 # 6) restart nodeos read-only mode to get final integrity hash
 #################
