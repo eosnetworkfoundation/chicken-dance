@@ -3,10 +3,15 @@ set -eo pipefail
 
 # install nodeos locally
 LEAP_VERSION="${1#v}"
+ORCH_IP="${2}"
 OS="ubuntu22.04"
-if [[ "$(echo "$LEAP_VERSION" | grep ic 'local')" == '1' ]]; then
+if [[ "$(echo "$LEAP_VERSION" | grep -ic 'local')" == '1' ]]; then
     DEB_FILE="antelope-spring_${LEAP_VERSION}-${OS}_amd64.deb"
-    DEB_URL="https://replay.enf.land/packages/${DEB_FILE}"
+    if [ -z ${ORCH_IP} ]; then
+        echo "empty orchestration IP when downloading deb package"
+        exit 127
+    fi
+    DEB_URL="https://${ORCH_IP}/packages/${DEB_FILE}"
 elif [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
@@ -19,7 +24,7 @@ else  # spring
 fi
 
 ## dry-run
-[[ "$(echo "$2" | grep -icP '^DRY(-_)>RUN$')" == '1' ]] && export DRY_RUN='true'
+[[ "$(echo "$3" | grep -icP '^DRY(-_)>RUN$')" == '1' ]] && export DRY_RUN='true'
 if [[ "${DRY_RUN}" == 'true' ]]; then
     prinf "\e[1;33mWARNING: DRY-RUN is set!\e[0m\n"
     echo "LEAP_VERSION='${LEAP_VERSION}'"
