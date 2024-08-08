@@ -198,20 +198,25 @@ END_TIME=$(date '+%Y-%m-%dT%H:%M:%S')
 START_BLOCK_ACTUAL_INTEGRITY_HASH=$("${REPLAY_CLIENT_DIR:?}"/get_integrity_hash_from_log.sh "started" "$NODEOS_DIR")
 
 END_BLOCK_ACTUAL_INTEGRITY_HASH=$("${REPLAY_CLIENT_DIR:?}"/get_integrity_hash_from_log.sh "stopped" "$NODEOS_DIR")
-#################
-# 6) restart nodeos read-only mode to get final integrity hash
-#################
-echo "Step 6 of 7: restart nodeos read-only mode to get final integrity hash"
-# remove blocks logs to prevent additional replay of logs past our desired $END_BLOCK
-rm -f "${NODEOS_DIR}"/data/blocks/blocks.log "${NODEOS_DIR}"/data/blocks/blocks.index
-nodeos \
+
+if [[ "$(nodeos -v | grep -ic v[45])" == '1' ]]; then
+  #################
+  # 6) Support older version ; work around but in integrity hash on stop
+  #  restart nodeos read-only mode to get final integrity hash
+  #################
+  echo "Step 6 of 7: Leap v4 or v5 restart nodeos read-only mode to get final integrity hash"
+  # remove blocks logs to prevent additional replay of logs past our desired $END_BLOCK
+  rm -f "${NODEOS_DIR}"/data/blocks/blocks.log "${NODEOS_DIR}"/data/blocks/blocks.index
+  nodeos \
      --data-dir "${NODEOS_DIR}"/data/ \
      --config "${CONFIG_DIR}"/readonly-config.ini \
      &> "${NODEOS_DIR}"/log/nodeos-readonly.log &
-BACKGROUND_NODEOS_PID=$!
-sleep 20
+  BACKGROUND_NODEOS_PID=$!
+  sleep 20
 
-END_BLOCK_ACTUAL_INTEGRITY_HASH=$(curl -s http://127.0.0.1:8888/v1/producer/get_integrity_hash | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "integrity_hash")
+  END_BLOCK_ACTUAL_INTEGRITY_HASH=$(curl -s http://127.0.0.1:8888/v1/producer/get_integrity_hash | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "integrity_hash")
+fi
+
 # write hash to file, file not needed, backup for safety
 echo "$END_BLOCK_ACTUAL_INTEGRITY_HASH" > "$NODEOS_DIR"/log/end_integrity_hash.txt
 
