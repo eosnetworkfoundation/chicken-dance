@@ -108,7 +108,7 @@
         "end_block_id": 8918220,
         "snapshot_path": "s3://chicken-dance/test/snapshots/snapshot-2018-08-01-16-eos-v6-0008918217.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "6785307acd1ad9c927c46ee8f76ff3dfd6b6d71e9b3148d48c5312212fdbfcfa",
+        "expected_integrity_hash": "db35ea55a5cb0148afbef70b29a889619a68d664966f7751b75878ad837f6e32",
         "leap_version": "local-1.0.0-dev"
     },
     {
