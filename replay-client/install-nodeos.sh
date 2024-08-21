@@ -19,7 +19,7 @@ elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 else  # spring
-    DEB_FILE="antelope-spring_${LEAP_VERSION}-${OS}_amd64.deb"
+    DEB_FILE="antelope-spring_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
 fi
 
