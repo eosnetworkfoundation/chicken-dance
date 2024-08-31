@@ -73,7 +73,7 @@ fi
 "${REPLAY_CLIENT_DIR:?}"/replay-node-cleanup.sh "$USER"
 
 ## data volume must be large enough ##
-volsize=$(df -h /data | awk 'NR==2 {print $4}' | sed 's/G//' | cut -d. -f1)
+volsize=$(df -B 1073741824 /data | awk 'NR==2 {print $4}')
 if [ ${volsize:-0} -lt 40 ]; then
   echo "/data volume does not exist or does not have 40Gb free space"
   trap_exit
