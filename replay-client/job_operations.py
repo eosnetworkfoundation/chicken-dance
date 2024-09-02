@@ -152,6 +152,15 @@ def update_job_status(base_url, max_tries, job_id, status):
     """Fetch a job (GET) by id; update status to provided value"""
     return proccess_job_update(base_url, max_tries, job_id, {'status':status})
 
+def update_error_message(base_url, max_tries, job_id, error_message):
+    """Fetch a job (GET) by id; set status to error and set error message"""
+    status = "ERROR"
+    error_object = {
+        'status':status,
+        'error_message': error_message
+    }
+    return proccess_job_update(base_url, max_tries, job_id, error_object)
+
 def update_job_progress(base_url, max_tries, job_id, block_processed):
     """Fetch a job (GET) by id; update status to provided value"""
     fields_to_update = {
@@ -193,6 +202,9 @@ if __name__ == '__main__':
     parser.add_argument('--status',
         type=str,
         help='status to set job')
+    parser.add_argument('--error-message',
+        type=str,
+        help='error message')
     parser.add_argument('--block-processed',
         type=str,
         help='last block processed')
@@ -206,7 +218,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # validate argument values
-    if args.operation in ['update-status', 'update-progress', 'complete'] and args.job_id is None:
+    if args.operation in ['update-status', 'update-error', 'update-progress', 'complete'] and args.job_id is None:
         sys.exit(f"Error job_id must be specifid for operation {args.operation}")
     if args.max_tries < 1:
         sys.exit("Error max-tries must be greater then zero")
@@ -229,6 +241,11 @@ if __name__ == '__main__':
             args.max_tries,
             args.job_id,
             args.status)
+    elif args.operation == "update-error":
+        job_message = update_error_message(url,
+            args.max_tries,
+            args.job_id,
+            args.error_message)
     elif args.operation == "update-progress":
         job_message = update_job_progress(url,
             args.max_tries,
