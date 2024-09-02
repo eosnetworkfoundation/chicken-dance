@@ -46,7 +46,7 @@ function trap_exit() {
   fi
   [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
   if [ -n "${JOBID}" ]; then
-    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update_error_message --error-message $ERROR_MSG --job-id ${JOBID}
+    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-error --error-message "$ERROR_MSG" --job-id ${JOBID}
   fi
   echo "Caught signal or detected error exiting"
   exit 127
