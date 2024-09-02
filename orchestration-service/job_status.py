@@ -183,6 +183,8 @@ class JobManager:
             self.jobs[jobid].start_time = data['start_time']
         if 'actual_integrity_hash' in data:
             self.jobs[jobid].actual_integrity_hash = data['actual_integrity_hash']
+        if 'error_message' in data:
+            self.jobs[jobid].error_message = data['error_message']
 
         # success
         return True
