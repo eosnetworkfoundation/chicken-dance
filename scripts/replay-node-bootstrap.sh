@@ -43,6 +43,14 @@ mkfs.ext4 /dev/nvme1n1
 mount -o rw,acl,user_xattr /dev/nvme1n1 /data
 chmod 777 /data
 
+## create swap
+# 128Gb = 131072Mb = 134217728Kb
+SWAPFILE=/data/swapfile
+dd if=/dev/zero of="${SWAPFILE}" bs=1024 count=134217728
+chmod 600 "$SWAPFILE"
+mkswap "$SWAPFILE"
+swapon "$SWAPFILE"
+
 ## git scripts for enf-user ##
 sudo -i -u "${USER}" git clone https://github.com/eosnetworkfoundation/replay-test
 
