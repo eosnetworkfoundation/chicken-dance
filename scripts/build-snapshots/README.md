@@ -43,7 +43,7 @@ blocks-retained-dir = retained
 As the replay is progressing a background script checks to see if the node has reached a block height between the start/end blocks for an optimized range. When this happened the background script will create a snapshot. The result is snapshots created for every optimized block spacing interval.
 
 ## Parallel Run
-A full run takes time. To speed up the calendar time it takes the manifest will generate instructions for breaking the work into 10 even slices. To see these instructions run `python3 scripts/foundational-run-asset-generation/generate_full_run_data.py --file meta-data/optimized_block_spacing.tsv --instructions`. These instructions will provide the snapshot or genesis file to start the slice, and the range of blocks to run. Simple update the scripts `start_nodeos_first.sh` and `full_run_for_slice.sh` with the snapshot, start, end for the relevant slice.
+A full run takes time. To speed up the calendar time it takes the manifest will generate instructions for breaking the work into 10 even slices. To see these instructions run `python3 scripts/build-snapshots/generate_full_run_data.py --file meta-data/optimized_block_spacing.tsv --instructions`. These instructions will provide the snapshot or genesis file to start the slice, and the range of blocks to run. Simple update the scripts `start_nodeos_first.sh` and `full_run_for_slice.sh` with the snapshot, start, end for the relevant slice.
 
 ## Requirements
 A fairly beefy machine with 8 cores and 8Tb of attached storage mounted at /data

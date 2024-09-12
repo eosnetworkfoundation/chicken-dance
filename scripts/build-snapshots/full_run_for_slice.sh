@@ -4,7 +4,7 @@
 pip install tomli numpy
 cd /home/enf-replay/replay-test || exit
 PYTHONPATH=/home/enf-replay/replay-test/scripts/manifest
-python3 /home/enf-replay/replay-test/scripts/foundational-run-asset-generation/generate_full_run_data.py \
+python3 /home/enf-replay/replay-test/scripts/build-snapshots/generate_full_run_data.py \
   --file /home/enf-replay/replay-test/meta-data/optimized_block_spacing.tsv > /home/enf-replay/optimized-blocks.csv
 
 # setup path

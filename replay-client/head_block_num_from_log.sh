@@ -15,7 +15,7 @@ BLOCK_NUM_FROM_REPLAY=$(grep 'net_plugin.cpp:' "${NODEOS_DIR}"/log/nodeos.log | 
     grep recv_handshake | \
     cut -d']' -f3 | \
     cut -d',' -f4 | \
-    sed 's/ head //' | tail -1)
+    sed 's/ [f]*head //' | tail -1)
 
 # nothing from Block Log or Relay Log Num is Greater
 if [ -z $BLOCK_NUM_FROM_LOG ] || [ ${BLOCK_NUM_FROM_REPLAY:--1} -gt $BLOCK_NUM_FROM_LOG ]; then

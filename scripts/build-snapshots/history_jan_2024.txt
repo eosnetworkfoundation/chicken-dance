@@ -9,7 +9,7 @@ enf-replay@ip-172-31-79-193:~$ cat /proc/6962/statm
 1200186898 2992326 1769946 8690 0 1326420 0
 
 export PYTHONPATH=/home/enf-replay/replay-test/scripts/manifest
-python3 scripts/foundational-run-asset-generation/cloud-store-summary.py \
+python3 scripts/build-snapshots/cloud-store-summary.py \
     --block-dir mainnet/aggregated_blocks_compressed \
     --snap-dir mainnet/hand-built-snapshots
 
