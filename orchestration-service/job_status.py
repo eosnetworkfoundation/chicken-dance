@@ -57,6 +57,7 @@ class JobStatus:
         initialized None
     `actual_integrity_hash` hash once last block has been reached
         initialized to None
+    `error_message` error message reported back on failure
     The class in inialized from an array, whose elements have a property `replay_slice_id`
     """
     def __init__(self, config):
@@ -67,6 +68,7 @@ class JobStatus:
         self.start_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         self.end_time = None
         self.actual_integrity_hash = None
+        self.error_message = None
 
     def __repr__(self):
         return (f"JobStatus(job_id={self.job_id}, "
@@ -80,7 +82,8 @@ class JobStatus:
                 f"last_block_processed={self.last_block_processed}, "
                 f"start_time={self.start_time}, end_time={self.end_time}, "
                 f"expected_integrity_hash={self.slice_config.expected_integrity_hash}, "
-                f"actual_integrity_hash={self.actual_integrity_hash})")
+                f"actual_integrity_hash={self.actual_integrity_hash}), "
+                f"error_message={self.error_message}")
 
     def __str__(self):
         """converts job object to string"""
@@ -95,7 +98,8 @@ class JobStatus:
                 f"last_block_processed={self.last_block_processed}, "
                 f"start_time={self.start_time}, end_time={self.end_time}, "
                 f"expected_integrity_hash={self.slice_config.expected_integrity_hash}, "
-                f"actual_integrity_hash={self.actual_integrity_hash}")
+                f"actual_integrity_hash={self.actual_integrity_hash}, "
+                f"error_message={self.error_message}")
 
     def as_dict(self):
         """converts job object to a dictionary"""
@@ -113,6 +117,7 @@ class JobStatus:
         this_dict['end_time'] = self.end_time
         this_dict['expected_integrity_hash'] = self.slice_config.expected_integrity_hash
         this_dict['actual_integrity_hash'] = self.actual_integrity_hash
+        this_dict['error_message'] = self.error_message
         return this_dict
 
 
@@ -178,10 +183,11 @@ class JobManager:
             self.jobs[jobid].start_time = data['start_time']
         if 'actual_integrity_hash' in data:
             self.jobs[jobid].actual_integrity_hash = data['actual_integrity_hash']
+        if 'error_message' in data:
+            self.jobs[jobid].error_message = data['error_message']
 
         # success
         return True
-
 
     def set_job_from_json(self, status_as_json, jobid):
         """sets jobs data from json, calls set_job(), return bool for success"""

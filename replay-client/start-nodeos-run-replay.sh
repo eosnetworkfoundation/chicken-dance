@@ -37,6 +37,7 @@ else
 fi
 
 function trap_exit() {
+  ERROR_MSG=${1:-"NA"}
   if [ -n "${BACKGROUND_STATUS_PID}" ]; then
     kill "${BACKGROUND_STATUS_PID}"
   fi
@@ -45,15 +46,15 @@ function trap_exit() {
   fi
   [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
   if [ -n "${JOBID}" ]; then
-    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-status --status "ERROR" --job-id ${JOBID}
+    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-error --error-message "$ERROR_MSG" --job-id ${JOBID}
   fi
   echo "Caught signal or detected error exiting"
   exit 127
 }
 
 ## set status to error if we exit on signal ##
-trap trap_exit INT
-trap trap_exit TERM
+trap 'trap_exit SIGINT' INT
+trap 'trap_exit SIGTERM' TERM
 
 ##################
 # 1) performs file setup: create dirs, get snapshot to load
@@ -66,7 +67,7 @@ TUID=$(id -ur)
 ## must not be root to run ##
 if [ "$TUID" -eq 0 ]; then
   echo "Trying to run as root user exiting"
-  trap_exit
+  trap_exit "Cannot run as root user"
 fi
 
 ## cleanup previous runs ##
@@ -76,7 +77,7 @@ fi
 volsize=$(df -B 1073741824 /data | awk 'NR==2 {print $4}')
 if [ ${volsize:-0} -lt 40 ]; then
   echo "/data volume does not exist or does not have 40Gb free space"
-  trap_exit
+  trap_exit "/data volume does not exist or does not have 40Gb free space"
 fi
 
 ## directory setup ##
@@ -91,7 +92,7 @@ python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${OR
 # if json result is empty failed to aquire job
 if [[ ! -e "/tmp/job.conf.json" || ! -s "/tmp/job.conf.json" ]]; then
   echo "Failed to aquire job"
-  trap_exit
+  trap_exit "Failed to aquire job"
 fi
 echo "Received job details processing..."
 
@@ -125,7 +126,7 @@ if [ $STORAGE_TYPE = "s3" ]; then
   fi
 else
   echo "Unknown snapshot type ${STORAGE_TYPE}"
-  trap_exit
+  trap_exit "Unknown snapshot type ${STORAGE_TYPE}"
 fi
 
 # restore blocks.log from cloud storage
@@ -133,7 +134,7 @@ echo "Restoring Blocks.log from Cloud Storage"
 "${REPLAY_CLIENT_DIR:?}"/manage_blocks_log.sh "$NODEOS_DIR" $START_BLOCK $END_BLOCK "${SNAPSHOT_PATH}"
 if [ $? -ne 0 ]; then
   echo "Failed to restore blocks.log"
-  trap_exit
+  trap_exit "Failed to restore blocks.log"
 fi
 
 ## when start block 0 no snapshot to process ##
@@ -143,7 +144,7 @@ if [ $START_BLOCK -gt 0 ] && [ -f "${NODEOS_DIR}"/snapshot/snapshot.bin.zst ]; t
   # sometimes compression format is bad error out on failure
   if [ $? -ne 0 ]; then
     echo "Failed to unzip snapshot"
-    trap_exit
+    trap_exit "Failed to unzip snapshot"
   fi
 fi
 
