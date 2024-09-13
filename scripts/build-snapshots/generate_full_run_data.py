@@ -5,7 +5,7 @@ import logging
 import tomli
 from manifest import Manifest
 
-with open("./scripts/foundational-run-asset-generation/env.toml", "rb") as f:
+with open("./scripts/build-snapshots/env.toml", "rb") as f:
     env_data = tomli.load(f)
 
 CLOUD_STORE = env_data['CLOUD_STORE']

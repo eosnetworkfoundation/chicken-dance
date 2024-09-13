@@ -1,0 +1,2 @@
+0 16 * * * /home/enf-replay/replay-test/scripts/build-snapshots/p_blocks.sh > /data/nodeos/log/p_blocks.log
+0 8 * * * /home/enf-replay/replay-test/scripts/build-snapshots/p_snaps.sh > /data/nodeos/log/p_snaps.log

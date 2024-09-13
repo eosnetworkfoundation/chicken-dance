@@ -1,2 +1,0 @@
-0 16 * * * /home/enf-replay/replay-test/scripts/foundational-run-asset-generation/p_blocks.sh > /data/nodeos/log/p_blocks.log
-0 8 * * * /home/enf-replay/replay-test/scripts/foundational-run-asset-generation/p_snaps.sh > /data/nodeos/log/p_snaps.log

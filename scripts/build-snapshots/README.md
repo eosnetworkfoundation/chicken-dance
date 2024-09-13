@@ -5,6 +5,8 @@ This is rather complicated. Some periods take longer to process blocks compared 
 ## Python Libs
 Update `PYTHONPATH` to include `replay-test/scripts/manifest`. This is needed to pick up the `s3Interface.py` file.
 
+Run `pip install tomli` and `pip install numpy`
+
 ## Optimized Spacing
 The file [optimized_block_spacing.tsv](../../meta-data/optimized_block_spacing.tsv) is a tab seperated file with three columns. A start range, an end range, and the number of blocks that can be processed in 3 hours. You need a file like this with the basic data to create a list of start and end ranges that may be completed in a reasonable amount of time. For example you could have the following line in the file:
 `100000000    120000000   250000`
@@ -41,7 +43,7 @@ blocks-retained-dir = retained
 As the replay is progressing a background script checks to see if the node has reached a block height between the start/end blocks for an optimized range. When this happened the background script will create a snapshot. The result is snapshots created for every optimized block spacing interval.
 
 ## Parallel Run
-A full run takes time. To speed up the calendar time it takes the manifest will generate instructions for breaking the work into 10 even slices. To see these instructions run `python3 generate_full_run_data.py --file meta-data/optimized_block_spacing.tsv --instructions`. These instructions will provide the snapshot or genesis file to start the slice, and the range of blocks to run. Simple update the scripts `start_nodeos_first.sh` and `full_run_for_slice.sh` with the snapshot, start, end for the relevant slice.
+A full run takes time. To speed up the calendar time it takes the manifest will generate instructions for breaking the work into 10 even slices. To see these instructions run `python3 scripts/build-snapshots/generate_full_run_data.py --file meta-data/optimized_block_spacing.tsv --instructions`. These instructions will provide the snapshot or genesis file to start the slice, and the range of blocks to run. Simple update the scripts `start_nodeos_first.sh` and `full_run_for_slice.sh` with the snapshot, start, end for the relevant slice.
 
 ## Requirements
 A fairly beefy machine with 8 cores and 8Tb of attached storage mounted at /data
@@ -54,7 +56,7 @@ Run `start_nodeos_first.sh` followed by `full_run_for_slice.sh`. Specifically th
 - quickly `tail /data/nodeos/log/nodeos.log` and check that nodeos is loading the snapshot or processing blocks
 - You checked the interval for start, end in step 1 right?
 - Now run `nohup full_run_for_slice.sh > /data/nodeos/log/run.log &`
-- `tail -f /data/nodeos/log/run.log` and watch to see the script create the first snapshot 
+- `tail -f /data/nodeos/log/run.log` and watch to see the script create the first snapshot
 
 ### Moving Assets to the Cloud
 You need to upload assets to cloud storage. There are some example scripts `p_snaps.sh` to upload snapshots and `p_blocks.sh` to upload blocks.
