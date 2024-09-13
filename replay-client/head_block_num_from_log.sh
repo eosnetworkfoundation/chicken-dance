@@ -5,13 +5,26 @@
 
 NODEOS_DIR=${1:-/data/nodeos}
 
-# blocks log
-BLOCK_NUM_FROM_LOG=$(grep controller.cpp "${NODEOS_DIR}"/log/nodeos.log | \
-    grep replay | grep "of" \
+# leap v5  log
+OLD_BLOCK_NUM_FROM_LOG=$(tail -500 "${NODEOS_DIR}"/log/nodeos.log | grep controller.cpp \
+    | grep replay | grep "of" \
     | cut -d']' -f2 | cut -d' ' -f2 | tail -1)
+# spring v1.1 log
+NEW_BLOCK_NUM_FROM_LOG=$(tail -500 "${NODEOS_DIR}"/log/nodeos.log \
+    | grep controller.cpp | grep "Received block" \
+    | cut -d'#' -f2 | cut -d" " -f1 | tail -1)
+
+# set to new format
+if [ -z $OLD_BLOCK_NUM_FROM_LOG ] && [ -n "$NEW_BLOCK_NUM_FROM_LOG" ] ; then
+  BLOCK_NUM_FROM_LOG="$NEW_BLOCK_NUM_FROM_LOG"
+fi
+if [ -z $NEW_BLOCK_NUM_FROM_LOG ] && [ -n "$OLD_BLOCK_NUM_FROM_LOG" ] ; then
+  BLOCK_NUM_FROM_LOG="$OLD_BLOCK_NUM_FROM_LOG"
+fi
+
 
 # replay via peer
-BLOCK_NUM_FROM_REPLAY=$(grep 'net_plugin.cpp:' "${NODEOS_DIR}"/log/nodeos.log | \
+BLOCK_NUM_FROM_REPLAY=$(tail -500 "${NODEOS_DIR}"/log/nodeos.log | grep 'net_plugin.cpp:' | \
     grep recv_handshake | \
     cut -d']' -f3 | \
     cut -d',' -f4 | \
