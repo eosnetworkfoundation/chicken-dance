@@ -29,6 +29,7 @@ def application(request):
     /process /control /grid
     /login /logout
     /oauthback
+    /errorlog /showlog
     """
 
     # /job GET request
@@ -259,7 +260,7 @@ def application(request):
         response.delete_cookie('replay_auth')
         return response
 
-    elif request.path in ['/progress', '/grid', '/control', '/detail']:
+    elif request.path in ['/progress', '/grid', '/control', '/detail', '/showlog']:
         # save the referer passed back in /oauthback
         # quote url encodes string
         referring_url = request.path
@@ -334,6 +335,19 @@ def application(request):
         + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
         + html_factory.contents('footer.html')
         return Response(no_token_html, status=403, content_type='text/html')
+
+    elif request.path == '/errorlog':
+        if request.method == 'GET':
+            dummy="Response from Error Log Get \nThis is a new line\n----- Hellow -----\n"
+            # must have jobid and type parameter
+            if not request.args.get('jobid') and not request.args.get('type'):
+                return Response('jobid parameter is missing', status=404)
+            return Response(dummy, content_type='text/plain')
+        if request.method == 'POST':
+            # must have jobid and type parameter
+            if not request.args.get('jobid') and not request.args.get('type'):
+                return Response('jobid parameter is missing', status=404)
+            return Response('ok',content_type='text/plain')
 
     return Response("Not found", status=404)
 
