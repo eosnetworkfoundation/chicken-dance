@@ -14,20 +14,20 @@
   } else {
     const reqHeaders = new Headers();
     reqHeaders.append("Accept", "text/plain");
-    const jobResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(id)}&type=wrapper`,
+    const wrapperResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(id)}&type=wrapper`,
       {
         method: "GET",
         headers: reqHeaders,
       }
     );
-    const wrapperlog = await jobResponse.json();
-    const jobResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(id)}&type=nodeos`,
+    const wrapperlog = await wrapperResponse.json();
+    const nodeosResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(id)}&type=nodeos`,
       {
         method: "GET",
         headers: reqHeaders,
       }
     );
-    const nodeoslog = await configResponse.json();
+    const nodeoslog = await nodeosResponse.json();
 
 var str = '<table class="table"><thead>'
 str += '<tr><th>log contents</th></tr>'
