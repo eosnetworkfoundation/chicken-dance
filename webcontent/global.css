@@ -156,9 +156,6 @@ li p {
 #failed-job-list span.material-symbols-outlined.mark-error {
   color: var(--error-color);
 }
-#thelogs table {
-  white-space: pre-wrap;
-}
 .note {
   font-size: 1em;
   font-weight: 100;
@@ -211,6 +208,9 @@ li p {
 }
 .table > tbody > tr:last-child > td { border-bottom: 0; }
 
+#thelogs td {
+  white-space: pre-wrap;
+}
 
 @media screen and (min-width: 800px) {
   :root {
