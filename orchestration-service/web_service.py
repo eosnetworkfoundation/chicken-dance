@@ -4,6 +4,7 @@ import json
 import logging
 import sys
 import re
+from pathlib import Path
 from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -16,6 +17,7 @@ from job_status import JobManager
 from job_summary import JobSummary
 from env_store import EnvStore
 from github_oauth import GitHubOauth
+from error_log import ErrorLog
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
@@ -337,16 +339,21 @@ def application(request):
         return Response(no_token_html, status=403, content_type='text/html')
 
     elif request.path == '/errorlog':
+        error_mgr = ErrorLog(Path.home()+"/joblogs")
         if request.method == 'GET':
-            dummy="Response from Error Log Get \nThis is a new line\n----- Hellow -----\n"
             # must have jobid and type parameter
             if not request.args.get('jobid') and not request.args.get('type'):
                 return Response('jobid parameter is missing', status=404)
-            return Response(dummy, content_type='text/plain')
+            # opens file and reads content
+            content = error_mgr.retrieve(request.args.get('jobid'),request.args.get('type'))
+            return Response(content, content_type='text/plain')
         if request.method == 'POST':
             # must have jobid and type parameter
             if not request.args.get('jobid') and not request.args.get('type'):
                 return Response('jobid parameter is missing', status=404)
+            error_mgr.persist(request.args.get('jobid'),
+                request.args.get('type'),
+                request.get_data(as_text=True))
             return Response('ok',content_type='text/plain')
 
     return Response("Not found", status=404)

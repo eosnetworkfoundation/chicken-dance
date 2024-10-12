@@ -1,5 +1,6 @@
 """Module fetches a job and reserves the status."""
 import re
+import os
 import json
 from datetime import datetime
 import argparse
@@ -140,6 +141,28 @@ def update_job(base_url, etag, job):
     # outside while loop
     return update_job_message
 
+def upload_error_log(base_url, job_id, type, log_path):
+    """upload error logs to orchestration service, no retries"""
+    # data stucture we will be returning
+    update_job_message = { 'status_code': None,
+        'jobid': job_id,
+        'json': None }
+    if not os.path.exists(log_path):
+        update_job_message['status_code'] = 404
+        update_job_message['json'] = f'{{message:"{log_path} file does not exist"}}'
+        return update_job_message
+    with open(log_path, 'r', encoding='utf-8') as file:
+        contents = file.read()
+
+    job_response = requests.post(base_url + '/errorlog',
+        params = { 'jobid': job_id, "type": type },
+        data=contents,
+        timeout=10)
+    update_job_message['status_code'] = job_response.status_code
+    update_job_message['json'] = f'{{message:"process complete for {log_path}"}}'
+    return update_job_message
+
+
 def pop_job(base_url, max_tries):
     """Fetch a job (GET) that needs a worker; update status to STARTED"""
     fields_to_update = {
@@ -214,6 +237,9 @@ if __name__ == '__main__':
     parser.add_argument('--integrity-hash',
         type=str,
         help='integrity hash reported after processing completed')
+    parser.add_argument('--log',
+        type=str,
+        help='path to log file to upload')
 
     args = parser.parse_args()
 
@@ -258,6 +284,16 @@ if __name__ == '__main__':
             args.block_processed,
             args.end_time,
             args.integrity_hash)
+    elif args.operation == "wrapper-error-log":
+        job_message = upload_error_log(url,
+            args.job_id,
+            "wrapper",
+            args.log)
+    elif args.operation == "nodeos-error-log":
+        job_message = upload_error_log(url,
+            args.job_id,
+            "wrapper",
+            args.log)
     else:
         sys.exit(f"Error operation {args.operation} not supported see help")
 
