@@ -251,8 +251,10 @@ python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${OR
 
 [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
 
-# preserve logs from previous run
+# upload logs and clean out old logs
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation wrapper-error-log --log /home/enf-replay/last-replay.log --job-id ${JOBID}
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation nodeos-error-log --log "${NODEOS_DIR}"/log/nodeos.log --job-id ${JOBID}
 mkdir /data/previous-${START_BLOCK}
-cp /data/log/* /data/previous-${START_BLOCK}
-cp ~/last-replay.log /data/previous-${START_BLOCK}
+cp /data/log/*.log /data/previous-${START_BLOCK}
+mv ~/last-replay.log /data/previous-${START_BLOCK}
 mv /tmp/job.conf.json /data/previous-${START_BLOCK}

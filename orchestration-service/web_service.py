@@ -380,6 +380,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     ALWAYS_ALLOW = args.disable_auth
 
+    # clean out all the client logs from previous runs
+    ErrorLog.clean_all(str(Path.home())+"/joblogs")
+
     # setup logging
     logging.basicConfig(filename=args.log,
             encoding='utf-8',

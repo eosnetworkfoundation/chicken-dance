@@ -28,6 +28,13 @@ class ErrorLog:
         """constructs file name as static method"""
         return f'{log_dir}/{log_type}{jobid}.log'
 
+    @staticmethod
+    def clean_all(log_dir):
+        """removes all the old logs"""
+        dir_path = Path(directory_path)
+        if dir_path.exists() and dir_path.is_dir():
+            shutil.rmtree(dir_path)
+
     def persist(self,jobid,log_type,data):
         """write log to disk"""
 

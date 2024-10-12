@@ -141,7 +141,7 @@ def update_job(base_url, etag, job):
     # outside while loop
     return update_job_message
 
-def upload_error_log(base_url, job_id, type, log_path):
+def upload_error_log(base_url, job_id, log_type, log_path):
     """upload error logs to orchestration service, no retries"""
     # data stucture we will be returning
     update_job_message = { 'status_code': None,
@@ -155,7 +155,7 @@ def upload_error_log(base_url, job_id, type, log_path):
         contents = file.read()
 
     job_response = requests.post(base_url + '/errorlog',
-        params = { 'jobid': job_id, "type": type },
+        params = { 'jobid': job_id, "type": log_type },
         data=contents,
         timeout=10)
     update_job_message['status_code'] = job_response.status_code
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     elif args.operation == "nodeos-error-log":
         job_message = upload_error_log(url,
             args.job_id,
-            "wrapper",
+            "nodeos",
             args.log)
     else:
         sys.exit(f"Error operation {args.operation} not supported see help")

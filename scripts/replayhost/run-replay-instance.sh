@@ -10,6 +10,11 @@ AWS_REPLAY_TEMPLATE_VERSION="13"
 
 source ${HOME}/replay-test/scripts/replayhost/env
 
+# us-east-1 Zone E does not support our desired host
+if [ $AWS_REPLAY_TEMPLATE == "ChickenReplayHost" ] && [ $AWS_REPLAY_TEMPLATE_VERSION == "13" ]; then
+  NO_ZONE_E=1
+fi
+
 NUM_INSTANCES=${1:-1}
 DRY_RUN=${2}
 
@@ -37,6 +42,9 @@ do
 done
 # get the equal number of instances per zone
 # intereger math always gets floor
+if [ $NO_ZONE_E == 1 ]; then
+  let NUM_ZONES=NUM_ZONES-1
+fi
 ZONE_NUM_INSTANCES=$((NUM_INSTANCES / NUM_ZONES))
 HALF_ZONE_NUM_INSTANCES=$((ZONE_NUM_INSTANCES / 2))
 
@@ -64,6 +72,10 @@ do
     *)
       SUBNET=$SUBNET_1F;;
   esac
+
+  if [ $AZ == "us-east-1e" ] && [ $NO_ZONE_E == 1 ]; then
+    continue
+  fi
 
   cp /tmp/aws-run-instance-out.json /tmp/aws-run-instance-out.json.bak
   aws ec2 run-instances --launch-template LaunchTemplateName=${AWS_REPLAY_TEMPLATE},Version=${AWS_REPLAY_TEMPLATE_VERSION} \
