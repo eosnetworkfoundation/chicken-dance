@@ -122,7 +122,7 @@ export PATH
 if [ $STORAGE_TYPE = "s3" ]; then
   if [ $START_BLOCK -gt 0 ] && [ -n "${SNAPSHOT_PATH}" ]; then
     echo "Copying snapshot to localhost"
-    aws s3 cp "${SNAPSHOT_PATH}" "${NODEOS_DIR}"/snapshot/snapshot.bin.zst
+    aws s3 cp "${SNAPSHOT_PATH}" "${NODEOS_DIR}"/snapshot/snapshot.bin.zst > /dev/null 2>&1
   else
     echo "Warning: No snapshot provided in config or start block is zero (0)"
   fi
@@ -142,7 +142,7 @@ fi
 ## when start block 0 no snapshot to process ##
 if [ $START_BLOCK -gt 0 ] && [ -f "${NODEOS_DIR}"/snapshot/snapshot.bin.zst ]; then
   echo "Unzip snapshot"
-  zstd --decompress "${NODEOS_DIR}"/snapshot/snapshot.bin.zst
+  zstd --decompress "${NODEOS_DIR}"/snapshot/snapshot.bin.zst > /dev/null 2>&1
   # sometimes compression format is bad error out on failure
   if [ $? -ne 0 ]; then
     echo "Failed to unzip snapshot"
@@ -169,7 +169,7 @@ sleep 5
 
 ## special treament for sync from genesis, start block 0 ##
 if [ $START_BLOCK == 0 ]; then
-  aws s3 cp s3://chicken-dance/"$SOURCE_TYPE"/"$SOURCE_TYPE"-genesis.json /data/nodeos/genesis.json
+  aws s3 cp s3://chicken-dance/"$SOURCE_TYPE"/"$SOURCE_TYPE"-genesis.json /data/nodeos/genesis.json > /dev/null 2>&1
 
   nodeos \
        --genesis-json "${NODEOS_DIR}"/genesis.json \
@@ -218,6 +218,9 @@ if [[ "$(nodeos -v | grep -ic v[45])" == '1' ]]; then
   sleep 20
 
   END_BLOCK_ACTUAL_INTEGRITY_HASH=$(curl -s http://127.0.0.1:8888/v1/producer/get_integrity_hash | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "integrity_hash")
+
+  # terminate read only nodeos in background
+  kill $BACKGROUND_NODEOS_PID
 fi
 
 # write hash to file, file not needed, backup for safety
@@ -235,9 +238,6 @@ if [ $START_BLOCK -gt 0 ]; then
 else
   echo "Processing from genesis no expected integrity hash to update"
 fi
-
-# terminate read only nodeos in background
-kill $BACKGROUND_NODEOS_PID
 
 #################
 # 7) http POST completed status for configured block range

@@ -15,7 +15,7 @@ START_BLOCK_NUM=$2
 END_BLOCK_NUM=$3
 SNAPSHOT_PATH=${4:-s3://chicken-dance/default/snapshots/snapshot.bin.zst}
 UTIL="spring-util"
-# need to handle older versions of nodeos 
+# need to handle older versions of nodeos
 if [[ "$(nodeos -v | grep -ic v[45])" == '1' ]]; then
   UTIL="leap-util"
 fi
@@ -68,11 +68,11 @@ do
   else
     # skip if local file already exists
     if [ ! -s "$NODEOS_DIR"/data/blocks"${S3_FILE}"/"${S3_BLOCKS}" ]; then
-      aws s3 cp "${S3_DIR}"/"$S3_FILE""$S3_BLOCKS" "$NODEOS_DIR"/data/blocks/
-      aws s3 cp "${S3_DIR}"/"$S3_FILE""${S3_BLOCKS%%.*}.index.zst" "$NODEOS_DIR"/data/blocks/
+      aws s3 cp "${S3_DIR}"/"$S3_FILE""$S3_BLOCKS" "$NODEOS_DIR"/data/blocks/ > /dev/null 2>&1
+      aws s3 cp "${S3_DIR}"/"$S3_FILE""${S3_BLOCKS%%.*}.index.zst" "$NODEOS_DIR"/data/blocks/ > /dev/null 2>&1
       for f in "$NODEOS_DIR"/data/blocks/blocks-*.zst
       do
-        zstd -d $f
+        zstd -d $f > /dev/null 2>&1
         if [ $? -eq 0 ]; then
           rm $f
         fi
