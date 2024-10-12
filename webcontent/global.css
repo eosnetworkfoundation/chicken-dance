@@ -207,8 +207,7 @@ li p {
   font-size: 0.875em;
 }
 .table > tbody > tr:last-child > td { border-bottom: 0; }
-
-#thelogs td {
+.rawlog {
   white-space: pre-wrap;
 }
 

@@ -36,12 +36,12 @@ str += '<tr><th>log contents</th></tr>'
 str += '</thead>'
 str += '<tbody>'
 if (wrapperlog != undefined) {
-  str += '<tr><td>'+wrapperlog+'</td></tr>';
+  str += '<tr><td class="rawlog">'+wrapperlog+'</td></tr>';
 } else {
   str += '<tr><td>No Wrapper Log</td></tr>';
 }
 if (nodeoslog != undefined) {
-  str += '<tr><td>'+nodeoslog+'</td></tr>';
+  str += '<tr><td class="rawlog">'+nodeoslog+'</td></tr>';
 } else {
   str += '<tr><td>No Nodeos Log</td></tr>';
 }
