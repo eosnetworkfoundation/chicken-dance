@@ -31,7 +31,7 @@ class ErrorLog:
     @staticmethod
     def clean_all(log_dir):
         """removes all the old logs"""
-        dir_path = Path(directory_path)
+        dir_path = Path(log_dir)
         if dir_path.exists() and dir_path.is_dir():
             shutil.rmtree(dir_path)
 
