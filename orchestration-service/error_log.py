@@ -3,6 +3,7 @@
 import os
 import html
 import shutil
+from pathlib import Path
 
 class ErrorLog:
     """
