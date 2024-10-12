@@ -14,4 +14,4 @@ if [ -z "${ORCH_IP}" ]; then
   exit 1
 fi
 
-/home/${USER}/replay-test/replay-client/start-nodeos-run-replay.sh ${ORCH_IP} > /home/${USER}/last-replay.log 2>&1
+/home/${USER}/replay-test/replay-client/start-nodeos-run-replay.sh ${ORCH_IP} >> /home/${USER}/last-replay.log 2>&1

@@ -4,6 +4,7 @@ import json
 import logging
 import sys
 import re
+from pathlib import Path
 from datetime import datetime, timedelta
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -16,6 +17,7 @@ from job_status import JobManager
 from job_summary import JobSummary
 from env_store import EnvStore
 from github_oauth import GitHubOauth
+from error_log import ErrorLog
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
@@ -29,6 +31,7 @@ def application(request):
     /process /control /grid
     /login /logout
     /oauthback
+    /errorlog /showlog
     """
 
     # /job GET request
@@ -259,7 +262,7 @@ def application(request):
         response.delete_cookie('replay_auth')
         return response
 
-    elif request.path in ['/progress', '/grid', '/control', '/detail']:
+    elif request.path in ['/progress', '/grid', '/control', '/detail', '/showlog']:
         # save the referer passed back in /oauthback
         # quote url encodes string
         referring_url = request.path
@@ -335,6 +338,26 @@ def application(request):
         + html_factory.contents('footer.html')
         return Response(no_token_html, status=403, content_type='text/html')
 
+    elif request.path == '/errorlog':
+        error_mgr = ErrorLog(str(Path.home())+"/joblogs")
+        if request.method == 'GET':
+            # must have jobid and type parameter
+            if not request.args.get('jobid') and not request.args.get('type'):
+                return Response('jobid parameter is missing', status=404)
+            # opens file and reads content
+            content = error_mgr.retrieve(request.args.get('jobid'),request.args.get('type'))
+            if not content:
+                return Response('could not find or access file', status=404)
+            return Response(content, content_type='text/plain')
+        if request.method == 'POST':
+            # must have jobid and type parameter
+            if not request.args.get('jobid') and not request.args.get('type'):
+                return Response('jobid parameter is missing', status=404)
+            error_mgr.persist(request.args.get('jobid'),
+                request.args.get('type'),
+                request.get_data(as_text=True))
+            return Response('ok',content_type='text/plain')
+
     return Response("Not found", status=404)
 
 if __name__ == '__main__':
@@ -356,6 +379,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     ALWAYS_ALLOW = args.disable_auth
+
+    # clean out all the client logs from previous runs
+    ErrorLog.clean_all(str(Path.home())+"/joblogs")
 
     # setup logging
     logging.basicConfig(filename=args.log,

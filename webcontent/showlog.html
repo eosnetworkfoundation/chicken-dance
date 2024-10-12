@@ -1,0 +1,51 @@
+<div class="maincontent">
+  <div class="card">
+    <h3>Error Logs</h3>
+    <div id="thelogs"></div>
+  </div>
+</div>
+<script type="module">
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const jobId = urlParams.get('jobid');
+  var wrapperlog = "Empty"
+  var nodeoslog = "Empty"
+
+  if (jobId == undefined) {
+    document.getElementById("thelogs").innerHTML = '<div class="note"><p>Invalid or missing Job Id Passed as Param</p></div>';
+  } else {
+    const reqHeaders = new Headers();
+    reqHeaders.append("Accept", "text/plain");
+    const wrapperResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(jobId)}&type=wrapper`,
+      {
+        method: "GET",
+        headers: reqHeaders,
+      }
+    );
+    wrapperlog = await wrapperResponse.text();
+    const nodeosResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(jobId)}&type=nodeos`,
+      {
+        method: "GET",
+        headers: reqHeaders,
+      }
+    );
+    nodeoslog = await nodeosResponse.text();
+}
+var str = '<table class="table"><thead>'
+str += '<tr><th>log contents</th></tr>'
+str += '</thead>'
+str += '<tbody>'
+if (wrapperlog != undefined) {
+  str += '<tr><td class="rawlog">'+wrapperlog+'</td></tr>';
+} else {
+  str += '<tr><td>No Wrapper Log</td></tr>';
+}
+if (nodeoslog != undefined) {
+  str += '<tr><td class="rawlog">'+nodeoslog+'</td></tr>';
+} else {
+  str += '<tr><td>No Nodeos Log</td></tr>';
+}
+str += '</tbody></table>'
+
+document.getElementById("thelogs").innerHTML = str;
+</script>

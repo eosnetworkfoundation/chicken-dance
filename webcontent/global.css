@@ -208,6 +208,10 @@ li p {
 }
 .table > tbody > tr:last-child > td { border-bottom: 0; }
 
+td.rawlog {
+  white-space: pre-wrap;
+}
+
 @media screen and (min-width: 800px) {
   :root {
     --media-gutter: 64px;
