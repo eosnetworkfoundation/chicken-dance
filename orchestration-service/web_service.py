@@ -339,13 +339,15 @@ def application(request):
         return Response(no_token_html, status=403, content_type='text/html')
 
     elif request.path == '/errorlog':
-        error_mgr = ErrorLog(Path.home()+"/joblogs")
+        error_mgr = ErrorLog(str(Path.home())+"/joblogs")
         if request.method == 'GET':
             # must have jobid and type parameter
             if not request.args.get('jobid') and not request.args.get('type'):
                 return Response('jobid parameter is missing', status=404)
             # opens file and reads content
             content = error_mgr.retrieve(request.args.get('jobid'),request.args.get('type'))
+            if not content:
+                return Response('could not find or access file', status=404)
             return Response(content, content_type='text/plain')
         if request.method == 'POST':
             # must have jobid and type parameter

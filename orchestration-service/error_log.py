@@ -42,8 +42,13 @@ class ErrorLog:
 
     def retrieve(self,jobid,log_type):
         """read from disk"""
+
         file_name = ErrorLog.file_name(self.log_dir,jobid,log_type)
         contents = None
+
+        if not os.path.exists(file_name):
+            return None
+
         with open(file_name, 'r', encoding='utf-8') as file:
             contents = file.read()
         return contents
