@@ -143,7 +143,7 @@ def update_job(base_url, etag, job):
 
 def upload_error_log(base_url, job_id, log_type, log_path):
     """upload error logs to orchestration service, no retries"""
-    upload_logpath = f"/errorlog/${log_type}{$job_id}"
+    upload_logpath = f"/errorlog/{log_type}{job_id}"
 
     # data stucture we will be returning
     update_job_message = { 'status_code': None,
