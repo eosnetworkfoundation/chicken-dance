@@ -143,7 +143,8 @@ def update_job(base_url, etag, job):
 
 def upload_error_log(base_url, job_id, log_type, log_path):
     """upload error logs to orchestration service, no retries"""
-    logpath = f"/errorlog/${log_type}{$job_id}"
+    upload_logpath = f"/errorlog/${log_type}{$job_id}"
+
     # data stucture we will be returning
     update_job_message = { 'status_code': None,
         'jobid': job_id,
@@ -155,7 +156,7 @@ def upload_error_log(base_url, job_id, log_type, log_path):
     with open(log_path, 'r', encoding='utf-8') as file:
         contents = file.read()
 
-    job_response = requests.post(base_url + logpath,
+    job_response = requests.post(base_url + upload_logpath,
         data=contents,
         timeout=10)
     update_job_message['status_code'] = job_response.status_code
