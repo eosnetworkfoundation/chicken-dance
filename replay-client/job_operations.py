@@ -153,7 +153,15 @@ def upload_error_log(base_url, job_id, log_type, log_path):
         update_job_message['status_code'] = 404
         update_job_message['json'] = f'{{message:"{log_path} file does not exist"}}'
         return update_job_message
+    # read last 4,000 chars the limit for our log file
     with open(log_path, 'r', encoding='utf-8') as file:
+        # Move the file pointer to 4000 characters before the end of the file
+        file.seek(0, 2)  # Move to the end of the file
+        file_size = file.tell()  # Get the total size of the file
+
+        # Calculate start position
+        start_pos = max(file_size - 8000, 0)
+        file.seek(start_pos)
         contents = file.read()
 
     job_response = requests.post(base_url + upload_logpath,
