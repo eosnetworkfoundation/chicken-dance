@@ -47,8 +47,8 @@ function trap_exit() {
   [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
   if [ -n "${JOBID}" ]; then
     python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation update-error --error-message "$ERROR_MSG" --job-id ${JOBID}
-    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation wrapper-error-log --log /home/enf-replay/last-replay.log --job-id ${JOBID}
-    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation nodeos-error-log --log "${NODEOS_DIR}"/log/nodeos.log --job-id ${JOBID}
+    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port 80 --operation wrapper-error-log --log /home/enf-replay/last-replay.log --job-id ${JOBID}
+    python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port 80 --operation nodeos-error-log --log "${NODEOS_DIR}"/log/nodeos.log --job-id ${JOBID}
   fi
   echo "Caught signal or detected error exiting"
   exit 127
@@ -252,9 +252,9 @@ python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${OR
 [ -f "$LOCK_FILE" ] && rm "$LOCK_FILE"
 
 # upload logs and clean out old logs
-python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation wrapper-error-log --log /home/enf-replay/last-replay.log --job-id ${JOBID}
-python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation nodeos-error-log --log "${NODEOS_DIR}"/log/nodeos.log --job-id ${JOBID}
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port 80 --operation wrapper-error-log --log /home/enf-replay/last-replay.log --job-id ${JOBID}
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port 80 --operation nodeos-error-log --log "${NODEOS_DIR}"/log/nodeos.log --job-id ${JOBID}
 mkdir /data/previous-${START_BLOCK}
-cp /data/log/*.log /data/previous-${START_BLOCK}
+cp "${NODEOS_DIR}"/log/nodeos.log /data/previous-${START_BLOCK}
 mv ~/last-replay.log /data/previous-${START_BLOCK}
 mv /tmp/job.conf.json /data/previous-${START_BLOCK}

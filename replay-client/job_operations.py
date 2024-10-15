@@ -143,6 +143,8 @@ def update_job(base_url, etag, job):
 
 def upload_error_log(base_url, job_id, log_type, log_path):
     """upload error logs to orchestration service, no retries"""
+    upload_logpath = f"/errorlog/{log_type}{job_id}"
+
     # data stucture we will be returning
     update_job_message = { 'status_code': None,
         'jobid': job_id,
@@ -151,11 +153,18 @@ def upload_error_log(base_url, job_id, log_type, log_path):
         update_job_message['status_code'] = 404
         update_job_message['json'] = f'{{message:"{log_path} file does not exist"}}'
         return update_job_message
+    # read last 4,000 chars the limit for our log file
     with open(log_path, 'r', encoding='utf-8') as file:
+        # Move the file pointer to 4000 characters before the end of the file
+        file.seek(0, 2)  # Move to the end of the file
+        file_size = file.tell()  # Get the total size of the file
+
+        # Calculate start position
+        start_pos = max(file_size - 8000, 0)
+        file.seek(start_pos)
         contents = file.read()
 
-    job_response = requests.post(base_url + '/errorlog',
-        params = { 'jobid': job_id, "type": log_type },
+    job_response = requests.post(base_url + upload_logpath,
         data=contents,
         timeout=10)
     update_job_message['status_code'] = job_response.status_code

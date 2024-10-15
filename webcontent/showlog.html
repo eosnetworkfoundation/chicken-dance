@@ -16,14 +16,14 @@
   } else {
     const reqHeaders = new Headers();
     reqHeaders.append("Accept", "text/plain");
-    const wrapperResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(jobId)}&type=wrapper`,
+    const wrapperResponse = await fetch(`/errorlog/wrapper${encodeURIComponent(jobId)}`,
       {
         method: "GET",
         headers: reqHeaders,
       }
     );
     wrapperlog = await wrapperResponse.text();
-    const nodeosResponse = await fetch(`/errorlog?jobid=${encodeURIComponent(jobId)}&type=nodeos`,
+    const nodeosResponse = await fetch(`/errorlog/nodeos${encodeURIComponent(jobId)}`,
       {
         method: "GET",
         headers: reqHeaders,
