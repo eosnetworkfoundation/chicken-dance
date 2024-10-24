@@ -4,8 +4,9 @@ import json
 import logging
 import sys
 import re
-from pathlib import Path
+import os
 from datetime import datetime, timedelta
+from urllib.parse import unquote
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
@@ -17,6 +18,7 @@ from job_status import JobManager
 from job_summary import JobSummary
 from env_store import EnvStore
 from github_oauth import GitHubOauth
+from control_config import ControlConfig
 
 @Request.application
 # pylint: disable=too-many-return-statements disable=too-many-branches
@@ -31,6 +33,7 @@ def application(request):
     /login /logout
     /oauthback
     /showlog
+    /restart
     """
 
     # /job GET request
@@ -234,6 +237,71 @@ def application(request):
 
     elif request.path == '/healthcheck':
         return Response("OK",content_type='text/plain; charset=uft-8')
+
+    elif request.path == '/restart':
+        if request.method == 'PUT':
+            body = request.get_data(as_text=True)
+            lines = body.splitlines()
+            # parse body to get parameters
+            body_parameters = {}
+            for line in lines:
+                if '=' in line:
+                    key, value = line.split('=', 1)  # Split only at the first '='
+                    body_parameters[key.strip()] = value.strip()
+                else:
+                    pass  # Handle lines without '='
+
+            # unescape string if it looks like it is escaped
+            if 'config_file_path' in body_parameters:
+                # normalize path if URL encoded
+                if '%' in body_parameters['config_file_path']:
+                    body_parameters['config_file_path'] = unquote(body_parameters['config_file_path'])
+                # abort if config file does not exist
+                if not os.path.exists(body_parameters['config_file_path']):
+                    return Response("Configuration file does not exist", status=400)
+                # update configuration file with new version
+                if 'target_version' in body_parameters:
+                    ControlConfig.set_version(body_parameters['target_version'],
+                        body_parameters['config_file_path'])
+
+                forced = False
+                if 'forced' in body_parameters and body_parameters['forced'] in ['True','true','Yes','yes']:
+                    forced = True
+
+                report_obj = JobSummary.create(jobs)  # check for job in progress
+                if report_obj['blocks_processed'] < report_obj['total_blocks'] and not forced:
+                    return Response("Jobs not complete requires `force` option", status=400)
+
+                # pylint: disable=redefined-outer-name
+                replay_config_manager = ReplayConfigManager(body_parameters['config_file_path'])
+                # pylint: disable=redefined-outer-name
+                jobs = JobManager(replay_config_manager)
+                # successfully reload configs
+                return Response("OK",content_type='text/plain; charset=uft-8')
+
+            # no configuration file
+            return Response("Requires config_file_path value in body of post", status=400)
+
+        # not supported request.method in ['GET','POST','DELETE']
+        return Response("method not supported", status=405)
+
+    elif request.path == '/release_versions':
+        if request.method == 'GET':
+            things = env_name_values.get('repo').split('/')
+            versions = ControlConfig.get_versions(things[0],things[1])
+            Response(json.dumps(versions), content_type='application/json')
+
+        # not supported request.method in ['POST','PUT','DELETE']
+        return Response("method not supported", status=405)
+
+    elif request.path == '/config_files':
+        if request.method == 'GET':
+            config_dir = env_name_values.get('config_dir')
+            config_files = ControlConfig.config_files(config_dir)
+            Response(json.dumps(config_files), content_type='application/json')
+
+        # not supported request.method in ['POST','PUT','DELETE']
+        return Response("method not supported", status=405)
 
     elif request.path == '/summary':
         report_obj = JobSummary.create(jobs)

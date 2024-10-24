@@ -1,6 +1,67 @@
 <div class="maincontent">
   <div class="card">
-    <h3 id="detail-job-heading">Not Implemented Yet</h3>
-    <div id="jobdetail"></div>
+    <h3 id="control-meta-data-file">Control</h3>
+      <form action="/restart" method="PUT">
+        <label for="fileSelect">Select a file:</label>
+        <select name="config_file_path" id="fileSelect">
+          <option value="NA">Invalid</option>
+        </select>
+        <br><br>
+
+        <label for="versionSelect">Select a Version:</label>
+        <select name="target_version" id="versionSelect">
+          <option value="NA">Invalid</option>
+        </select>
+        <br><br>
+
+        <label for="isForced">Select a Version:</label>
+        <select name="forced" id="isForced">
+          <option value="No">False</option>
+          <option value="Yes">True</option>
+        </select>
+        <br><br>
+
+        <input type="submit" value="Load">
+      </form>
   </div>
 </div>
+<script type="module">
+  const reqHeaders = new Headers();
+  reqHeaders.append("Accept", "application/json");
+  const configResponse = await fetch('/config_files',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const configObjs = await configResponse.json();
+  const versionResponse = await fetch('/release_versions',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const versionObjs = await versionResponse.json();
+  var configOptions = ''
+  var versionOptions = ''
+  if (configObjs != undefined) {
+    for (let i = 0; i < configObjs.length; i++) {
+      const parts = configObjs[i].split('/');
+      const fileName = parts[parts.length - 1];
+      configOptions += '<option value="'+configObjs[i]+'">'+fileName+'</option>'
+    }
+  } else {
+    configOptions += '<option value="NA">No Options Returned</option>'
+  }
+
+  if (versionObjs != undefined) {
+    for (let i = 0; i < versionObjs.length; i++) {
+      configOptions += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
+    }
+  } else {
+    configOptions += '<option value="NA">No Versions Returned</option>'
+  }
+
+  document.getElementById("fileSelect").innerHTML = configOptions
+  document.getElementById("versionSelect").innerHTML = versionOptions
+</script>
