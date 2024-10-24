@@ -143,6 +143,10 @@ class JobManager:
         """Return all jobs"""
         return self.jobs
 
+    def __len__(self):
+        """Return len of jobs managed"""
+        return len(self.jobs)
+
     # needed my own integer check function
     # `isinstance` was too strict
     # pylint prefered `isinstance` over `type` check
