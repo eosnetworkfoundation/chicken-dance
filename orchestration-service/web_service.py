@@ -289,7 +289,7 @@ def application(request):
         if request.method == 'GET':
             things = env_name_values.get('repo').split('/')
             versions = ControlConfig.get_versions(things[0],things[1])
-            Response(json.dumps(versions), content_type='application/json')
+            return Response(json.dumps(versions), content_type='application/json')
 
         # not supported request.method in ['POST','PUT','DELETE']
         return Response("method not supported", status=405)
@@ -298,7 +298,7 @@ def application(request):
         if request.method == 'GET':
             config_dir = env_name_values.get('config_dir')
             config_files = ControlConfig.config_files(config_dir)
-            Response(json.dumps(config_files), content_type='application/json')
+            return Response(json.dumps(config_files), content_type='application/json')
 
         # not supported request.method in ['POST','PUT','DELETE']
         return Response("method not supported", status=405)
