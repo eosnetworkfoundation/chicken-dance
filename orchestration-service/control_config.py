@@ -11,7 +11,7 @@ class ControlConfig():
         """get list of valid config files"""
         config_files = []
         for file_name in os.listdir(root_dir):
-            if file_name.endswith('.json') and file_name.startswith("test"):
+            if file_name.endswith('.json') and "test-" not in file_name:
                 config_files.append(f'{root_dir}/{file_name}')
         return json.dumps(config_files)
 

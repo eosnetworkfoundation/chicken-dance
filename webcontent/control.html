@@ -34,14 +34,14 @@
       headers: reqHeaders,
     }
   );
-  const configObjs = await configResponse.json();
+  const configObjs = await JSON.parse(configResponse.json());
   const versionResponse = await fetch('/release_versions',
     {
       method: "GET",
       headers: reqHeaders,
     }
   );
-  const versionObjs = await versionResponse.json();
+  const versionObjs = await JSON.parse(versionResponse.json());
   var configOptions = ''
   var versionOptions = ''
   if (configObjs != undefined) {
@@ -56,10 +56,10 @@
 
   if (versionObjs != undefined) {
     for (let i = 0; i < versionObjs.length; i++) {
-      configOptions += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
+      versionOptions += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
     }
   } else {
-    configOptions += '<option value="NA">No Versions Returned</option>'
+    versionOptions += '<option value="NA">No Versions Returned</option>'
   }
 
   document.getElementById("fileSelect").innerHTML = configOptions

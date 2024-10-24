@@ -115,8 +115,7 @@ def application(request):
                 return Response('jobid parameter is missing', status=404)
             # validate etags to avoid race conditions
             job_as_str = str(
-                jobs.get_job(request.args.get('jobid')).as_dict()
-                ).encode("utf-8")
+                jobs.get_job(request.args.get('jobid')).as_dict()).encode("utf-8")
             expected_etag = generate_etag(job_as_str)
             if expected_etag != request_etag:
                 return Response("Invalid ETag", status=400)
@@ -268,6 +267,7 @@ def application(request):
                 if 'forced' in body_parameters and body_parameters['forced'] in ['True','true','Yes','yes']:
                     forced = True
 
+
                 report_obj = JobSummary.create(jobs)  # check for job in progress
                 if report_obj['blocks_processed'] < report_obj['total_blocks'] and not forced:
                     return Response("Jobs not complete requires `force` option", status=400)
@@ -304,6 +304,7 @@ def application(request):
         return Response("method not supported", status=405)
 
     elif request.path == '/summary':
+        logger.debug(f"In /summary Jobs has {len(jobs)} entries")
         report_obj = JobSummary.create(jobs)
         # Format based on content type
         # content type is None when no content-type passed in
@@ -441,6 +442,8 @@ if __name__ == '__main__':
     # remove this if Local config works
     if args.config is None:
         sys.exit("Must provide config with --config option")
+    logger.debug(f"Create Config Manager with {args.config}")
     replay_config_manager = ReplayConfigManager(args.config)
     jobs = JobManager(replay_config_manager)
+    logger.debug(f"In Main Jobs has {len(jobs)} entries")
     run_simple(args.host, args.port, application)
