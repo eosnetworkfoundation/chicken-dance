@@ -1,7 +1,7 @@
 """Module provides job summary function"""
 from job_status import JobStatusEnum
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods disable=too-many-branches
 class JobSummary:
     """Class provides job summary function"""
 
@@ -34,9 +34,7 @@ class JobSummary:
             # count waiting and running jobs to mark is_running status
             if job.status == JobStatusEnum.WAITING_4_WORKER:
                 waiting_jobs += 1
-            if job.status == JobStatusEnum.LOADING_SNAPSHOT \
-                or job.status == JobStatusEnum.STARTED \
-                or job.status == JobStatusEnum.WORKING:
+            if job.status in (JobStatusEnum.LOADING_SNAPSHOT, JobStatusEnum.STARTED, JobStatusEnum.WORKING):
                 running_jobs += 1
 
             # try to fix errors, where expected integrity hash was populated after job finish
