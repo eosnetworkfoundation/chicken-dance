@@ -65,7 +65,7 @@ def test_service_reset(setup_module):
     # copy over new config preserve the original
     shutil.copy("../../meta-data/test-simple-jobs.json", "../../meta-data/test-modify-jobs.json")
     # post to restart service with config
-    restart_job = session.put(cntx['base_url'] + '/restart',
+    restart_job = session.post(cntx['base_url'] + '/restart',
         headers=cntx['json_headers'],
         data="config_file_path=../../meta-data/test-modify-jobs.json\n",
         timeout=5)
@@ -84,7 +84,7 @@ def test_force_service_reset(setup_module):
 
     # post to restart service with config
     # assert error as jobs still working
-    restart_job = session.put(cntx['base_url'] + '/restart',
+    restart_job = session.post(cntx['base_url'] + '/restart',
         headers=cntx['json_headers'],
         data="config_file_path=../../meta-data/test-modify-jobs.json\n",
         timeout=5)
@@ -93,7 +93,7 @@ def test_force_service_reset(setup_module):
     # now force it
     force_data = "config_file_path=../../meta-data/test-modify-jobs.json\n"
     force_data += "forced=Yes\n"
-    restart_job = session.put(cntx['base_url'] + '/restart',
+    restart_job = session.post(cntx['base_url'] + '/restart',
         headers=cntx['json_headers'],
         data=force_data,
         timeout=5)

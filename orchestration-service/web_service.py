@@ -249,7 +249,8 @@ class WebService:
             return Response("OK",content_type='text/plain; charset=uft-8')
 
         elif request.path == '/restart':
-            if request.method == 'PUT':
+            # form submissions only allow POST 
+            if request.method in ['POST', 'PUT']:
                 body = request.get_data(as_text=True)
                 lines = body.splitlines()
                 # parse body to get parameters
@@ -292,7 +293,7 @@ class WebService:
                 # no configuration file
                 return Response("Requires config_file_path value in body of post", status=400)
 
-            # not supported request.method in ['GET','POST','DELETE']
+            # not supported request.method in ['GET','DELETE']
             return Response("method not supported", status=405)
 
         elif request.path == '/release_versions':
