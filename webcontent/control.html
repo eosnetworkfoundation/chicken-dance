@@ -4,13 +4,13 @@
       <form action="/restart" method="POST">
         <label for="fileSelect">Select a file:</label>
         <select name="config_file_path" id="fileSelect">
-          <option value="NA">Invalid</option>
+          <option value="NA">Loading...</option>
         </select>
         <br><br>
 
         <label for="versionSelect">Select a Version:</label>
         <select name="target_version" id="versionSelect">
-          <option value="NA">Invalid</option>
+          <option value="NA">Loading...</option>
         </select>
         <br><br>
 
@@ -28,6 +28,7 @@
 <script type="module">
   const reqHeaders = new Headers();
   reqHeaders.append("Accept", "application/json");
+
   const configResponse = await fetch('/config_files',
     {
       method: "GET",
@@ -35,16 +36,7 @@
     }
   );
   const configObjs = await configResponse.json();
-
-  const versionResponse = await fetch('/release_versions',
-    {
-      method: "GET",
-      headers: reqHeaders,
-    }
-  );
-  const versionObjs = await versionResponse.json();
   var configOptions = ''
-  var versionOptions = ''
   if (configObjs != undefined) {
     for (let i = 0; i < configObjs.length; i++) {
       const parts = configObjs[i].split('/');
@@ -54,6 +46,16 @@
   } else {
     configOptions += '<option value="NA">No Options Returned</option>'
   }
+  document.getElementById("fileSelect").innerHTML = configOptions
+
+  const versionResponse = await fetch('/release_versions',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const versionObjs = await versionResponse.json();
+  var versionOptions = ''
 
   if (versionObjs != undefined) {
     for (let i = 0; i < versionObjs.length; i++) {
@@ -62,7 +64,5 @@
   } else {
     versionOptions += '<option value="NA">No Versions Returned</option>'
   }
-
-  document.getElementById("fileSelect").innerHTML = configOptions
   document.getElementById("versionSelect").innerHTML = versionOptions
 </script>

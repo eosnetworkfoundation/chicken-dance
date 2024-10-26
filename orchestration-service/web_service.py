@@ -252,7 +252,10 @@ class WebService:
             # form submissions only allow POST
             if request.method in ['POST', 'PUT']:
                 body = request.get_data(as_text=True)
-                lines = body.splitlines()
+                # split by & or new line
+                # forms will post as one line sep by &
+                # sometimes browsers will post as mutiple lines
+                lines = re.split(r'[\n&]', body)
                 # parse body to get parameters
                 body_parameters = {}
                 for line in lines:
