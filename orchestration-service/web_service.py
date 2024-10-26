@@ -249,7 +249,7 @@ class WebService:
             return Response("OK",content_type='text/plain; charset=uft-8')
 
         elif request.path == '/restart':
-            # form submissions only allow POST 
+            # form submissions only allow POST
             if request.method in ['POST', 'PUT']:
                 body = request.get_data(as_text=True)
                 lines = body.splitlines()
@@ -269,7 +269,7 @@ class WebService:
                         body_parameters['config_file_path'] = unquote(body_parameters['config_file_path'])
                     # abort if config file does not exist
                     if not os.path.exists(body_parameters['config_file_path']):
-                        return Response("Configuration file does not exist", status=400)
+                        return Response(f"Configuration file {body_parameters['config_file_path']} does not exist", status=400)
                     # update configuration file with new version
                     if 'target_version' in body_parameters:
                         ControlConfig.set_version(body_parameters['target_version'],
