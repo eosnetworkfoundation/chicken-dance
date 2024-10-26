@@ -41,4 +41,4 @@ class ControlConfig():
         releases = response.json()
 
         # Extract version tags, returns json array
-        return f"{[release['tag_name'] for release in releases if 'tag_name' in release]}"
+        return json.dumps([release['tag_name'] for release in releases if 'tag_name' in release])
