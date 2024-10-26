@@ -79,7 +79,6 @@ def test_update_job(setup_module):
     """Get a job update the status and validate the change is in place"""
     cntx, session = setup_module
 
-    # test plain text
     params = { 'nextjob': 1 }
     response_first = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
     assert response_first.status_code == 200
