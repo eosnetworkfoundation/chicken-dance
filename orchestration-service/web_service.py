@@ -463,7 +463,11 @@ class WebService:
             # divide jobs by 5 return a whole number max 120 min of 5
             workers = max(5, min(120, len(self.jobs) // 5))
             # Execute the shell script
-            result = subprocess.run([script_path, workers], shell=True, check=False, capture_output=True, text=True)
+            result = subprocess.run([script_path, str(workers)],
+                shell=True,
+                check=False,
+                capture_output=True,
+                text=True)
             if result.returncode == 0:
                 params = urlencode({
                     "success": "Successfully Started Workers\n"
