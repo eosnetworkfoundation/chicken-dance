@@ -13,7 +13,7 @@ class ControlConfig():
         for file_name in os.listdir(root_dir):
             if file_name.endswith('.json') and "test-" not in file_name:
                 config_files.append(f'{root_dir}/{file_name}')
-        return json.dumps(config_files)
+        return config_files
 
     @staticmethod
     def set_version(new_version, config_file_path):
@@ -41,4 +41,4 @@ class ControlConfig():
         releases = response.json()
 
         # Extract version tags, returns json array
-        return json.dumps([release['tag_name'] for release in releases if 'tag_name' in release])
+        return [release['tag_name'] for release in releases if 'tag_name' in release]
