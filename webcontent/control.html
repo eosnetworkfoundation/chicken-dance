@@ -30,6 +30,22 @@
         <input type="submit" value="Load">
       </form>
   </div>
+  <div class="row">
+    <div class="card">
+      <p class="subtext">Start Workers To Run Jobs</p>
+      <br/>
+      <form action="/start" method="GET">
+        <button type="submit">Start</button>
+      </form>
+    </div>
+    <div class="card">
+      <p class="subtext">Stop Existing Workers</p>
+      <br/>
+      <form action="/stop" method="GET">
+        <button type="submit">Stop</button>
+      </form>
+    </div>
+  </div>
 </div>
 <script type="module">
   const queryString = window.location.search;

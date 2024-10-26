@@ -162,6 +162,9 @@ class WebService:
                 return Response("Invalid job JSON data", status=400)
 
         elif request.path == '/status':
+            # update the jobs status
+            report_obj = JobSummary.create(self.jobs)
+            self.jobs.update_running_status(report_obj['is_running'])
             replay_slice = request.args.get('sliceid')
             results = []
 
@@ -443,6 +446,70 @@ class WebService:
             + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
             + html_factory.contents('footer.html')
             return Response(no_token_html, status=403, content_type='text/html')
+
+        elif request.path == '/start':
+            if self.jobs.is_running:
+                params = urlencode({
+                    "error": "Jobs Already In Progress can not start\n"
+                })
+                if 'application/json' in request.headers.get('Accept'):
+                    return Response(params, status=400)
+                return redirect(f"/control?{params}")
+            else:
+                # Path to the shell script
+                script_dir = env_name_values.get('script_dir')
+                script_path = f"{script_dir}/replayhost/run-replay-instance.sh"
+                workers = int(len(self.jobs)/5)
+                if workers < 5:
+                    workers = 5
+                if workers > 120:
+                    workers = 120
+                # Execute the shell script
+                result = subprocess.run([script_path, workers], shell=True, capture_output=True, text=True)
+                if result.returncode == 0:
+                    params = urlencode({
+                        "success": "Successfully Started Workers\n"
+                    })
+                    if 'application/json' in request.headers.get('Accept'):
+                        return Response(params, status=200)
+                    return redirect(f"/control?{params}")
+
+            params = urlencode({
+                "error": "Failed to Start Workers\n"
+            })
+            if 'application/json' in request.headers.get('Accept'):
+                return Response(params, status=500)
+            return redirect(f"/control?{params}")
+
+        elif request.path == '/stop':
+            if not self.jobs.is_running:
+                params = urlencode({
+                    "error": "No jobs running can not stop\n"
+                })
+                if 'application/json' in request.headers.get('Accept'):
+                    return Response(params, status=400)
+                return redirect(f"/control?{params}")
+            else:
+                # Path to the shell script
+                script_dir = env_name_values.get('script_dir')
+                script_path = f"{script_dir}/replayhost/terminate-replay-instance.sh"
+                workers = "ALL"
+                # Execute the shell script
+                result = subprocess.run([script_path, workers], shell=True, capture_output=True, text=True)
+                if result.returncode == 0:
+                    params = urlencode({
+                        "success": "Successfully Stopped Workers\n"
+                    })
+                    if 'application/json' in request.headers.get('Accept'):
+                        return Response(params, status=200)
+                    return redirect(f"/control?{params}")
+
+            params = urlencode({
+                "error": "Failed to Stop Workers\n"
+            })
+            if 'application/json' in request.headers.get('Accept'):
+                return Response(params, status=500)
+            return redirect(f"/control?{params}")
 
         return Response("Not found", status=404)
 
