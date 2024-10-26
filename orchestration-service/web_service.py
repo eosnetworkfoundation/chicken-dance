@@ -297,7 +297,7 @@ class WebService:
                     # reset the state using the provided config
                     self.reset(body_parameters['config_file_path'])
                     # successfully reload configs
-                    return Response("OK",content_type='text/plain; charset=uft-8')
+                    return redirect(f"/progress")
 
                 # no configuration file
                 params = urlencode({
