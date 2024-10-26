@@ -2,6 +2,9 @@
   <div id="error-message">
     <h3>No Error</h3>
   </div>
+  <div id="success-message">
+    <h3>No Message</h3>
+  </div>
   <div class="card">
     <h3 id="control-meta-data-file">Control</h3>
       <form action="/restart" method="POST">
@@ -32,7 +35,8 @@
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const error = urlParams.get('error');
-  // if an error message provided
+  const success = urlParams.get('success');
+  // if an error or success message provided
   if (error) {
     // Select the <h3> child of the div with id="error-message"
     const errorMessageH3 = document.querySelector("#error-message h3");
@@ -40,8 +44,14 @@
       errorMessageH3.innerHTML = error;
       document.getElementById("error-message").style.display = "block";
     }
+  } else if (success) {
+    // Select the <h3> child of the div with id="success-message"
+    const successMessageH3 = document.querySelector("#success-message h3");
+    if (successMessageH3) {
+      successMessageH3.innerHTML = success;
+      document.getElementById("success-message").style.display = "block";
+    }
   }
-
 
   const reqHeaders = new Headers();
   reqHeaders.append("Accept", "application/json");

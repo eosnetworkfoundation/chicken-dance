@@ -160,6 +160,10 @@ li p {
   background-color: var(--error-color);
   display:none;
 }
+#success-message {
+  background-color: var(--allok-color);
+  display:none;
+}
 .note {
   font-size: 1em;
   font-weight: 100;

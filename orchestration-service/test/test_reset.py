@@ -88,7 +88,7 @@ def test_force_service_reset(setup_module):
         headers=cntx['json_headers'],
         data="config_file_path=../../meta-data/test-modify-jobs.json\n",
         timeout=5)
-    assert restart_job.status_code != 200
+    assert restart_job.status_code == 400
 
     # now force it
     force_data = "config_file_path=../../meta-data/test-modify-jobs.json\n"

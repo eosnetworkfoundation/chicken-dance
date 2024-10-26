@@ -275,7 +275,10 @@ class WebService:
                         params = urlencode({
                             "error": f"Configuration file {body_parameters['config_file_path']} does not exist"
                         })
+                        if 'application/json' in request.headers.get('Accept'):
+                            return Response(params, status=404)
                         return redirect(f"/control?{params}")
+
                     # update configuration file with new version
                     if 'target_version' in body_parameters:
                         ControlConfig.set_version(body_parameters['target_version'],
@@ -292,17 +295,26 @@ class WebService:
                         params = urlencode({
                             "error": "Jobs not complete requires `force` option"
                         })
+                        if 'application/json' in request.headers.get('Accept'):
+                            return Response(params, status=400)
                         return redirect(f"/control?{params}")
 
                     # reset the state using the provided config
                     self.reset(body_parameters['config_file_path'])
                     # successfully reload configs
-                    return redirect("/progress")
+                    params = urlencode({
+                        "success": "Sucessfully loaded new configuration"
+                    })
+                    if 'application/json' in request.headers.get('Accept'):
+                        return Response(params, status=200)
+                    return redirect(f"/control?{params}")
 
                 # no configuration file
                 params = urlencode({
                     "error": "Requires config_file_path value in body of post"
                 })
+                if 'application/json' in request.headers.get('Accept'):
+                    return Response(params, status=400)
                 return redirect(f"/control?{params}")
 
             # not supported request.method in ['GET','DELETE']
