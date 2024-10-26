@@ -71,7 +71,35 @@ def test_service_reset(setup_module):
         timeout=5)
     assert restart_job.status_code == 200
 
-    # validate networked all the jobs
+    # validate jobs
+    params = { 'nextjob': 1 }
+    still_job_response = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
+    assert still_job_response.status_code == 200
+    validate_job = json.loads(still_job_response.content.decode('utf-8'))
+    assert validate_job['status'] == 'WAITING_4_WORKER'
+
+def test_force_service_reset(setup_module):
+    """Load a new config"""
+    cntx, session = setup_module
+
+    # post to restart service with config
+    # assert error as jobs still working
+    restart_job = session.put(cntx['base_url'] + '/restart',
+        headers=cntx['json_headers'],
+        data="config_file_path=../../meta-data/test-modify-jobs.json\n",
+        timeout=5)
+    assert restart_job.status_code == 400
+
+    # now force it
+    force_data = "config_file_path=../../meta-data/test-modify-jobs.json\n"
+    force_data += "forced=Yes\n"
+    restart_job = session.put(cntx['base_url'] + '/restart',
+        headers=cntx['json_headers'],
+        data=force_data,
+        timeout=5)
+    assert restart_job.status_code == 200
+
+    # validate jobs
     params = { 'nextjob': 1 }
     still_job_response = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
     assert still_job_response.status_code == 200
