@@ -33,7 +33,7 @@
   const urlParams = new URLSearchParams(queryString);
   const error = urlParams.get('error');
   // if an error message provided
-  if (errorMessage) {
+  if (error) {
     // Select the <h3> child of the div with id="error-message"
     const errorMessageH3 = document.querySelector("#error-message h3");
     if (errorMessageH3) {
