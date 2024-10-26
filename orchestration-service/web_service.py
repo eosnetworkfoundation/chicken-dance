@@ -6,7 +6,7 @@ import sys
 import re
 import os
 from datetime import datetime, timedelta
-from urllib.parse import unquote
+from urllib.parse import unquote, urlencode
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.http import generate_etag
@@ -272,7 +272,10 @@ class WebService:
                         body_parameters['config_file_path'] = unquote(body_parameters['config_file_path'])
                     # abort if config file does not exist
                     if not os.path.exists(body_parameters['config_file_path']):
-                        return Response(f"Configuration file {body_parameters['config_file_path']} does not exist", status=400)
+                        params = urlencode({
+                            "error": f"Configuration file {body_parameters['config_file_path']} does not exist"
+                        })
+                        return redirect(f"/control?{params}")
                     # update configuration file with new version
                     if 'target_version' in body_parameters:
                         ControlConfig.set_version(body_parameters['target_version'],
@@ -286,7 +289,10 @@ class WebService:
 
                     report_obj = JobSummary.create(self.jobs)  # check for job in progress
                     if report_obj['blocks_processed'] < report_obj['total_blocks'] and not forced:
-                        return Response("Jobs not complete requires `force` option", status=400)
+                        params = urlencode({
+                            "error": "Jobs not complete requires `force` option"
+                        })
+                        return redirect(f"/control?{params}")
 
                     # reset the state using the provided config
                     self.reset(body_parameters['config_file_path'])
@@ -294,7 +300,10 @@ class WebService:
                     return Response("OK",content_type='text/plain; charset=uft-8')
 
                 # no configuration file
-                return Response("Requires config_file_path value in body of post", status=400)
+                params = urlencode({
+                    "error": "Requires config_file_path value in body of post"
+                })
+                return redirect(f"/control?{params}")
 
             # not supported request.method in ['GET','DELETE']
             return Response("method not supported", status=405)

@@ -156,6 +156,10 @@ li p {
 #failed-job-list span.material-symbols-outlined.mark-error {
   color: var(--error-color);
 }
+#error-message {
+  background-color: var(--error-color);
+  display:none;
+}
 .note {
   font-size: 1em;
   font-weight: 100;
