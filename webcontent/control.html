@@ -14,7 +14,7 @@
         </select>
         <br><br>
 
-        <label for="isForced">Select a Version:</label>
+        <label for="isForced">Force Restart When Jobs In Progress:</label>
         <select name="forced" id="isForced">
           <option value="No">False</option>
           <option value="Yes">True</option>
@@ -34,14 +34,15 @@
       headers: reqHeaders,
     }
   );
-  const configObjs = await JSON.parse(configResponse.json());
+  const configObjs = await configResponse.json();
+
   const versionResponse = await fetch('/release_versions',
     {
       method: "GET",
       headers: reqHeaders,
     }
   );
-  const versionObjs = await JSON.parse(versionResponse.json());
+  const versionObjs = await versionResponse.json();
   var configOptions = ''
   var versionOptions = ''
   if (configObjs != undefined) {

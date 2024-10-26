@@ -199,7 +199,7 @@ class WebService:
                     '*/*' in request.headers.get('Accept') or
                     request.headers.get('Accept') is None):
                     # Converting to simple Text format
-                    content = ReportTemplate.status_html_report(results)
+                    content = ReportTemplate.status_text_report(results)
                     return Response(content,content_type='text/plain; charset=uft-8')
 
         elif request.path == '/config':
