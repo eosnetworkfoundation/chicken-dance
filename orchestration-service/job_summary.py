@@ -14,8 +14,11 @@ class JobSummary:
             'total_jobs': 0,
             'jobs_succeeded': 0,
             'jobs_failed': 0,
-            'failed_jobs': []
+            'failed_jobs': [],
+            'is_running': False
         }
+        waiting_jobs = 0
+        running_jobs = 0
         for this_job_obj in job_manager.get_all().items():
             # jobid = this_job_obj[0]
             job = this_job_obj[1]
@@ -27,6 +30,14 @@ class JobSummary:
             if job.last_block_processed > 0:
                 report['blocks_processed'] += job.last_block_processed \
                     - job.slice_config.start_block_id
+
+            # count waiting and running jobs to mark is_running status
+            if job.status == JobStatusEnum.WAITING_4_WORKER:
+                waiting_jobs += 1
+            if job.status == JobStatusEnum.LOADING_SNAPSHOT \
+                or job.status == JobStatusEnum.STARTED \
+                or job.status == JobStatusEnum.WORKING:
+                running_jobs += 1
 
             # try to fix errors, where expected integrity hash was populated after job finish
             # this race condition leaves job incorrectly marked as HASH_MISMATCH, and we can fix
@@ -56,4 +67,12 @@ class JobSummary:
                     'jobid': job.job_id ,
                     'configid': job.slice_config.replay_slice_id
                     })
+        # set running status
+        if running_jobs > 0:
+            report['is_running'] = True
+        if waiting_jobs == report['total_jobs']:
+            report['is_running'] = False
+        if (report['jobs_succeeded'] + report['jobs_failed']) == report['total_jobs']:
+            report['is_running'] = False
+
         return report

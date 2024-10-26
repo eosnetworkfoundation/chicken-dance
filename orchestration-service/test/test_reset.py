@@ -82,6 +82,27 @@ def test_force_service_reset(setup_module):
     """Load a new config"""
     cntx, session = setup_module
 
+    # update a job to working status
+    params = { 'nextjob': 1 }
+    job_response = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
+    etag_value = job_response.headers['ETag']
+
+    # we are going to change status
+    job_request = json.loads(job_response.content.decode('utf-8'))
+
+    # update status to WORKING with all blocks processed
+    params = { 'jobid': job_request['job_id'] }
+    job_request['status'] = 'WORKING'
+    job_request['last_block_processed'] = job_request['start_block_num'] + 1
+
+    # serialized dict to JSON when passing in
+    # Add ETag Header
+    cntx['json_headers']['ETag'] = etag_value
+    updated_job = session.post(cntx['base_url'] + '/job',
+        params=params,
+        headers=cntx['json_headers'],
+        data=json.dumps(job_request))
+
     # post to restart service with config
     # assert error as jobs still working
     restart_job = session.post(cntx['base_url'] + '/restart',

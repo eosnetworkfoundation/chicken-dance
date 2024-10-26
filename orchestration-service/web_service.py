@@ -50,6 +50,8 @@ class WebService:
         /oauthback
         /showlog
         /restart
+        /start
+        /stop
         """
 
         # /job GET request
@@ -291,7 +293,8 @@ class WebService:
 
 
                     report_obj = JobSummary.create(self.jobs)  # check for job in progress
-                    if report_obj['blocks_processed'] < report_obj['total_blocks'] and not forced:
+                    self.jobs.update_running_status(report_obj['is_running'])
+                    if report_obj['is_running'] and not forced:
                         params = urlencode({
                             "error": "Jobs not complete requires `force` option"
                         })
@@ -340,6 +343,7 @@ class WebService:
 
         elif request.path == '/summary':
             report_obj = JobSummary.create(self.jobs)
+            self.jobs.update_running_status(report_obj['is_running'])
             # Format based on content type
             # content type is None when no content-type passed in
             # HTML

@@ -125,10 +125,19 @@ class JobManager:
     """Holds Jobs and manages persistance"""
 
     def __init__(self, replay_configs):
+        self.start_time = None
+        self.end_time = None
+        self.is_running = False
         self.jobs = {}
         for slice_config in replay_configs:
             job = JobStatus(slice_config)
             self.jobs[job.job_id] = job
+
+    def update_running_status(self, status):
+        """Update Running or Not Running"""
+        if self.is_running and self.is_running != status:
+            self.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self.is_running = status
 
     def get_job(self, job_id):
         """Return job by id, return dict or on error return None"""
@@ -173,6 +182,11 @@ class JobManager:
             return False
         if not 'status' in data or data['status'] is None:
             return False
+
+        # quick check if updating a job, then our run has started
+        # set start time if it hasn't been set already
+        if not self.start_time:
+            self.start_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
         # job id
         jobid = data['job_id']
