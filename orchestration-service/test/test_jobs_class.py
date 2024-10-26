@@ -46,7 +46,7 @@ def test_jobs_formats(setup_module):
 storage_type={job.slice_config.storage_type}, leap_version={job.slice_config.leap_version}, start_block_num={job.slice_config.start_block_id}, \
 end_block_num={job.slice_config.end_block_id}, status={job.status.name}, last_block_processed={job.last_block_processed}, \
 start_time={job.start_time}, end_time={job.end_time}, \
-expected_integrity_hash={job.slice_config.expected_integrity_hash}, actual_integrity_hash={job.actual_integrity_hash}"
+expected_integrity_hash={job.slice_config.expected_integrity_hash}, actual_integrity_hash={job.actual_integrity_hash}, error_message=None"
     job_as_dict = job.as_dict()
     assert job_as_dict['job_id'] == job.job_id
     assert job_as_dict['status'] == job.status.name
