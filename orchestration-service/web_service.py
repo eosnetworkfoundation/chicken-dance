@@ -275,7 +275,8 @@ class WebService:
                             body_parameters['config_file_path'])
 
                     forced = False
-                    if 'forced' in body_parameters and body_parameters['forced'] in ['True','true','Yes','yes']:
+                    if 'forced' in body_parameters \
+                        and body_parameters['forced'].lower() in ['true','yes']:
                         forced = True
 
 
