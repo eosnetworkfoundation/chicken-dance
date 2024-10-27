@@ -98,7 +98,7 @@
     }
   );
   const versionObjs = await versionResponse.json();
-  var versionOptions = ''
+  var versionOptions = '<option value="nochange">Keep Default</option>'
 
   if (versionObjs != undefined) {
     for (let i = 0; i < versionObjs.length; i++) {

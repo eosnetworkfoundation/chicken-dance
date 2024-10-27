@@ -20,17 +20,20 @@ from job_summary import JobSummary
 from env_store import EnvStore
 from github_oauth import GitHubOauth
 from control_config import ControlConfig
+from host_runner import Hosts
 
 class WebService:
     """class managing all the web service actions to run jobs
     for the chicken-dance aka replay-test"""
-    def __init__(self, config_file):
+    def __init__(self, jobs_config, datacenter_config):
         """initialize the context for the webservice"""
-        self.config_file = config_file
+        self.config_file = jobs_config
         # load the configuration
-        self.replay_config_manager = ReplayConfigManager(config_file)
+        self.replay_config_manager = ReplayConfigManager(jobs_config)
         # build the JobSummary
         self.jobs = JobManager(self.replay_config_manager)
+        # track hosts running jobs
+        self.hosts = Hosts(datacenter_config)
 
     def reset(self,config_file):
         """reset jobs and replay config manager"""
@@ -461,14 +464,16 @@ class WebService:
             script_dir = env_name_values.get('script_dir')
             script_path = f"{script_dir}/replayhost/run-replay-instance.sh"
             # divide jobs by 5 return a whole number max 120 min of 5
-            workers = str(max(5, min(120, len(self.jobs) // 5)))
+            workers = max(5, min(120, len(self.jobs) // 5))
             # Execute the shell script
-            result = subprocess.run([script_path, workers],
+            result = subprocess.run([script_path, str(workers)],
                 shell=False,
                 check=False,
                 capture_output=True,
                 text=True)
             if result.returncode == 0:
+                # set number of hosts allocated
+                self.hosts.set_count(workers)
                 params = urlencode({
                     "success": f"Successfully Allocated {workers} Hosts"
                 })
@@ -484,7 +489,7 @@ class WebService:
             return redirect(f"/control?{params}")
 
         elif request.path == '/stop':
-            if not self.jobs.is_running:
+            if not self.hosts.has_hosts():
                 params = urlencode({
                     "error": "No jobs running can not stop\n"
                 })
@@ -503,6 +508,8 @@ class WebService:
                 capture_output=True,
                 text=True)
             if result.returncode == 0:
+                # set number of hosts allocated
+                self.hosts.set_count(0)
                 params = urlencode({
                     "success": "Sucessfully Shutdown Hosts"
                 })
@@ -555,6 +562,6 @@ if __name__ == '__main__':
         sys.exit("Must provide config with --config option")
 
     # initialize
-    app = WebService(args.config)
+    app = WebService(args.config,env_name_values.get('datacenter_config'))
     # run web service
     run_simple(args.host, args.port, app.application)

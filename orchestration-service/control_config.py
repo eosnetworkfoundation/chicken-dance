@@ -18,6 +18,9 @@ class ControlConfig():
     @staticmethod
     def set_version(new_version, config_file_path):
         """update spring version in config file"""
+
+        if new_version.strip().lower() == "nochange":
+            return
         # Load JSON data from file
         with open(config_file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
