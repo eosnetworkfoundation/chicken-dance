@@ -461,23 +461,23 @@ class WebService:
             script_dir = env_name_values.get('script_dir')
             script_path = f"{script_dir}/replayhost/run-replay-instance.sh"
             # divide jobs by 5 return a whole number max 120 min of 5
-            workers = max(5, min(120, len(self.jobs) // 5))
+            workers = str(max(5, min(120, len(self.jobs) // 5)))
             # Execute the shell script
-            result = subprocess.run([script_path, str(workers)],
-                shell=True,
+            result = subprocess.run([script_path, workers],
+                shell=False,
                 check=False,
                 capture_output=True,
                 text=True)
             if result.returncode == 0:
                 params = urlencode({
-                    "success": "Successfully Started Workers\n"
+                    "success": f"Successfully Allocated {workers} Hosts"
                 })
                 if 'application/json' in request.headers.get('Accept'):
                     return Response(params, status=200)
                 return redirect(f"/control?{params}")
 
             params = urlencode({
-                "error": "Failed to Start Workers\n"
+                "error": f"Error: {result.stderr}"
             })
             if 'application/json' in request.headers.get('Accept'):
                 return Response(params, status=500)
@@ -497,17 +497,21 @@ class WebService:
             script_path = f"{script_dir}/replayhost/terminate-replay-instance.sh"
             workers = "ALL"
             # Execute the shell script
-            result = subprocess.run([script_path, workers], shell=True, check=False, capture_output=True, text=True)
+            result = subprocess.run([script_path, workers],
+                shell=False,
+                check=False,
+                capture_output=True,
+                text=True)
             if result.returncode == 0:
                 params = urlencode({
-                    "success": "Successfully Stopped Workers\n"
+                    "success": result.stdout
                 })
                 if 'application/json' in request.headers.get('Accept'):
                     return Response(params, status=200)
                 return redirect(f"/control?{params}")
 
             params = urlencode({
-                "error": "Failed to Stop Workers\n"
+                "error": result.stderr
             })
             if 'application/json' in request.headers.get('Accept'):
                 return Response(params, status=500)
