@@ -35,10 +35,10 @@ class WebService:
         # track hosts running jobs
         self.hosts = Hosts(datacenter_config)
 
-    def reset(self,jobs_config):
+    def reset(self,jobs_config, datacenter_config):
         """reset jobs and replay config manager"""
         # pylint: disable=unnecessary-dunder-call
-        self.__init__(jobs_config)
+        self.__init__(jobs_config,datacenter_config)
 
     @Request.application
     # pylint: disable=too-many-return-statements disable=too-many-branches
@@ -310,7 +310,7 @@ class WebService:
                         return redirect(f"/control?{params}")
 
                     # reset the state using the provided config
-                    self.reset(body_parameters['config_file_path'])
+                    self.reset(body_parameters['config_file_path'],env_name_values.get('datacenter_config'))
                     # successfully reload configs
                     params = urlencode({
                         "success": "Sucessfully loaded new configuration"
@@ -527,7 +527,7 @@ class WebService:
         return Response("Not found", status=404)
 
 if __name__ == '__main__':
-    # env is only intended to hold oauth client, secret, and urls
+    # env holds oauth, location of config files, and github repos
     env_name_values = EnvStore('env')
 
     parser = argparse.ArgumentParser(
