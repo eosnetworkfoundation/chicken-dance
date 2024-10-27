@@ -504,7 +504,7 @@ class WebService:
                 text=True)
             if result.returncode == 0:
                 params = urlencode({
-                    "success": result.stdout
+                    "success": "Sucessfully Shutdown Hosts"
                 })
                 if 'application/json' in request.headers.get('Accept'):
                     return Response(params, status=200)
