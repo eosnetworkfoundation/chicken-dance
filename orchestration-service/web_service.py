@@ -27,7 +27,7 @@ class WebService:
     for the chicken-dance aka replay-test"""
     def __init__(self, jobs_config, datacenter_config):
         """initialize the context for the webservice"""
-        self.config_file = jobs_config
+        self.jobs_config = jobs_config
         # load the configuration
         self.replay_config_manager = ReplayConfigManager(jobs_config)
         # build the JobSummary
@@ -35,10 +35,10 @@ class WebService:
         # track hosts running jobs
         self.hosts = Hosts(datacenter_config)
 
-    def reset(self,config_file):
+    def reset(self,jobs_config):
         """reset jobs and replay config manager"""
         # pylint: disable=unnecessary-dunder-call
-        self.__init__(config_file)
+        self.__init__(jobs_config)
 
     @Request.application
     # pylint: disable=too-many-return-statements disable=too-many-branches

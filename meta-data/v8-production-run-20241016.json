@@ -1,234 +1,234 @@
 [
     {
         "start_block_id": 388571449,
-        "end_block_id": 388837113,
+        "end_block_id": 388755078,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-13-00-eos-v8-388571449.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "33f89f850331fa35cca36ee5c9a9944f23866b4d633f6830fdebe048ff51d54b",
+        "leap_version": "v1.0.2"
     },
     {
-        "start_block_id": 388837113,
+        "start_block_id": 388755078,
         "end_block_id": 389410152,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-14-13-eos-v8-388837113.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "0ee9a7185f8fb5ae59f3d03687f31728cb07e28d14e5a72062dfbab11ba36ccc",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 389410152,
         "end_block_id": 389418532,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-17-20-eos-v8-389410152.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "50e7a814b6e0d4a847cbdf498d1f6be0d19e9b133138bd7519c275d37d055c28",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 389418532,
         "end_block_id": 389878965,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-17-22-eos-v8-389418532.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "34473a21522647f5ddd3862f47bcea6b773d401e55690b75b4bf1e3aa5e415e5",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 389878965,
         "end_block_id": 390371880,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-20-13-eos-v8-389878965.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "51ae2c48a00643cf040423336d22a2106b0846028fc89a4f5635066474153693",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 390371880,
         "end_block_id": 390900334,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-23-10-eos-v8-390371880.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "74fa7ffd91763c4908151fcff552bf3a0dc596621bb8dad52eb2e215476bd9c1",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 390900334,
         "end_block_id": 391388217,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-26-11-eos-v8-390900334.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "9f4c1e27ea9f6507a65984c6d9e266d135d036161764db141e9c0f281bde346d",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 391388217,
         "end_block_id": 391880061,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-29-07-eos-v8-391388217.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "256a0ad537124d06bab0774110902b1fe99859afb7019aed9980fff385448b7a",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 391880061,
         "end_block_id": 392392548,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-01-03-eos-v8-391880061.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "f924fffb695badedd093027211ed6e0336e86ca9d1b54ffb75056f3088f83fc7",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 392392548,
         "end_block_id": 392878244,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-04-03-eos-v8-392392548.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "aa8f3814e22d5f22554e0ff12f3f39caed755f6aa3cb1545591786bcf209ce3a",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 392878244,
         "end_block_id": 393371560,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-06-22-eos-v8-392878244.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "ce1efa767fa26fd614a64898bc2dc1a49a22604319b081e30b98cafa367d0cae",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 393371560,
         "end_block_id": 393889924,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-09-19-eos-v8-393371560.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "e22da6d3bc179e0d4d5c489a6223534ea022369eb5a66d1887856147aac45ede",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 393889924,
         "end_block_id": 394219545,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-12-19-eos-v8-393889924.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "5a316b667b020e7beb0e0b4be54495e66c68afb603a25601130fa0e9e1b7e2a1",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 394219545,
         "end_block_id": 394549558,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-14-16-eos-v8-394219545.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "9d8a841a99bb6cacb17ae5e16e88457585c3c0b03682ed4f517b4061ac239686",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 394549558,
         "end_block_id": 394879617,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-16-14-eos-v8-394549558.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "a7cf6220452a93388b3285f9c09b63adb6e5f1fe6aea91c0311ed134a8709e8d",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 394879617,
         "end_block_id": 395209435,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-18-12-eos-v8-394879617.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "d69350e85165fdc926a030d25b46f5977a8475a8c2417c15070c3f210369d4f4",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 395209435,
         "end_block_id": 395539452,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-20-10-eos-v8-395209435.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "95d650baf12e91d79c2483be635d9c8a90657eca3f637cf9c0d4bf554b837916",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 395539452,
         "end_block_id": 395869572,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-22-08-eos-v8-395539452.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "069e7dd8050f65fc4df583c83065ad1c287aa61d17de993b29e68a5b9f438142",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 395869572,
         "end_block_id": 396199480,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-24-06-eos-v8-395869572.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "32fed3df3bdda1c37b796d0e52e9bb3788aff04ffd613b0f4b1cd04980d39d06",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 396199480,
         "end_block_id": 396529663,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-26-04-eos-v8-396199480.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "131220ad28062091c90bbfbde04d9cb4ba569944bc628ae03b53d45729e58ae0",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 396529663,
         "end_block_id": 396859576,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-28-03-eos-v8-396529663.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "d17f513634bf110fc844797cf29ed52610aff66ccadc7404ed61ed9456c0cce8",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 396859576,
         "end_block_id": 397189434,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-09-30-01-eos-v8-396859576.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "6b753346a13735dc90c50d7fe6143341ddc3567b2d0c945eee838c3e1c8ca2e0",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 397189434,
         "end_block_id": 397519469,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-02-00-eos-v8-397189434.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "0a6e50f2d1cf25b5614ffbd7bff39ff37c54172acdce8f4a371c9c94eaa1760f",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 397519469,
         "end_block_id": 397849643,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-03-22-eos-v8-397519469.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "549a42c8ce5f754630dfa85f185a4652c7ecc5d6dd069dbbf1e53a3e0cf40a32",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 397849643,
         "end_block_id": 398179512,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-05-20-eos-v8-397849643.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "24300b4e432e0e4a7abb5207d3d7b052ca39973904347f92bc7670a83a9de0f9",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 398179512,
         "end_block_id": 398509640,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-07-17-eos-v8-398179512.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "2a7f6bda965154a8da9b1a040169472f014c6dee0f917224536d42b3ae684bf5",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 398509640,
         "end_block_id": 398839629,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-09-15-eos-v8-398509640.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "3385442609ff2d9db5db06e3c4b519bfad20ee88e98016768da07ffac6f8e084",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 398839629,
         "end_block_id": 399169606,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-11-13-eos-v8-398839629.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "c3d8591f72f29d73bd135894b21a80180fee9129eef5e28c393460ff8b5b41f3",
+        "leap_version": "v1.0.2"
     },
     {
         "start_block_id": 399169606,
         "end_block_id": 399499546,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-10-13-11-eos-v8-399169606.bin.zst",
         "storage_type": "s3",
-        "expected_integrity_hash": "",
-        "leap_version": "1.0.2"
+        "expected_integrity_hash": "cc2a9b91bf1a33184f82e3aac407e95ab8ad1e9efdf0371d1352d3274421ec4a",
+        "leap_version": "v1.0.2"
     }
 ]
