@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PYTHONPATH=..:meta-data:orchestration-service:orchestration-service/test:PYTHONPATH=/Users/eric/Library/Python/3.10/lib/python/site-packages:/usr/local/lib/python3.10/site-packages:$PYTHONPATH
+export PYTHONPATH=..:meta-data:orchestration-service:orchestration-service/test:/Users/eric/Library/Python/3.10/lib/python/site-packages:/usr/local/lib/python3.10/site-packages:$PYTHONPATH
 # copy in env file for testing purposes
 cp -f ../../env.development env
 # setup test file for persistance testing

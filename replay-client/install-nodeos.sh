@@ -2,25 +2,37 @@
 set -eo pipefail
 
 # install nodeos locally
-LEAP_VERSION="${1#v}"
+LEAP_VERSION="${1}"
 ORCH_IP="${2}"
+PORT="${3}"
 OS="ubuntu22.04"
-if [[ "$(echo "$LEAP_VERSION" | grep -ic 'local')" == '1' ]]; then
-    DEB_FILE="antelope-spring_${LEAP_VERSION}-${OS}_amd64.deb"
-    if [ -z ${ORCH_IP} ]; then
-        echo "empty orchestration IP when downloading deb package"
-        exit 127
-    fi
-    DEB_URL="http://${ORCH_IP}/packages/${DEB_FILE}"
-elif [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
+
+# is this an official release version number
+# or a branch
+if [[ "$LEAP_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9]$ ]]; then
+  LEAP_VERSION="${LEAP_VERSION#v}"
+  if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
-elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
+  elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
     DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
-else  # spring
+  else  # spring
     DEB_FILE="antelope-spring_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
+  fi
+else
+  BRANCH="${LEAP_VERSION}"
+  response_json=$(curl -H 'Accept: application/json' http://${ORCH_IP}:${PORT:-4000}/deb_download_url?branch="${BRANCH}")
+  CHECK=$(echo $response_json | jq .success | sed 's/"//g' )
+  if [ "$CHECK" == "true" ]; then
+    URL=$(echo $response_json | jq .url | sed 's/"//g' )
+    source ~/token.env
+    curl -L -o download.zip -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -H "Authorization: Bearer ${TOKEN}" "$URL"
+  else
+    # didn't get valid URL to download artifact bad token or maybe artifact no longer exists
+    exit 127
+  fi
 fi
 
 ## dry-run

@@ -289,8 +289,12 @@ class WebService:
                         return redirect(f"/control?{params}")
 
                     # update configuration file with new version
+                    # either official version number or branch name
                     if 'target_version' in body_parameters:
                         ControlConfig.set_version(body_parameters['target_version'],
+                            body_parameters['config_file_path'])
+                    if 'target_branch' in body_parameters and 'target_version' not in body_parameters:
+                        ControlConfig.set_version(body_parameters['target_branch'],
                             body_parameters['config_file_path'])
 
                     forced = False
@@ -353,6 +357,25 @@ class WebService:
                 config_dir = env_name_values.get('config_dir')
                 config_files = ControlConfig.config_files(config_dir)
                 return Response(json.dumps(config_files), content_type='application/json')
+
+            # not supported request.method in ['POST','PUT','DELETE']
+            return Response("method not supported", status=405)
+
+        elif request.path == '/deb_download_url':
+            if request.method == 'GET':
+                branch = request.args.get('branch')
+                if not branch:
+                    return Response("no branch argument provided", status=400)
+
+                env_name_values.get('config_dir')
+                [owner,repo] = env_name_values.get('repo').split('/')
+                artifact_dict_response = ArtifactURL.deb_url_by_branch(
+                    owner,
+                    repo,
+                    branch,
+                    env_name_values.get('artifact'),
+                    env_name_values.get('github_read_token'))
+                return Response(json.dumps(artifact_dict_response), content_type='application/json')
 
             # not supported request.method in ['POST','PUT','DELETE']
             return Response("method not supported", status=405)

@@ -30,9 +30,13 @@ if [ $NUM_INSTANCES -lt 1 ]; then
 fi
 
 # modify user data script to stuff in private ip of orchestration server
-ORCH_IP=$(sh /home/ubuntu/replay-test/scripts/get_private_ip.sh)
+ORCH_IP=$(sh ${HOME}/replay-test/scripts/get_private_ip.sh)
 sed "s^# MACRO_P echo \$ORCH_IP^echo $ORCH_IP^" "${SCRIPTS_DIR}/replay-node-bootstrap.sh" > /tmp/replay-node-bootstrap.sh
 mv /tmp/replay-node-bootstrap.sh "${SCRIPTS_DIR}/replay-node-bootstrap.sh"
+source ${HOME}/env
+sed "s^# MACRO_P echo \$github_read_token^echo $github_read_token^" "${SCRIPTS_DIR}/replay-node-bootstrap.sh" > /tmp/replay-node-bootstrap.sh
+mv /tmp/replay-node-bootstrap.sh "${SCRIPTS_DIR}/replay-node-bootstrap.sh"
+
 
 # find the number of zones we can use
 NUM_ZONES=0

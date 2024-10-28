@@ -114,7 +114,7 @@ SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
 # 3) local non-priv install of nodeos
 #################
 echo "Step 3 of 7: local non-priv install of nodeos"
-"${REPLAY_CLIENT_DIR:?}"/install-nodeos.sh $LEAP_VERSION $ORCH_IP
+"${REPLAY_CLIENT_DIR:?}"/install-nodeos.sh $LEAP_VERSION $ORCH_IP $ORCH_PORT
 PATH=${PATH}:${HOME}/nodeos/usr/bin:${HOME}/nodeos/usr/local/bin
 export PATH
 
