@@ -8,7 +8,7 @@ disable=duplicate-code, f-string-without-interpolation
 
 [DESIGN]
 
-max-locals=50
+max-locals=60
 max-attributes=12
 
 [FORMAT]

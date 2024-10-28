@@ -1,6 +1,7 @@
 """Object holding and validating control UI configuration parameters"""
 import os
 import json
+import re
 import requests
 
 class ControlConfig():
@@ -45,3 +46,39 @@ class ControlConfig():
 
         # Extract version tags, returns json array
         return [release['tag_name'] for release in releases if 'tag_name' in release]
+
+    @staticmethod
+    def get_branches(owner="antelopeIO", repo="spring", token=None):
+        """list all branches in a project"""
+        # GitHub API endpoint for branches get first 100
+        url = f"https://api.github.com/repos/{owner}/{repo}/branches?per_page=100&page=1"
+
+        api_headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+         }
+
+        # Add authorization if a token is provided
+        if token:
+            api_headers["Authorization"] = f'Bearer {token}'
+
+        # Fetch the branches
+        response = requests.get(url, headers=api_headers, timeout=3)
+
+        # Parse the branch names from the JSON response
+        branches = response.json()
+        # filter out just names
+        branch_names = [branch["name"] for branch in branches]
+
+        # Use regex to filter branches matching 'release/[1-9].[0-9]'
+        release_pattern = re.compile(r"^release/[1-9]\.[0-9]+$")
+        release_branches = [name for name in branch_names if release_pattern.match(name)]
+        other_branches = [name for name in branch_names if not release_pattern.match(name)]
+
+        # Sort release branches and other branches separately
+        sorted_release_branches = sorted(release_branches, reverse=False)
+        sorted_other_branches = sorted(other_branches, reverse=True)
+
+        # Combine lists with release branches at the front
+        sorted_branch_names = sorted_release_branches + sorted_other_branches
+        return sorted_branch_names

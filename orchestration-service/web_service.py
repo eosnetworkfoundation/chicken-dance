@@ -332,9 +332,18 @@ class WebService:
 
         elif request.path == '/release_versions':
             if request.method == 'GET':
-                things = env_name_values.get('repo').split('/')
-                versions = ControlConfig.get_versions(things[0],things[1])
+                [owner,repo] = env_name_values.get('repo').split('/')
+                versions = ControlConfig.get_versions(owner,repo)
                 return Response(json.dumps(versions), content_type='application/json')
+
+            # not supported request.method in ['POST','PUT','DELETE']
+            return Response("method not supported", status=405)
+
+        elif request.path == '/repo_branches':
+            if request.method == 'GET':
+                [owner,repo] = env_name_values.get('repo').split('/')
+                branches = ControlConfig.get_branches(owner,repo)
+                return Response(json.dumps(branches), content_type='application/json')
 
             # not supported request.method in ['POST','PUT','DELETE']
             return Response("method not supported", status=405)

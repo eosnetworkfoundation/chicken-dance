@@ -1,3 +1,49 @@
+<style>
+  /* Basic styling for the toggle switch */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .toggle-switch input {
+    display: none;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #4CAF50;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+</style>
+
 <div class="maincontent">
   <div id="error-message">
     <h3>No Error</h3>
@@ -6,26 +52,32 @@
     <h3>No Message</h3>
   </div>
   <div class="card">
+    <h2 id="loading">Loading ...</h2>
     <h3 id="control-meta-data-file">Control</h3>
       <form action="/restart" method="POST">
         <label for="fileSelect">Select a file:</label>
         <select name="config_file_path" id="fileSelect">
           <option value="NA">Loading...</option>
         </select>
-        <br><br>
+        <br>
 
-        <label for="versionSelect">Select a Version:</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleButton" onclick="toggleEvent()">
+          <span class="slider"></span>
+        </label>
+        <br>
+
+        <label id="labelselect" for="versionSelect">Select a Version:</label>
         <select name="target_version" id="versionSelect">
           <option value="NA">Loading...</option>
         </select>
-        <br><br>
+        <br>
 
         <label for="isForced">Force Restart When Jobs In Progress:</label>
         <select name="forced" id="isForced">
           <option value="No">False</option>
           <option value="Yes">True</option>
         </select>
-        <br><br>
 
         <input type="submit" value="Load">
       </form>
@@ -48,6 +100,19 @@
   </div>
 </div>
 <script type="module">
+  function toggleEvent() {
+    const toggleButton = document.getElementById('toggleButton');
+
+    if (toggleButton.checked) {
+      console.log('Toggle is ON');
+      document.getElementById("versionSelect") = branchSelect
+      document.getElementById("labelselect").textContent = "Select a Branch:"
+    } else {
+      console.log('Toggle is OFF');
+      document.getElementById("branchSelect") = versionSelect
+      document.getElementById("labelselect").textContent = "Select a Version:"
+    }
+  }
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const error = urlParams.get('error');
@@ -98,14 +163,36 @@
     }
   );
   const versionObjs = await versionResponse.json();
-  var versionOptions = '<option value="nochange">Keep Default</option>'
+  var versionSelect = '<select name="target_version" id="versionSelect">\n'
+  versionSelect += '<option value="nochange">Keep Default</option>'
 
   if (versionObjs != undefined) {
     for (let i = 0; i < versionObjs.length; i++) {
-      versionOptions += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
+      versionSelect += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
     }
   } else {
-    versionOptions += '<option value="NA">No Versions Returned</option>'
+    versionSelect += '<option value="NA">No Versions Returned</option>'
   }
-  document.getElementById("versionSelect").innerHTML = versionOptions
+  versionSelect += '</select>'
+  document.getElementById("versionSelect") = versionSelect
+
+  const branchResponse = await fetch('/repo_branches',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const branchObjs = await branchResponse.json();
+  var branchSelect = '<select name="target_branch" id="branchSelect">\n'
+
+  if (branchObjs != undefined) {
+    for (let i = 0; i < branchObjs.length; i++) {
+      branchSelect += '<option value="'+branchObjs[i]+'">'+branchObjs[i]+'</option>'
+    }
+  } else {
+    branchSelect += '<option value="NA">No Branches Returned</option>'
+  }
+  branchSelect += '</select>'
+
+  document.getElementById("loading").style.display = "none";
 </script>
