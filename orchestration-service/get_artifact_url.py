@@ -61,7 +61,7 @@ class ArtifactURL():
     @staticmethod
     def get_most_recent_merge_sha(org, repo, branch, token):
         """get latest merge SHA"""
-        url = f"https://api.github.com/repos/{org}/{repo}/pulls?state=closed&base={branch}"
+        url = f"https://api.github.com/repos/{org}/{repo}/pulls?state=all&base=main&per_page=100&page=1"
         # Fetch the pull requests
         git_hub_pulls_response = requests.get(url,
             headers=ArtifactURL.api_headers(token),
@@ -72,8 +72,14 @@ class ArtifactURL():
 
         root_json = git_hub_pulls_response.content.decode('utf-8')
         pull_requests = json.loads(root_json)
+        if len(pull_requests) <= 0:
+            return None
 
-        return pull_requests[0]['merge_commit_sha']
+        for pr in pull_requests:
+            if pr['head']['ref'] == branch:
+                return pr['merge_commit_sha']
+
+        return None
 
     @staticmethod
     def get_latest_build_action(org, repo, action, merge_sha, token):
@@ -86,7 +92,7 @@ class ArtifactURL():
         # set url
         url=f'https://api.github.com/repos/{org}/{repo}/actions/runs'
         # set params
-        params = {'head_sha': merge_sha, 'event': 'push'}
+        params = {'merge_sha': merge_sha, 'event': 'pull_request'}
 
         # API Request
         query_runs = requests.get(url,
