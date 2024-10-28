@@ -59,25 +59,26 @@
         <select name="config_file_path" id="fileSelect">
           <option value="NA">Loading...</option>
         </select>
-        <br>
+        <br><br>
 
         <label class="toggle-switch">
-          <input type="checkbox" id="toggleButton" onclick="toggleEvent()">
+          <input type="checkbox" id="toggleButton">
           <span class="slider"></span>
         </label>
-        <br>
+        <br><br>
 
         <label id="labelselect" for="versionSelect">Select a Version:</label>
         <select name="target_version" id="versionSelect">
           <option value="NA">Loading...</option>
         </select>
-        <br>
+        <br><br>
 
         <label for="isForced">Force Restart When Jobs In Progress:</label>
         <select name="forced" id="isForced">
           <option value="No">False</option>
           <option value="Yes">True</option>
         </select>
+        <br><br>
 
         <input type="submit" value="Load">
       </form>
@@ -100,19 +101,6 @@
   </div>
 </div>
 <script type="module">
-  function toggleEvent() {
-    const toggleButton = document.getElementById('toggleButton');
-
-    if (toggleButton.checked) {
-      console.log('Toggle is ON');
-      document.getElementById("versionSelect") = branchSelect
-      document.getElementById("labelselect").textContent = "Select a Branch:"
-    } else {
-      console.log('Toggle is OFF');
-      document.getElementById("branchSelect") = versionSelect
-      document.getElementById("labelselect").textContent = "Select a Version:"
-    }
-  }
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const error = urlParams.get('error');
@@ -174,7 +162,7 @@
     versionSelect += '<option value="NA">No Versions Returned</option>'
   }
   versionSelect += '</select>'
-  document.getElementById("versionSelect") = versionSelect
+  document.getElementById("versionSelect").outerHTML = versionSelect
 
   const branchResponse = await fetch('/repo_branches',
     {
@@ -193,6 +181,19 @@
     branchSelect += '<option value="NA">No Branches Returned</option>'
   }
   branchSelect += '</select>'
+
+  const toggleButton = document.getElementById('toggleButton');
+  toggleButton.onclick = function toggleEvent() {
+      if (toggleButton.checked) {
+        console.log('Toggle is ON');
+        document.getElementById("versionSelect").outerHTML = branchSelect
+        document.getElementById("labelselect").textContent = "Select a Branch:"
+      } else {
+        console.log('Toggle is OFF');
+        document.getElementById("branchSelect").outerHTML = versionSelect
+        document.getElementById("labelselect").textContent = "Select a Version:"
+      }
+  }
 
   document.getElementById("loading").style.display = "none";
 </script>
