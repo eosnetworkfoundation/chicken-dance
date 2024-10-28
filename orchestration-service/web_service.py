@@ -21,6 +21,7 @@ from env_store import EnvStore
 from github_oauth import GitHubOauth
 from control_config import ControlConfig
 from host_runner import Hosts
+from get_artifact_url import ArtifactURL
 
 class WebService:
     """class managing all the web service actions to run jobs
