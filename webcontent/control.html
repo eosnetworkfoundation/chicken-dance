@@ -10,6 +10,7 @@
     <h3 id="control-meta-data-file">Control</h3>
       <form action="/restart" method="POST">
         <p class="subtext">Select a Config File and Jobs to Load</p>
+        <br/>
         <label for="fileSelect">Config:</label>
         <select name="config_file_path" id="fileSelect">
           <option value="NA">Loading...</option>
@@ -25,6 +26,7 @@
         <br><br>
 
         <p class="subtext">Select Version or Branch for Nodeos Version</p>
+        <br/>
         <label id="labelselect" for="versionSelect">Version:</label>
         <select name="target_version" id="versionSelect">
           <option value="NA">Loading...</option>
@@ -32,6 +34,7 @@
         <br><br>
 
         <p class="subtext">Force Reload of Configuration with exising Runners</p>
+        <br/>
         <label for="isForced">Force:</label>
         <select name="forced" id="isForced">
           <option value="No">False</option>
