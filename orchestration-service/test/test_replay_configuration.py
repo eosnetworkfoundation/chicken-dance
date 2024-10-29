@@ -93,7 +93,7 @@ def test_dump_json_config():
         broken_config.snapshot_path = ok_config.snapshot_path
         broken_config.storage_type = ok_config.storage_type
         broken_config.expected_integrity_hash = ok_config.expected_integrity_hash
-        broken_config.leap_version = ok_config.leap_version
+        broken_config.spring_version = ok_config.spring_version
         is_success = manager.set(broken_config)
         assert is_success is True
         # write out the updated json

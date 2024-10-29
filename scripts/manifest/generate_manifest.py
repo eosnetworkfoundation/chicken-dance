@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 # 1 - Connect to S3 and parse out list of snapshots
 #   - Alternatively connect to web page and parse out list of snapshots
 # 2 - process list and create data structure, snapshot_manifest
-# python3.10 generate_manifest_from_eosnation.py --source-net mainnet --leap-version 5.0.2
+# python3.10 generate_manifest_from_eosnation.py --source-net mainnet --spring-version 5.0.2
 
 class ParseSnapshots:
     """Parse HTML page with list of snapshots"""
@@ -144,7 +144,7 @@ class Manifest:
     def __init__(self, snapshots, source_net, leap_verison, min_block_increment=5000):
         self.snapshots = snapshots
         self.source_net = source_net
-        self.leap_version = leap_verison
+        self.spring_version = leap_verison
         self.min_block_increment = min_block_increment
         self.block_heights = []
         self.manifest = []
@@ -175,7 +175,7 @@ class Manifest:
                 'snapshot_path': None,
                 'storage_type': 's3',
                 'expected_integrity_hash': '',
-                'leap_version': self.leap_version
+                'spring_version': self.spring_version
             }
             start_block_num = ParseSnapshots.parse_block(url)
             if start_block_num or start_block_num == 0:
@@ -355,7 +355,7 @@ if __name__ == '__main__':
         help='which chain to use e.g. mainnet or jungle')
     parser.add_argument('--snapshot-version', type=str, default='v6',
         help='version of snapshot, default v6')
-    parser.add_argument('--leap-version', type=str, default='5.0.0',
+    parser.add_argument('--spring-version', type=str, default='5.0.0',
         help='version of leap, default 5.0.0')
     parser.add_argument('--source-eosnation', action=argparse.BooleanOptionalAction, \
         default=False, help='build snapshots from eosnation snapshots list')
@@ -412,7 +412,7 @@ if __name__ == '__main__':
 
     # strip out whitespace to get name of chain
     CHAIN_NAME = ''.join(args.source_net.lower().split())
-    manifest = Manifest(list_of_snapshots, CHAIN_NAME, args.leap_version.lower(), \
+    manifest = Manifest(list_of_snapshots, CHAIN_NAME, args.spring_version.lower(), \
                         args.block_space_between_slices)
 
     if args.upload_snapshots:

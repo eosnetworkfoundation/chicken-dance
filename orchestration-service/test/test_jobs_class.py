@@ -43,7 +43,7 @@ def test_jobs_formats(setup_module):
     manager = JobManager(setup_module)
     job = manager.get_next_job()
     assert str(job) == f"job_id={job.job_id}, replay_slice_id={job.slice_config.replay_slice_id}, snapshot_path={job.slice_config.snapshot_path}, \
-storage_type={job.slice_config.storage_type}, leap_version={job.slice_config.leap_version}, start_block_num={job.slice_config.start_block_id}, \
+storage_type={job.slice_config.storage_type}, spring_version={job.slice_config.spring_version}, start_block_num={job.slice_config.start_block_id}, \
 end_block_num={job.slice_config.end_block_id}, status={job.status.name}, last_block_processed={job.last_block_processed}, \
 start_time={job.start_time}, end_time={job.end_time}, \
 expected_integrity_hash={job.slice_config.expected_integrity_hash}, actual_integrity_hash={job.actual_integrity_hash}, error_message=None"

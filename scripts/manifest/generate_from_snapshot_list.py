@@ -7,7 +7,7 @@ import json
 #        "snapshot_path": "s3://chicken-dance/mainnet/snapshots/snapshot-2018-06-10-01-eos-v6-0000000000.bin.zst",
 #        "storage_type": "s3",
 #        "expected_integrity_hash": "",
-#        "leap_version": "1.0.0-rc2"
+#        "spring_version": "1.0.0-rc2"
 #    },
 
 if __name__ == '__main__':
@@ -33,7 +33,7 @@ if __name__ == '__main__':
                 "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/"+snapshot_file_name,
                 "storage_type": "s3",
                 "expected_integrity_hash": "",
-                "leap_version": "1.0.2"
+                "spring_version": "1.0.2"
                 }
             manifest.append(record)
             start_block_num = end_block_num

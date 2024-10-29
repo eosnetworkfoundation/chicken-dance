@@ -5,7 +5,7 @@
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots/snapshot-2018-06-10-16-eos-v6-0000041758.bin.zst",
         "storage_type": "s3",
         "expected_integrity_hash": "ABCD1234EFGH5678IJKL9012MNOP3456",
-        "leap_version": "4.0.4"
+        "spring_version": "4.0.4"
     },
     {
         "start_block_id": 101,
@@ -13,7 +13,7 @@
         "snapshot_path": "/chicken-dance/snapshots/snapshot-2018-06-17-16-eos-v6-0001214428.bin.zst",
         "storage_type": "fs",
         "expected_integrity_hash": "QRST5678UVWX9012CDEF1234GHIJ3456",
-        "leap_version": "4.0.4"
+        "spring_version": "4.0.4"
     },
     {
         "end_block_id": 300

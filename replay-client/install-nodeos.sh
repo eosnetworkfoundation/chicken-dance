@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # install nodeos locally
-LEAP_VERSION="${1}"
+SPRING_VERSION="${1}"
 ORCH_IP="${2}"
 PORT="${3}"
 OS="ubuntu22.04"
@@ -16,22 +16,22 @@ done
 
 # is this an official release version number
 # or a branch
-if [[ "$LEAP_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9]$ ]]; then
-  LEAP_VERSION="${LEAP_VERSION#v}"
-  if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
-    DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
-    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
-  elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
-    DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
-    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
+if [[ "$SPRING_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9]$ ]]; then
+  SPRING_VERSION="${SPRING_VERSION#v}"
+  if [[ "${SPRING_VERSION:0:1}" == '4' ]]; then
+    DEB_FILE="leap_${SPRING_VERSION}-${OS}_amd64.deb"
+    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${SPRING_VERSION}/${DEB_FILE}"
+  elif [[ "${SPRING_VERSION:0:1}" == '5' ]]; then
+    DEB_FILE="leap_${SPRING_VERSION}_amd64.deb"
+    DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${SPRING_VERSION}/${DEB_FILE}"
   else  # spring
-    DEB_FILE="antelope-spring_${LEAP_VERSION}_amd64.deb"
-    DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
+    DEB_FILE="antelope-spring_${SPRING_VERSION}_amd64.deb"
+    DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${SPRING_VERSION}/${DEB_FILE}"
   fi
   # download file if needed
   wget --directory-prefix="${HOME}" "${DEB_URL}" 2> /dev/null
 else
-  BRANCH="${LEAP_VERSION}"
+  BRANCH="${SPRING_VERSION}"
   response_json=$(curl -H 'Accept: application/json' http://${ORCH_IP}:${PORT:-4000}/deb_download_url?branch="${BRANCH}")
   CHECK=$(echo $response_json | jq .success | sed 's/"//g' )
   if [ "$CHECK" == "true" ]; then
@@ -62,7 +62,7 @@ DEB_FILE=$(ls -1 $HOME/*_*.deb | head -1)
 [[ "$(echo "$3" | grep -icP '^DRY(-_)>RUN$')" == '1' ]] && export DRY_RUN='true'
 if [[ "${DRY_RUN}" == 'true' ]]; then
     prinf "\e[1;33mWARNING: DRY-RUN is set!\e[0m\n"
-    echo "LEAP_VERSION='${LEAP_VERSION}'"
+    echo "SPRING_VERSION='${SPRING_VERSION}'"
     echo "OS='${OS}'"
     echo "DEB_FILE='${DEB_FILE}'"
     echo "DEB_URL='${DEB_URL}'"
@@ -71,7 +71,7 @@ if [[ "${DRY_RUN}" == 'true' ]]; then
 fi
 
 # install nodeos locally
-echo "Installing nodeos ${LEAP_VERSION} locally"
+echo "Installing nodeos ${SPRING_VERSION} locally"
 [ -d "${HOME:?}/nodeos" ] && rm -rf "${HOME:?}/nodeos"
 mkdir "${HOME:?}/nodeos"
 dpkg -x "${DEB_FILE}" "${HOME:?}/nodeos"

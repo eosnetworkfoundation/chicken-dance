@@ -26,9 +26,9 @@ class ControlConfig():
         with open(config_file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
 
-        # Update 'leap_version' field in each record
+        # Update 'spring_version' field in each record
         for record in data:
-            record['leap_version'] = new_version
+            record['spring_version'] = new_version
 
         # Save the updated data back to the file
         with open(config_file_path, 'w', encoding='utf-8') as file:

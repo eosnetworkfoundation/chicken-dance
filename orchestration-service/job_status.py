@@ -75,7 +75,7 @@ class JobStatus:
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
-                f"leap_version={self.slice_config.leap_version}, "
+                f"spring_version={self.slice_config.spring_version}, "
                 f"start_block_num={self.slice_config.start_block_id}, "
                 f"end_block_num={self.slice_config.end_block_id}, "
                 f"status={self.status.name}, "
@@ -91,7 +91,7 @@ class JobStatus:
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
-                f"leap_version={self.slice_config.leap_version}, "
+                f"spring_version={self.slice_config.spring_version}, "
                 f"start_block_num={self.slice_config.start_block_id}, "
                 f"end_block_num={self.slice_config.end_block_id}, "
                 f"status={self.status.name}, "
@@ -108,7 +108,7 @@ class JobStatus:
         this_dict['replay_slice_id'] = self.slice_config.replay_slice_id
         this_dict['snapshot_path'] = self.slice_config.snapshot_path
         this_dict['storage_type'] = self.slice_config.storage_type
-        this_dict['leap_version'] = self.slice_config.leap_version
+        this_dict['spring_version'] = self.slice_config.spring_version
         this_dict['start_block_num'] = self.slice_config.start_block_id
         this_dict['end_block_num'] = self.slice_config.end_block_id
         this_dict['status'] = self.status.name
