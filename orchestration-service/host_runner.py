@@ -15,6 +15,6 @@ class Hosts():
 
     def has_hosts(self):
         """boolean indicating allocated hosts"""
-        if self.host_count > 0:
+        if self.host_count and self.host_count > 0:
             return True
         return False

@@ -75,9 +75,9 @@ class ArtifactURL():
         if len(pull_requests) <= 0:
             return None
 
-        for pr in pull_requests:
-            if pr['head']['ref'] == branch:
-                return pr['merge_commit_sha']
+        for pr_item in pull_requests:
+            if pr_item['head']['ref'] == branch:
+                return pr_item['merge_commit_sha']
 
         return None
 
