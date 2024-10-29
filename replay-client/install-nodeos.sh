@@ -19,10 +19,13 @@ done
 if [[ "$LEAP_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9]$ ]]; then
   LEAP_VERSION="${LEAP_VERSION#v}"
   if [[ "${LEAP_VERSION:0:1}" == '4' ]]; then
+    DEB_FILE="leap_${LEAP_VERSION}-${OS}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
   elif [[ "${LEAP_VERSION:0:1}" == '5' ]]; then
+    DEB_FILE="leap_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/leap/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
   else  # spring
+    DEB_FILE="antelope-spring_${LEAP_VERSION}_amd64.deb"
     DEB_URL="https://github.com/AntelopeIO/spring/releases/download/v${LEAP_VERSION}/${DEB_FILE}"
   fi
   # download file if needed
@@ -34,7 +37,7 @@ else
   if [ "$CHECK" == "true" ]; then
     URL=$(echo $response_json | jq .url | sed 's/"//g' )
     source ${HOME:?}/token.env
-    # download artifact from debian 
+    # download artifact from debian
     for ((i=1; i<=8; i++)); do
       http_status=$(curl -L -s -w "%{http_code}" -o ${HOME:?}/download.zip -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -H "Authorization: Bearer ${TOKEN}" "$URL")
       if [ "$http_status" -eq 200 ]; then
@@ -71,6 +74,6 @@ fi
 echo "Installing nodeos ${LEAP_VERSION} locally"
 [ -d "${HOME:?}/nodeos" ] && rm -rf "${HOME:?}/nodeos"
 mkdir "${HOME:?}/nodeos"
-dpkg -x "${HOME:?}/${DEB_FILE}" "${HOME:?}/nodeos"
+dpkg -x "${DEB_FILE}" "${HOME:?}/nodeos"
 
 echo "Done. - ${BASH_SOURCE[0]}"
