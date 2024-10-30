@@ -12,7 +12,7 @@
     <div class="card">
       <p class="subtext">Run In Progress</p>
       <br/>
-      <h2 id="is-running">NO</h2>
+      <h2 id="is-running">No</h2>
     </div>
   </div>
   <h2>Summary Stats</h2>
@@ -55,9 +55,9 @@ const response = await fetch("/summary",
 const dataObj = await response.json();
 document.getElementById("hosts-running").innerText = dataObj.host_count
 if (dataObj.is_running === "true") {
-  document.getElementById("hosts-running").innerText = "Yes"
+  document.getElementById("is-running").innerText = "Yes"
 } else {
-  document.getElementById("hosts-running").innerText = "No"
+  document.getElementById("is-running").innerText = "No"
 }
 const blocksPercent = Math.round(dataObj.blocks_processed / dataObj.total_blocks * 100)
 document.getElementById("blocks-procesed").innerText = blocksPercent + '%'
