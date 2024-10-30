@@ -258,6 +258,7 @@ class WebService:
         elif request.path == '/healthcheck':
             return Response("OK",content_type='text/plain; charset=uft-8')
 
+        # pylint: disable=too-many-nested-blocks
         elif request.path == '/restart':
             # form submissions only allow POST
             if request.method in ['POST', 'PUT']:
@@ -295,6 +296,23 @@ class WebService:
                         ControlConfig.set_version(body_parameters['target_version'],
                             body_parameters['config_file_path'])
                     if 'target_branch' in body_parameters and 'target_version' not in body_parameters:
+                        # check to see if the branch is ok to use
+                        # can we find a CI/CD build
+                        env_name_values.get('config_dir')
+                        [owner,repo] = env_name_values.get('repo').split('/')
+                        artifact_dict_response = ArtifactURL.deb_url_by_branch(
+                            owner,
+                            repo,
+                            body_parameters['target_branch'],
+                            env_name_values.get('artifact'),
+                            env_name_values.get('github_read_token'))
+                        if not artifact_dict_response['success']:
+                            params = urlencode({
+                                "error": "Bad branch, unable to find valid build from CI/CD\n"
+                            })
+                            if 'application/json' in request.headers.get('Accept'):
+                                return Response(params, status=400)
+                            return redirect(f"/control?{params}")
                         ControlConfig.set_version(body_parameters['target_branch'],
                             body_parameters['config_file_path'])
 
@@ -376,6 +394,7 @@ class WebService:
                     branch,
                     env_name_values.get('artifact'),
                     env_name_values.get('github_read_token'))
+
                 return Response(json.dumps(artifact_dict_response), content_type='application/json')
 
             # not supported request.method in ['POST','PUT','DELETE']
@@ -383,7 +402,12 @@ class WebService:
 
         elif request.path == '/summary':
             report_obj = JobSummary.create(self.jobs)
+            if self.hosts.host_count:
+                report_obj['host_count'] = self.hosts.host_count
+            else:
+                report_obj['host_count'] = 0
             self.jobs.update_running_status(report_obj['is_running'])
+
             # Format based on content type
             # content type is None when no content-type passed in
             # HTML

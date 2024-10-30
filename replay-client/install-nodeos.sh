@@ -16,7 +16,7 @@ done
 
 # is this an official release version number
 # or a branch
-if [[ "$SPRING_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9]$ ]]; then
+if [[ "$SPRING_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9][\-rc0-9]*$ ]]; then
   SPRING_VERSION="${SPRING_VERSION#v}"
   if [[ "${SPRING_VERSION:0:1}" == '4' ]]; then
     DEB_FILE="leap_${SPRING_VERSION}-${OS}_amd64.deb"
