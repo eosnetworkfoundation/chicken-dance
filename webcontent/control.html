@@ -75,14 +75,14 @@
     // Select the <h3> child of the div with id="error-message"
     const errorMessageH3 = document.querySelector("#error-message h3");
     if (errorMessageH3) {
-      errorMessageH3.innerHTML = error;
+      errorMessageH3.textContent = error.replace(/[&<>'";]/g, '');
       document.getElementById("error-message").style.display = "block";
     }
   } else if (success) {
     // Select the <h3> child of the div with id="success-message"
     const successMessageH3 = document.querySelector("#success-message h3");
     if (successMessageH3) {
-      successMessageH3.innerHTML = success;
+      successMessageH3.textContent = success.replace(/[&<>'";]/g, '');;
       document.getElementById("success-message").style.display = "block";
     }
   }
