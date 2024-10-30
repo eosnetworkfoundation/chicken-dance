@@ -2,6 +2,20 @@
   <!-- <div class="note">
     <p>Message</p>
   </div> -->
+  <h2>Hosts</h2>
+  <div class="row">
+    <div class="card">
+      <p class="subtext">Hosts Running</p>
+      <br/>
+      <h2 id="hosts-running"></h2>
+    </div>
+    <div class="card">
+      <p class="subtext">Run In Progress</p>
+      <br/>
+      <h2 id="is-running">No</h2>
+    </div>
+  </div>
+  <h2>Summary Stats</h2>
   <div class="row">
     <div class="card">
       <p class="subtext">Blocks Processed</p>
@@ -39,6 +53,12 @@ const response = await fetch("/summary",
 );
 
 const dataObj = await response.json();
+document.getElementById("hosts-running").innerText = dataObj.host_count
+if (dataObj.is_running === "true") {
+  document.getElementById("is-running").innerText = "Yes"
+} else {
+  document.getElementById("is-running").innerText = "No"
+}
 const blocksPercent = Math.round(dataObj.blocks_processed / dataObj.total_blocks * 100)
 document.getElementById("blocks-procesed").innerText = blocksPercent + '%'
 document.getElementById("jobs-remaining").innerText = (dataObj.total_jobs - dataObj.jobs_succeeded - dataObj.jobs_failed)

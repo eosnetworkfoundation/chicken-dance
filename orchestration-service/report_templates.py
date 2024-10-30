@@ -139,7 +139,7 @@ li { padding: .5em }
         <li> Snapshot Path: {this_slice.snapshot_path}</li>
         <li> Storage Type: {this_slice.storage_type}</li>
         <li> End Block Expected Integrity Hash: {this_slice.expected_integrity_hash}</li>
-        <li> Leap Version: {this_slice.leap_version}</li>
+        <li> Leap Version: {this_slice.spring_version}</li>
     </ul>
 """
 

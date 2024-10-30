@@ -75,7 +75,7 @@ class JobStatus:
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
-                f"leap_version={self.slice_config.leap_version}, "
+                f"spring_version={self.slice_config.spring_version}, "
                 f"start_block_num={self.slice_config.start_block_id}, "
                 f"end_block_num={self.slice_config.end_block_id}, "
                 f"status={self.status.name}, "
@@ -91,7 +91,7 @@ class JobStatus:
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
-                f"leap_version={self.slice_config.leap_version}, "
+                f"spring_version={self.slice_config.spring_version}, "
                 f"start_block_num={self.slice_config.start_block_id}, "
                 f"end_block_num={self.slice_config.end_block_id}, "
                 f"status={self.status.name}, "
@@ -108,7 +108,7 @@ class JobStatus:
         this_dict['replay_slice_id'] = self.slice_config.replay_slice_id
         this_dict['snapshot_path'] = self.slice_config.snapshot_path
         this_dict['storage_type'] = self.slice_config.storage_type
-        this_dict['leap_version'] = self.slice_config.leap_version
+        this_dict['spring_version'] = self.slice_config.spring_version
         this_dict['start_block_num'] = self.slice_config.start_block_id
         this_dict['end_block_num'] = self.slice_config.end_block_id
         this_dict['status'] = self.status.name
@@ -125,10 +125,19 @@ class JobManager:
     """Holds Jobs and manages persistance"""
 
     def __init__(self, replay_configs):
+        self.start_time = None
+        self.end_time = None
+        self.is_running = False
         self.jobs = {}
         for slice_config in replay_configs:
             job = JobStatus(slice_config)
             self.jobs[job.job_id] = job
+
+    def update_running_status(self, status):
+        """Update Running or Not Running"""
+        if self.is_running and self.is_running != status:
+            self.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self.is_running = status
 
     def get_job(self, job_id):
         """Return job by id, return dict or on error return None"""
@@ -142,6 +151,10 @@ class JobManager:
     def get_all(self):
         """Return all jobs"""
         return self.jobs
+
+    def __len__(self):
+        """Return len of jobs managed"""
+        return len(self.jobs)
 
     # needed my own integer check function
     # `isinstance` was too strict
@@ -169,6 +182,11 @@ class JobManager:
             return False
         if not 'status' in data or data['status'] is None:
             return False
+
+        # quick check if updating a job, then our run has started
+        # set start time if it hasn't been set already
+        if not self.start_time:
+            self.start_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
         # job id
         jobid = data['job_id']

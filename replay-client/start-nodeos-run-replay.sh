@@ -106,7 +106,7 @@ REPLAY_SLICE_ID=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_js
 SNAPSHOT_PATH=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "snapshot_path")
 STORAGE_TYPE=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "storage_type")
 EXPECTED_INTEGRITY_HASH=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "expected_integrity_hash")
-LEAP_VERSION=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "leap_version")
+SPRING_VERSION=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "spring_version")
 # get network/source needed to find S3 Files (eg "mainnet" vs "jungle")
 SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
 
@@ -114,7 +114,7 @@ SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
 # 3) local non-priv install of nodeos
 #################
 echo "Step 3 of 7: local non-priv install of nodeos"
-"${REPLAY_CLIENT_DIR:?}"/install-nodeos.sh $LEAP_VERSION $ORCH_IP
+"${REPLAY_CLIENT_DIR:?}"/install-nodeos.sh $SPRING_VERSION $ORCH_IP $ORCH_PORT
 PATH=${PATH}:${HOME}/nodeos/usr/bin:${HOME}/nodeos/usr/local/bin
 export PATH
 

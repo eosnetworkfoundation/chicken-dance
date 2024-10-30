@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PYTHONPATH=..:meta-data:orchestration-service:orchestration-service/test:PYTHONPATH=/Users/eric/Library/Python/3.10/lib/python/site-packages:/usr/local/lib/python3.10/site-packages:$PYTHONPATH
+export PYTHONPATH=..:meta-data:orchestration-service:orchestration-service/test:/Users/eric/Library/Python/3.10/lib/python/site-packages:/usr/local/lib/python3.10/site-packages:$PYTHONPATH
 # copy in env file for testing purposes
 cp -f ../../env.development env
 # setup test file for persistance testing
@@ -62,6 +62,22 @@ if [ "$DIFF_CNT" -ne 0 ]; then
   echo "ERROR meta-data modified during auth check expected no changes"
   exit 1
 fi
+
+# shutdown and cleanup
+kill "$WEB_SERVICE_PID"
+rm ../../meta-data/test-modify-jobs.json
+
+cp ../../meta-data/test-simple-jobs.json ../../meta-data/test-modify-jobs.json
+# test access control, all web calls should fail with 403
+{ python3 ../web_service.py --config "../../meta-data/test-modify-jobs.json" --host 127.0.0.1 --html-dir "../../webcontent/" > /dev/null 2>&1 & }
+WEB_SERVICE_PID=$!
+# prevent tests running before service is up
+sleep 1
+
+# now test web service
+pytest test_reset.py
+
+sleep 1
 
 # shutdown service clean up file
 kill "$WEB_SERVICE_PID"

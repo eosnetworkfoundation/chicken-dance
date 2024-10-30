@@ -126,6 +126,46 @@ li p {
   text-align: left;
   padding: calc(2 * var(--padding))
 }
+
+#control-card.card {
+  text-align: left;
+  padding-left: calc( 2* var(--padding));
+  padding-bottom: var(--padding);
+  width: 50%;
+  min-width: 30em;
+  font-size: calc(1.1* var(--text-size));
+}
+
+#control-card.card h3 {
+  padding-left: 0;
+}
+
+#control-card.card input {
+    width: 6em;
+    height: 3em;
+    font-weight: 800;
+    border-radius: 6px;
+    border: 1px solid var(--text-color);
+}
+
+#button-start {
+    width: 6em;
+    height: 3em;
+    font-weight: 800;
+    border-radius: 6px;
+    border: 1px solid var(--text-color);
+}
+
+#button-stop {
+    width: 6em;
+    height: 3em;
+    font-weight: 800;
+    border-radius: 6px;
+    border: 1px solid var(--text-color);
+}
+
+
+
 .subtext {
   font-size: 0.75em;
   color: var(--low-em-color);
@@ -155,6 +195,14 @@ li p {
 }
 #failed-job-list span.material-symbols-outlined.mark-error {
   color: var(--error-color);
+}
+#error-message {
+  background-color: var(--error-color);
+  display:none;
+}
+#success-message {
+  background-color: var(--allok-color);
+  display:none;
 }
 .note {
   font-size: 1em;
@@ -211,6 +259,50 @@ li p {
 td.rawlog {
   white-space: pre-wrap;
   text-align: left;
+}
+
+/* Basic styling for the toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
 }
 
 @media screen and (min-width: 800px) {

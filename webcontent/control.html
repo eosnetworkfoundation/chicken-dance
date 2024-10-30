@@ -1,6 +1,164 @@
 <div class="maincontent">
-  <div class="card">
-    <h3 id="detail-job-heading">Not Implemented Yet</h3>
-    <div id="jobdetail"></div>
+  <div id="error-message">
+    <h3>No Error</h3>
+  </div>
+  <div id="success-message">
+    <h3>No Message</h3>
+  </div>
+  <div class="card" id="control-card">
+    <h2 id="loading">Loading ...</h2>
+    <h3 id="control-meta-data-file">Control</h3>
+      <form action="/restart" method="POST">
+        <p class="subtext">Select a Config File and Jobs to Load</p>
+        <br/>
+        <label for="fileSelect">Config:</label>
+        <select name="config_file_path" id="fileSelect">
+          <option value="NA">Loading...</option>
+        </select>
+        <br><br>
+
+        <p class="subtext">Toggle between branches and offical Releases:</p>
+        <br/>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleButton">
+          <span class="slider"></span>
+        </label>
+        <br><br>
+
+        <p class="subtext">Select Version or Branch for Nodeos Version</p>
+        <br/>
+        <label id="labelselect" for="versionSelect">Version:</label>
+        <select name="target_version" id="versionSelect">
+          <option value="NA">Loading...</option>
+        </select>
+        <br><br>
+
+        <p class="subtext">Force Reload of Configuration with exising Runners</p>
+        <br/>
+        <label for="isForced">Force:</label>
+        <select name="forced" id="isForced">
+          <option value="No">False</option>
+          <option value="Yes">True</option>
+        </select>
+        <br><br>
+
+        <input type="submit" value="Load">
+        <br/>
+      </form>
+  </div>
+  <div class="row">
+    <div class="card">
+      <p class="subtext">Start Workers To Run Jobs</p>
+      <br/>
+      <form action="/start" method="GET">
+        <button id="button-start" type="submit">Start</button>
+      </form>
+      <br/>
+    </div>
+    <div class="card">
+      <p class="subtext">Stop Existing Workers</p>
+      <br/>
+      <form action="/stop" method="GET">
+        <button id="button-stop" type="submit">Stop</button>
+      </form>
+      <br/>
+    </div>
   </div>
 </div>
+<script type="module">
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const error = urlParams.get('error');
+  const success = urlParams.get('success');
+  // if an error or success message provided
+  if (error) {
+    // Select the <h3> child of the div with id="error-message"
+    const errorMessageH3 = document.querySelector("#error-message h3");
+    if (errorMessageH3) {
+      errorMessageH3.innerHTML = error;
+      document.getElementById("error-message").style.display = "block";
+    }
+  } else if (success) {
+    // Select the <h3> child of the div with id="success-message"
+    const successMessageH3 = document.querySelector("#success-message h3");
+    if (successMessageH3) {
+      successMessageH3.innerHTML = success;
+      document.getElementById("success-message").style.display = "block";
+    }
+  }
+
+  const reqHeaders = new Headers();
+  reqHeaders.append("Accept", "application/json");
+
+  const configResponse = await fetch('/config_files',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const configObjs = await configResponse.json();
+  var configOptions = ''
+  if (configObjs != undefined) {
+    for (let i = 0; i < configObjs.length; i++) {
+      const parts = configObjs[i].split('/');
+      const fileName = parts[parts.length - 1];
+      configOptions += '<option value="'+configObjs[i]+'">'+fileName+'</option>'
+    }
+  } else {
+    configOptions += '<option value="NA">No Options Returned</option>'
+  }
+  document.getElementById("fileSelect").innerHTML = configOptions
+
+  const versionResponse = await fetch('/release_versions',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const versionObjs = await versionResponse.json();
+  var versionSelect = '<select name="target_version" id="versionSelect">\n'
+  versionSelect += '<option value="nochange">Keep Default</option>'
+
+  if (versionObjs != undefined) {
+    for (let i = 0; i < versionObjs.length; i++) {
+      versionSelect += '<option value="'+versionObjs[i]+'">'+versionObjs[i]+'</option>'
+    }
+  } else {
+    versionSelect += '<option value="NA">No Versions Returned</option>'
+  }
+  versionSelect += '</select>'
+  document.getElementById("versionSelect").outerHTML = versionSelect
+
+  const branchResponse = await fetch('/repo_branches',
+    {
+      method: "GET",
+      headers: reqHeaders,
+    }
+  );
+  const branchObjs = await branchResponse.json();
+  var branchSelect = '<select name="target_branch" id="branchSelect">\n'
+
+  if (branchObjs != undefined) {
+    for (let i = 0; i < branchObjs.length; i++) {
+      branchSelect += '<option value="'+branchObjs[i]+'">'+branchObjs[i]+'</option>'
+    }
+  } else {
+    branchSelect += '<option value="NA">No Branches Returned</option>'
+  }
+  branchSelect += '</select>'
+
+  const toggleButton = document.getElementById('toggleButton');
+  toggleButton.onclick = function toggleEvent() {
+      if (toggleButton.checked) {
+        console.log('Toggle is ON');
+        document.getElementById("versionSelect").outerHTML = branchSelect
+        document.getElementById("labelselect").textContent = "Select a Branch:"
+      } else {
+        console.log('Toggle is OFF');
+        document.getElementById("branchSelect").outerHTML = versionSelect
+        document.getElementById("labelselect").textContent = "Select a Version:"
+      }
+  }
+
+  document.getElementById("loading").style.display = "none";
+</script>

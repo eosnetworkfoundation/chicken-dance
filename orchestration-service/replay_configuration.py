@@ -22,7 +22,7 @@ class BlockConfigManager:
         self.snapshot_path = block_record['snapshot_path']
         self.storage_type = block_record['storage_type']
         self.expected_integrity_hash = block_record['expected_integrity_hash']
-        self.leap_version = block_record['leap_version']
+        self.spring_version = block_record['spring_version']
         self.replay_slice_id = primary_key
 
     def get_snapshot_path(self):
@@ -51,7 +51,7 @@ class BlockConfigManager:
         this_dict['snapshot_path'] = self.snapshot_path
         this_dict['storage_type'] = self.storage_type
         this_dict['expected_integrity_hash'] = self.expected_integrity_hash
-        this_dict['leap_version'] = self.leap_version
+        this_dict['spring_version'] = self.spring_version
         return this_dict
 
 class ReplayConfigManager:

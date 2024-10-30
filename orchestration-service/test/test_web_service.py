@@ -61,7 +61,7 @@ def test_get_nextjob(setup_module):
 
     assert response_plain.status_code == 200
     print(response_plain.content.decode('utf-8'))
-    plain_text_match = re.search(r"job_id=[0-9]+, replay_slice_id=1, snapshot_path=[a-z-A-Z0-9\\.\\/\\-\\:]+, storage_type=s3, leap_version=[rcdev0-9\\.\\-]+, start_block_num=[0-9]+, end_block_num=[0-9]+, status=WAITING_4_WORKER, last_block_processed=0, start_time=\d+-\d+-\d+T\d+:\d+:\d+, end_time=None, expected_integrity_hash=[A-Za-z0-9]+, actual_integrity_hash=None",
+    plain_text_match = re.search(r"job_id=[0-9]+, replay_slice_id=1, snapshot_path=[a-z-A-Z0-9\\.\\/\\-\\:]+, storage_type=s3, spring_version=[rcdev0-9\\.\\-]+, start_block_num=[0-9]+, end_block_num=[0-9]+, status=WAITING_4_WORKER, last_block_processed=0, start_time=\d+-\d+-\d+T\d+:\d+:\d+, end_time=None, expected_integrity_hash=[A-Za-z0-9]+, actual_integrity_hash=None, error_message=None",
         response_plain.content.decode('utf-8'))
     assert plain_text_match
 
@@ -71,7 +71,7 @@ def test_get_nextjob(setup_module):
 
     assert response_json.status_code == 200
     # print (response_json.content.decode('utf-8'))
-    json_match = re.search(r"\{\"job_id\": [0-9]+, \"replay_slice_id\": 1, \"snapshot_path\": \"[a-z-A-Z0-9\\.\\/\\-\\:]+\", \"storage_type\": \"s3\", \"leap_version\": \"[rcdev0-9\\.\\-]+\", \"start_block_num\": [0-9]+, \"end_block_num\": [0-9]+, \"status\": \"WAITING_4_WORKER\", \"last_block_processed\": 0, \"start_time\": \"\d+-\d+-\d+T\d+:\d+:\d+\", \"end_time\": null, \"expected_integrity_hash\": \"[A-Za-z0-9]+\", \"actual_integrity_hash\": null\}",
+    json_match = re.search(r"\{\"job_id\": [0-9]+, \"replay_slice_id\": 1, \"snapshot_path\": \"[a-z-A-Z0-9\\.\\/\\-\\:]+\", \"storage_type\": \"s3\", \"spring_version\": \"[rcdev0-9\\.\\-]+\", \"start_block_num\": [0-9]+, \"end_block_num\": [0-9]+, \"status\": \"WAITING_4_WORKER\", \"last_block_processed\": 0, \"start_time\": \"\d+-\d+-\d+T\d+:\d+:\d+\", \"end_time\": null, \"expected_integrity_hash\": \"[A-Za-z0-9]+\", \"actual_integrity_hash\": null\, \"error_message\": null}",
         response_json.content.decode('utf-8'))
     assert json_match
 
@@ -79,7 +79,6 @@ def test_update_job(setup_module):
     """Get a job update the status and validate the change is in place"""
     cntx, session = setup_module
 
-    # test plain text
     params = { 'nextjob': 1 }
     response_first = session.get(cntx['base_url'] + '/job', params=params, headers=cntx['json_headers'])
     assert response_first.status_code == 200

@@ -16,7 +16,7 @@ const response = await fetch("/status",
 const dataObj = await response.json();
 
 var str = '<table class="table"><thead>'
-str += '<tr><th>job id</th> <th>start time</th> <th>start block</th> <th>current block</th> <th>end block</th> <th>status</th> <th>leap version</th></tr>'
+str += '<tr><th>job id</th> <th>start time</th> <th>start block</th> <th>current block</th> <th>end block</th> <th>status</th> <th>spring version</th></tr>'
 str += '</thead>'
 str += '<tbody>'
 
@@ -30,7 +30,7 @@ if (dataObj != undefined) {
     str += '<td>'+job.last_block_processed+'</td>';
     str += '<td>'+job.end_block_num+'</td>';
     str += '<td><lable class="badge '+getBadgeType(job.status)+'">'+job.status+'</lable></td>';
-    str += '<td>'+job.leap_version+'</td>';
+    str += '<td>'+job.spring_version+'</td>';
     str += '</tr>'
   });
   str += '</tbody></table>'
