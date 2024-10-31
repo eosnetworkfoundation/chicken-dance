@@ -30,7 +30,7 @@ if (dataObj != undefined) {
     str += '<td>'+job.last_block_processed+'</td>';
     str += '<td>'+job.end_block_num+'</td>';
     str += '<td><lable class="badge '+getBadgeType(job.status)+'">'+job.status+'</lable></td>';
-    str += '<td>'+job.spring_version+'</td>';
+    str += '<td>'+decodeURIComponent(job.spring_version.replace(/[&<>'";]/g, ''))+'</td>';
     str += '</tr>'
   });
   str += '</tbody></table>'
