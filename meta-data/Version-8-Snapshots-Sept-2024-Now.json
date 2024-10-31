@@ -1,14 +1,14 @@
 [
     {
         "start_block_id": 388571449,
-        "end_block_id": 388755078,
+        "end_block_id": 388837113,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-13-00-eos-v8-388571449.bin.zst",
         "storage_type": "s3",
         "expected_integrity_hash": "33f89f850331fa35cca36ee5c9a9944f23866b4d633f6830fdebe048ff51d54b",
         "spring_version": "v1.0.2"
     },
     {
-        "start_block_id": 388755078,
+        "start_block_id": 388837113,
         "end_block_id": 389410152,
         "snapshot_path": "s3://chicken-dance/mainnet/snapshots_v8/snapshot-2024-08-14-13-eos-v8-388837113.bin.zst",
         "storage_type": "s3",

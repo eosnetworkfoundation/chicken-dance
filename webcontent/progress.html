@@ -54,7 +54,7 @@ const response = await fetch("/summary",
 
 const dataObj = await response.json();
 document.getElementById("hosts-running").innerText = dataObj.host_count
-if (dataObj.is_running === "true") {
+if (dataObj.is_running === true) {
   document.getElementById("is-running").innerText = "Yes"
 } else {
   document.getElementById("is-running").innerText = "No"
