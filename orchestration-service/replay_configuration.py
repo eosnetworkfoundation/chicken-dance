@@ -140,7 +140,7 @@ class ReplayConfigManager:
 class UserConfig:
     """Manages and validates user provided configuraiton. Only writes file, does not read. Read is done via HTTP Get"""
 
-    def __init__(self, config_as_str):
+    def __init__(self, config_as_str, logger):
         """Initializes, validates, and persists"""
         self.path = '/var/www/html/usernodeosconfig/user_provided_cmd_line.conf'
         self.userconfig = config_as_str
@@ -156,6 +156,7 @@ class UserConfig:
         self.clean()
         self.normalize_safe()
         self.is_ok = self.validate()
+        logger.debug(f"POST Validate status: {self.is_ok} bad: {self.bad_word}")
         if self.is_ok:
             self.persist()
 
@@ -165,7 +166,7 @@ class UserConfig:
 
     def normalize_safe(self):
         """removes $ () {} <> [] ` """
-        self.userconfig = re.sub(r'[\$\[\]\(\)\<\>\{\}\`]','',self.userconfig)
+        self.userconfig = re.sub(r'[\$\[\]\(\)\<\>\{\}\`\r\n]','',self.userconfig)
 
     def validate(self):
         """Reviews for bad config options"""

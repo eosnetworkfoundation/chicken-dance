@@ -257,17 +257,23 @@ class WebService:
 
         elif request.path == '/userconfig':
             if request.method == 'POST':
+                form_data = json.loads(request.get_data())
+                logger.debug("in /userconfig with form data %s",form_data['userconfigtxt'])
+                user_config = UserConfig(form_data['userconfigtxt'],logger)
+                logger.debug("Post User Config")
                 user_config = UserConfig(request.form['userconfigtxt'])
                 user_config_status = user_config.check_status()
-                if user_config_status['is_ok']:
+                if user_config_status['isok']:
                     return Response('{"status":"OK"}',content_type='application/json')
 
                 if user_config_status['badword'] != '':
                     return Response(
-                        f'{{"status":"Denied","badword":{user_config_status["badword"]}}}',
+                        f'{{"status":"Denied","badword":"{user_config_status["badword"]}"}}',
                         content_type='application/json',
                         status=400)
-            return Response('{"status":"Error","message":"unknown error"}', status=400)
+            return Response('{"status":"Error","message":"unknown error"}',
+                content_type='application/json',
+                status=400)
 
         elif request.path == '/healthcheck':
             return Response('OK',content_type='text/plain; charset=utf-8')
