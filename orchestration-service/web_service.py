@@ -261,7 +261,7 @@ class WebService:
                 user_config = UserConfig(request.form['userconfigtxt'])
                 user_config_status = user_config.check_status()
                 if user_config_status['is_ok']:
-                    return Response("OK",content_type='text/plain; charset=utf-8')
+                    return Response('{"status":"OK"}',content_type='application/json')
                 else:
                     if user_config_status['badword'] != '':
                         return Response(
@@ -271,7 +271,7 @@ class WebService:
             return Response('{"status":"Error","message":"unknown error"}', status=400)
 
         elif request.path == '/healthcheck':
-            return Response('{"status":"OK"}',content_type='application/json')
+            return Response('OK',content_type='text/plain; charset=utf-8')
 
         # pylint: disable=too-many-nested-blocks
         elif request.path == '/restart':
