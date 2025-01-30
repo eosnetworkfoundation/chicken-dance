@@ -27,7 +27,8 @@ class HtmlPage:
             file_contents = file.read()
         return file_contents
 
-    def profile_top_bar_html(self, login, avatar_url):
+    @staticmetho
+    def profile_top_bar_html(login, avatar_url):
         """return top bar with profile"""
         return f'''    <div class="topbar">
     <a href="/logout">
@@ -38,13 +39,15 @@ class HtmlPage:
     <p>{login}</p>
     </div>'''
 
-    def default_top_bar_html(self, oauth_url):
+    @staticmetho
+    def default_top_bar_html(oauth_url):
         """return top bar with no profile"""
         return f'''    <div class="topbar"> <a href="{oauth_url}">
         <span class="material-symbols-outlined">account_circle</span>
     </a> </div>'''
 
-    def not_authorized(self, message="Not Authorized: Please Log In"):
+    @staticmethod
+    def not_authorized(message="Not Authorized: Please Log In"):
         """return not autorized page contents"""
         return f'''    <div class="maincontent">
         <h2>{message}</h2>

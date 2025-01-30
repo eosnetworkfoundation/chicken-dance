@@ -458,16 +458,16 @@ class WebService:
                 cookie_value = request.cookies.get('replay_auth')
                 login, avatar_url = GitHubOauth.str_to_public_profile(cookie_value)
                 html_content = html_factory.contents('header.html') \
-                + html_factory.profile_top_bar_html(login, avatar_url) \
+                + HtmlPage.profile_top_bar_html(login, avatar_url) \
                 + html_factory.contents('navbar.html') \
                 + html_factory.contents(request.path) \
                 + html_factory.contents('footer.html')
             else:
                 html_content = html_factory.contents('header.html') \
-                + html_factory.default_top_bar_html(\
+                + HtmlPage.default_top_bar_html(\
                     GitHubOauth.assemble_oauth_url(referring_url, env_name_values)\
                 ) \
-                + html_factory.not_authorized() \
+                + HtmlPage.not_authorized() \
                 + html_factory.contents('footer.html')
 
             return Response(html_content, content_type='text/html')
@@ -495,7 +495,7 @@ class WebService:
                     expires = datetime.utcnow() + timedelta(days=7)
 
                     html_content = html_factory.contents('header.html') \
-                    + html_factory.profile_top_bar_html(login, avatar_url) \
+                    + HtmlPage.profile_top_bar_html(login, avatar_url) \
                     + html_factory.contents('navbar.html') \
                     + html_factory.contents(referral_path) \
                     + html_factory.contents('footer.html')
@@ -515,8 +515,8 @@ class WebService:
 
             # failed to get access token
             no_token_html = html_factory.contents('header.html') \
-            + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
-            + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
+            + HtmlPage.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
+            + HtmlPage.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
             + html_factory.contents('footer.html')
             return Response(no_token_html, status=403, content_type='text/html')
 
