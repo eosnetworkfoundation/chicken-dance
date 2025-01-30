@@ -4,6 +4,8 @@
 """
 import json
 import sys
+import re
+import os
 
 class BlockConfigManager:
     """
@@ -134,3 +136,46 @@ class ReplayConfigManager:
         dictionary_repr = [obj.as_dict(suppress_replay) for obj in self.records]
         # dump json
         return json.dumps(dictionary_repr, indent=4)
+        
+class UserConfig:
+    """Manages and validates user provided configuraiton. Only writes file, does not read. Read is done via HTTP Get"""
+    
+    def __init__(self, config_as_str):
+        """Initializes, validates, and persists"""
+        self.path = '/var/www/html/usernodeosconfig/user_provided_cmd_line.conf'
+        self.userconfig = config_as_str
+        self.reserve_config = ["genesis-json", "data-dir", "terminate-at-block", "integrity-hash-on-start", "integrity-hash-on-stop"]
+        self.bad_word = ''
+        self.is_ok = False
+        self.clean()
+        self.normalize_safe()
+        self.is_ok = self.validate()
+        if self.is_ok:
+            self.persist()
+        
+    def check_status(self):
+        """Return status of config"""
+        return {"isok": self.is_ok, "badword": self.bad_word}
+        
+    def normalize_safe(self):
+        """removes $ () {} <> [] ` """
+        self.userconfig = re.sub(r'[\$\[\]\(\)\<\>\{\}\`]','',self.userconfig)
+        
+    def validate(self):
+        """Reviews for bad config options"""
+        for keyword in reserve_config:
+            if keyword in self.userconfig:
+                self.bad_word = keyword
+                return False
+        return True
+
+    def persist(self):
+        """Write file"""
+        with open(self.path, 'w', encoding='utf-8') as file:
+            file.write(self.userconfig)
+    
+    def clean(self):
+        """Remove file and cleanup"""
+        if os.path.exists(self.path):
+            os.remove(self.path)
+        

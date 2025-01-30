@@ -32,6 +32,12 @@
           <option value="NA">Loading...</option>
         </select>
         <br><br>
+        
+        <form id="userconfig" action="/userconfig" method="POST">  
+            <label for="userconfigtxt">Add Custom Nodeos Config:</label></div> 
+            <textarea rows="5" cols="80" id="userconfigtxt"></textarea>
+            <button type="submit" id="userconfigsubmit">Submit</button>
+        </form>
 
         <p class="subtext">Force Reload of Configuration with exising Runners</p>
         <br/>
@@ -161,4 +167,56 @@
   }
 
   document.getElementById("loading").style.display = "none";
+  
+  document.getElementById('userconfigsubmit').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevents the default form submission
+
+    // Data to be sent in the POST request
+    const formData = new FormData(document.getElementById('userconfig'));
+
+    // Convert FormData to a plain object if needed
+    const plainObject = Object.fromEntries(formData.entries());
+
+    // Fetch API to send the POST request
+    fetch('/userconfig', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(plainObject)
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Select the <h3> child of the div with id="error-message"
+            const errorMessageH3 = document.querySelector("#error-message h3");
+            if (errorMessageH3) {
+                errorMessageH3.textContent = 'Failed to upload config: Unknown Error'
+                document.getElementById("error-message").style.display = "block";
+            }
+        }
+        // Select the <h3> child of the div with id="success-message"
+        const successMessageH3 = document.querySelector("#success-message h3");
+        if (successMessageH3) {
+           successMessageH3.textContent = 'Config successfully uploaded'
+           document.getElementById("success-message").style.display = "block";
+        }
+    })
+    .then(data => {
+        // Select the <h3> child of the div with id="success-message"
+        const successMessageH3 = document.querySelector("#success-message h3");
+        if (successMessageH3) {
+           successMessageH3.textContent = 'Config successfully uploaded'
+           document.getElementById("success-message").style.display = "block";
+        }
+    })
+    .catch((error) => {
+        // Select the <h3> child of the div with id="error-message"
+        const errorMessageH3 = document.querySelector("#error-message h3");
+        if (errorMessageH3) {
+            errorMessageH3.textContent = 'Failed to upload config: Unknown Error'
+            document.getElementById("error-message").style.display = "block";
+        }
+    });
+});
+
 </script>
