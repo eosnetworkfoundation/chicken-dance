@@ -34,7 +34,7 @@
         <br><br>
         
         <form id="userconfig" action="/userconfig" method="POST">  
-            <label for="userconfigtxt">Add Custom Nodeos Config:</label></div> 
+            <label for="userconfigtxt">Add Custom Nodeos Config:</label>
             <textarea rows="5" cols="80" id="userconfigtxt"></textarea>
             <button type="submit" id="userconfigsubmit">Submit</button>
         </form>
@@ -172,10 +172,7 @@
     event.preventDefault(); // Prevents the default form submission
 
     // Data to be sent in the POST request
-    const formData = new FormData(document.getElementById('userconfig'));
-
-    // Convert FormData to a plain object if needed
-    const plainObject = Object.fromEntries(formData.entries());
+    const formData = {"userconfigtxt": document.getElementById('userconfigtxt').value};
 
     // Fetch API to send the POST request
     fetch('/userconfig', {
@@ -183,7 +180,7 @@
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(plainObject)
+        body: JSON.stringify(formData)
     })
     .then(response => {
         if (!response.ok) {
