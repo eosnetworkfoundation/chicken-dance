@@ -40,11 +40,17 @@
           <option value="No">False</option>
           <option value="Yes">True</option>
         </select>
-        <br><br>
+        <br/><br/>
 
-        <input type="submit" value="Load">
-        <br/>
+        <button type="submit" id="restartbutton">Load</button>
+        <br/><br/>
+        
+        
+        <label for="userconfigtxt">Add Custom Nodeos Config:</label><br/>
+        <textarea rows="5" cols="70" id="userconfigtxt"></textarea><br/>
+        <button type="submit" id="userconfigsubmit">Submit</button><br/>
       </form>
+      
   </div>
   <div class="row">
     <div class="card">
@@ -70,6 +76,7 @@
   const urlParams = new URLSearchParams(queryString);
   const error = urlParams.get('error');
   const success = urlParams.get('success');
+  
   // if an error or success message provided
   if (error) {
     // Select the <h3> child of the div with id="error-message"
@@ -161,4 +168,60 @@
   }
 
   document.getElementById("loading").style.display = "none";
+  
+  document.getElementById('userconfigsubmit').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevents the default form submission
+    
+    // reset previous error/success messages 
+    const successH3 = document.getElementById("success-message")
+    const errorH3 = document.getElementById("error-message")
+    if (successH3) {
+      successH3.style.display = "none"
+    }
+    if (errorH3) {
+      errorH3.style.display = "none"
+    }
+    
+    // Data to be sent in the POST request
+    const formData = { "userconfigtxt": document.getElementById('userconfigtxt').value };
+    console.log(JSON.stringify(formData))
+
+    // Fetch API to send the POST request
+    fetch('/userconfig', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        response.json().then(data => {
+            console.log(data)
+            if (response.ok) { 
+                const successMessageH3 = document.querySelector("#success-message h3");
+                if (successMessageH3) {
+                  successMessageH3.textContent = 'Config successfully uploaded'
+                  document.getElementById("success-message").style.display = "block";
+                } 
+            } else {
+                // Select the <h3> child of the div with id="error-message"
+                const errorMessageH3 = document.querySelector("#error-message h3");
+                if (errorMessageH3) {
+                  if (data['status'] == "Denied" && 'badword' in data )
+                  errorMessageH3.textContent = `Status: ${data['status']} Reserved Word Not Allowed: ${data['badword']}`
+                  document.getElementById("error-message").style.display = "block";
+                }
+            }     
+        });
+    })
+    .catch((error) => {
+        // Select the <h3> child of the div with id="error-message"
+        const errorMessageH3 = document.querySelector("#error-message h3");
+        if (errorMessageH3) {
+            errorMessageH3.textContent = `Failed to upload config, reason: ${error.message}`
+            document.getElementById("error-message").style.display = "block";
+        }
+    });
+});
+
 </script>

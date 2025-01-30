@@ -109,6 +109,13 @@ EXPECTED_INTEGRITY_HASH=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/
 SPRING_VERSION=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_json.py "spring_version")
 # get network/source needed to find S3 Files (eg "mainnet" vs "jungle")
 SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
+# fetch any command line options passed in from API or UI
+CONFIG_ARGS_PROVIDED=0
+curl -L --output ${CONFIG_DIR}/user_provided_cmd_line.conf https://${ORCH_IP}/usernodeosconfig/user_provided_cmd_line.conf
+if [ -s ${CONFIG_DIR}/user_provided_cmd_line.conf ]; then
+    CONFIG_ARGS_PROVIDED=1
+    CONFIG_ARGS=$(cat ${CONFIG_DIR}/user_provided_cmd_line.conf)
+fi
 
 #################
 # 3) local non-priv install of nodeos
@@ -170,8 +177,19 @@ sleep 5
 ## special treament for sync from genesis, start block 0 ##
 if [ $START_BLOCK == 0 ]; then
   aws s3 cp s3://chicken-dance/"$SOURCE_TYPE"/"$SOURCE_TYPE"-genesis.json /data/nodeos/genesis.json > /dev/null 2>&1
-
-  nodeos \
+  
+  if [ ${CONFIG_ARGS_PROVIDED} == 1 ]; then 
+    nodeos \
+       --genesis-json "${NODEOS_DIR}"/genesis.json \
+       --data-dir "${NODEOS_DIR}"/data/ \
+       ${CONFIG_ARGS} \
+       --p2p-peer-address eos.seed.eosnation.io:9876 \
+       --terminate-at-block ${END_BLOCK} \
+       --integrity-hash-on-start \
+       --integrity-hash-on-stop \
+       &> "${NODEOS_DIR}"/log/nodeos.log
+  else
+    nodeos \
        --genesis-json "${NODEOS_DIR}"/genesis.json \
        --data-dir "${NODEOS_DIR}"/data/ \
        --config "${CONFIG_DIR}"/sync-config.ini \
@@ -179,8 +197,20 @@ if [ $START_BLOCK == 0 ]; then
        --integrity-hash-on-start \
        --integrity-hash-on-stop \
        &> "${NODEOS_DIR}"/log/nodeos.log
+  fi
 else
-  nodeos \
+    if [ ${CONFIG_ARGS_PROVIDED} == 1 ]; then
+      nodeos \
+      --snapshot "${NODEOS_DIR}"/snapshot/snapshot.bin \
+      --data-dir "${NODEOS_DIR}"/data/ \
+      ${CONFIG_ARGS} \
+      --p2p-peer-address eos.seed.eosnation.io:9876 \
+      --terminate-at-block ${END_BLOCK} \
+      --integrity-hash-on-start \
+      --integrity-hash-on-stop \
+      &> "${NODEOS_DIR}"/log/nodeos.log
+    else
+      nodeos \
       --snapshot "${NODEOS_DIR}"/snapshot/snapshot.bin \
       --data-dir "${NODEOS_DIR}"/data/ \
       --config "${CONFIG_DIR}"/sync-config.ini \
@@ -188,6 +218,7 @@ else
       --integrity-hash-on-start \
       --integrity-hash-on-stop \
       &> "${NODEOS_DIR}"/log/nodeos.log
+    fi
 fi
 
 kill $BACKGROUND_STATUS_PID
@@ -210,6 +241,7 @@ if [[ "$(nodeos -v | grep -ic v[45])" == '1' ]]; then
   echo "Step 6 of 7: Leap v4 or v5 restart nodeos read-only mode to get final integrity hash"
   # remove blocks logs to prevent additional replay of logs past our desired $END_BLOCK
   rm -f "${NODEOS_DIR}"/data/blocks/blocks.log "${NODEOS_DIR}"/data/blocks/blocks.index
+  # not passing through user command line options for this ${CONFIG_ARGS} operation 
   nodeos \
      --data-dir "${NODEOS_DIR}"/data/ \
      --config "${CONFIG_DIR}"/readonly-config.ini \

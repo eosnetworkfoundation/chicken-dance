@@ -14,6 +14,7 @@ from werkzeug.http import generate_etag
 from werkzeug.utils import redirect
 from report_templates import ReportTemplate
 from replay_configuration import ReplayConfigManager
+from replay_configuration import UserConfig
 from html_page import HtmlPage
 from job_status import JobManager
 from job_summary import JobSummary
@@ -38,7 +39,6 @@ class WebService:
 
     def reset(self,jobs_config, datacenter_config):
         """reset jobs and replay config manager"""
-        # pylint: disable=unnecessary-dunder-call
         self.__init__(jobs_config,datacenter_config)
 
     @Request.application
@@ -255,8 +255,28 @@ class WebService:
 
                 return Response(json.dumps(response_message),content_type='application/json')
 
+        elif request.path == '/userconfig':
+            if request.method == 'POST':
+                form_data = json.loads(request.get_data())
+                logger.debug("in /userconfig with form data %s",form_data['userconfigtxt'])
+                user_config = UserConfig(form_data['userconfigtxt'],logger)
+                logger.debug("Post User Config")
+                user_config = UserConfig(request.form['userconfigtxt'])
+                user_config_status = user_config.check_status()
+                if user_config_status['isok']:
+                    return Response('{"status":"OK"}',content_type='application/json')
+
+                if user_config_status['badword'] != '':
+                    return Response(
+                        f'{{"status":"Denied","badword":"{user_config_status["badword"]}"}}',
+                        content_type='application/json',
+                        status=400)
+            return Response('{"status":"Error","message":"unknown error"}',
+                content_type='application/json',
+                status=400)
+
         elif request.path == '/healthcheck':
-            return Response("OK",content_type='text/plain; charset=uft-8')
+            return Response('OK',content_type='text/plain; charset=utf-8')
 
         # pylint: disable=too-many-nested-blocks
         elif request.path == '/restart':
@@ -283,9 +303,7 @@ class WebService:
                         body_parameters['config_file_path'] = unquote(body_parameters['config_file_path'])
                     # abort if config file does not exist
                     if not os.path.exists(body_parameters['config_file_path']):
-                        params = urlencode({
-                            "error": f"Configuration file {body_parameters['config_file_path']} does not exist"
-                        })
+                        params = urlencode({"error": f"Configuration file {body_parameters['config_file_path']} does not exist"})
                         if 'application/json' in request.headers.get('Accept'):
                             return Response(params, status=404)
                         return redirect(f"/control?{params}")
@@ -446,16 +464,16 @@ class WebService:
                 cookie_value = request.cookies.get('replay_auth')
                 login, avatar_url = GitHubOauth.str_to_public_profile(cookie_value)
                 html_content = html_factory.contents('header.html') \
-                + html_factory.profile_top_bar_html(login, avatar_url) \
+                + HtmlPage.profile_top_bar_html(login, avatar_url) \
                 + html_factory.contents('navbar.html') \
                 + html_factory.contents(request.path) \
                 + html_factory.contents('footer.html')
             else:
                 html_content = html_factory.contents('header.html') \
-                + html_factory.default_top_bar_html(\
+                + HtmlPage.default_top_bar_html(\
                     GitHubOauth.assemble_oauth_url(referring_url, env_name_values)\
                 ) \
-                + html_factory.not_authorized() \
+                + HtmlPage.not_authorized() \
                 + html_factory.contents('footer.html')
 
             return Response(html_content, content_type='text/html')
@@ -483,7 +501,7 @@ class WebService:
                     expires = datetime.utcnow() + timedelta(days=7)
 
                     html_content = html_factory.contents('header.html') \
-                    + html_factory.profile_top_bar_html(login, avatar_url) \
+                    + HtmlPage.profile_top_bar_html(login, avatar_url) \
                     + html_factory.contents('navbar.html') \
                     + html_factory.contents(referral_path) \
                     + html_factory.contents('footer.html')
@@ -503,8 +521,8 @@ class WebService:
 
             # failed to get access token
             no_token_html = html_factory.contents('header.html') \
-            + html_factory.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
-            + html_factory.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
+            + HtmlPage.default_top_bar_html(GitHubOauth.assemble_oauth_url(referral_path, env_name_values)) \
+            + HtmlPage.not_authorized("Auth Failed Could Not Retreive Access Token: Try Again") \
             + html_factory.contents('footer.html')
             return Response(no_token_html, status=403, content_type='text/html')
 
