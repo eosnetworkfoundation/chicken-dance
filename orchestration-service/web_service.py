@@ -39,7 +39,6 @@ class WebService:
 
     def reset(self,jobs_config, datacenter_config):
         """reset jobs and replay config manager"""
-        # pylint: disable=unnecessary-dunder-call
         self.__init__(jobs_config,datacenter_config)
 
     @Request.application
@@ -255,9 +254,9 @@ class WebService:
                 }
 
                 return Response(json.dumps(response_message),content_type='application/json')
-                
+   
         elif request.path == '/userconfig':
-            if request.method == 'POST' and config_as_string is not None:
+            if request.method == 'POST':
                 user_config = UserConfig(request.form['userconfigtxt'])
                 user_config_status = user_config.check_status()
                 if user_config_status['is_ok']:
@@ -298,9 +297,7 @@ class WebService:
                         body_parameters['config_file_path'] = unquote(body_parameters['config_file_path'])
                     # abort if config file does not exist
                     if not os.path.exists(body_parameters['config_file_path']):
-                        params = urlencode({
-                            "error": f"Configuration file {body_parameters['config_file_path']} does not exist"
-                        })
+                        params = urlencode({"error": f"Configuration file {body_parameters['config_file_path']} does not exist"})
                         if 'application/json' in request.headers.get('Accept'):
                             return Response(params, status=404)
                         return redirect(f"/control?{params}")
