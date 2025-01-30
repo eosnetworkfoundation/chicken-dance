@@ -27,7 +27,7 @@ class HtmlPage:
             file_contents = file.read()
         return file_contents
 
-    @staticmetho
+    @staticmethod
     def profile_top_bar_html(login, avatar_url):
         """return top bar with profile"""
         return f'''    <div class="topbar">
@@ -39,7 +39,7 @@ class HtmlPage:
     <p>{login}</p>
     </div>'''
 
-    @staticmetho
+    @staticmethod
     def default_top_bar_html(oauth_url):
         """return top bar with no profile"""
         return f'''    <div class="topbar"> <a href="{oauth_url}">
