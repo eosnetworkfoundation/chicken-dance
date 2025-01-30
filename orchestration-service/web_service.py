@@ -261,7 +261,6 @@ class WebService:
                 logger.debug("in /userconfig with form data %s",form_data['userconfigtxt'])
                 user_config = UserConfig(form_data['userconfigtxt'],logger)
                 logger.debug("Post User Config")
-                user_config = UserConfig(request.form['userconfigtxt'])
                 user_config_status = user_config.check_status()
                 if user_config_status['isok']:
                     return Response('{"status":"OK"}',content_type='application/json')
