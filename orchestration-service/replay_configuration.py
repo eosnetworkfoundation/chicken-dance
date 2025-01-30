@@ -145,10 +145,10 @@ class UserConfig:
         self.path = '/var/www/html/usernodeosconfig/user_provided_cmd_line.conf'
         self.userconfig = config_as_str
         self.reserve_config = [
-        "genesis-json", 
-        "data-dir", 
-        "terminate-at-block", 
-        "integrity-hash-on-start", 
+        "genesis-json",
+        "data-dir",
+        "terminate-at-block",
+        "integrity-hash-on-start",
         "integrity-hash-on-stop"
         ]
         self.bad_word = ''
@@ -174,7 +174,7 @@ class UserConfig:
                 self.bad_word = keyword
                 return False
         return True
-        
+
     def persist(self):
         """Write file"""
         with open(self.path, 'w', encoding='utf-8') as file:

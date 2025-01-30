@@ -254,19 +254,19 @@ class WebService:
                 }
 
                 return Response(json.dumps(response_message),content_type='application/json')
-   
+
         elif request.path == '/userconfig':
             if request.method == 'POST':
                 user_config = UserConfig(request.form['userconfigtxt'])
                 user_config_status = user_config.check_status()
                 if user_config_status['is_ok']:
                     return Response('{"status":"OK"}',content_type='application/json')
-                else:
-                    if user_config_status['badword'] != '':
-                        return Response(
-                            f'{{"status":"Denied","badword":{user_config_status["badword"]}}}',
-                            content_type='application/json', 
-                            status=400)
+
+                if user_config_status['badword'] != '':
+                    return Response(
+                        f'{{"status":"Denied","badword":{user_config_status["badword"]}}}',
+                        content_type='application/json',
+                        status=400)
             return Response('{"status":"Error","message":"unknown error"}', status=400)
 
         elif request.path == '/healthcheck':
