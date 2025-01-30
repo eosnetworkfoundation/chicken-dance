@@ -5,8 +5,6 @@ USER=ubuntu
 ## addition ssh keys ##
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHUWNQ0UISbfmtQFdkwws25WfdOSITAVoxfXF0rD/Djv eric.passmore@eosnetwork.com - superbee.local" \
   | sudo -u "${USER}" tee -a /home/${USER}/.ssh/authorized_keys
-echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEhjX5L263F2nMkkEp6HuqD+JUL9orBwkQg7tYvux8tU zach.butler@eosnetwork.com (nu-scorpii)' \
-  | sudo -u "${USER}" tee -a /home/${USER}/.ssh/authorized_keys
 
 ## packages ##
 apt-get update >> /dev/null
