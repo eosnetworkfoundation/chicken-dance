@@ -166,7 +166,9 @@ class UserConfig:
 
     def normalize_safe(self):
         """removes $ () {} <> [] ` """
-        self.userconfig = re.sub(r'[\$\[\]\(\)\<\>\{\}\`\r\n]','',self.userconfig)
+        self.userconfig = re.sub(r'[\$\[\]\(\)\<\>\{\}\`]','',self.userconfig)
+        # replace end of line with spaces
+        self.userconfig = re.sub(r'[\r\n]',' ',self.userconfig)
 
     def validate(self):
         """Reviews for bad config options"""

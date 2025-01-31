@@ -55,6 +55,7 @@ class WebService:
         /oauthback
         /showlog
         /restart
+        /config /userconfig 
         /start
         /stop
         """
@@ -270,6 +271,15 @@ class WebService:
                         f'{{"status":"Denied","badword":"{user_config_status["badword"]}"}}',
                         content_type='application/json',
                         status=400)
+            return Response('{"status":"Error","message":"unknown error"}',
+                content_type='application/json',
+                status=400)
+
+        elif request.path == '/clean':
+            if request.method == 'POST':
+                user_config = UserConfig('',logger)
+                user_config.clean()
+                return Response('{"status":"OK"}',content_type='application/json')
             return Response('{"status":"Error","message":"unknown error"}',
                 content_type='application/json',
                 status=400)
