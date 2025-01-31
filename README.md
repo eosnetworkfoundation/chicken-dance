@@ -58,7 +58,7 @@ scripts/replayhost/run-replay-instance.sh 10 [DRY-RUN]
 **Note**: It is important to run this script, as it injects the IP address of the orchestrator node into the replay nodes. Without this script you would need to manually update all the replay nodes with the IP address of the orchestrator.
 
 ## Web Dashboard
-You can see the status of jobs, configuration, and summary of replay status by using the webservice on the orchestrator node. Navigate to `http://orchestor.example.com/`.
+You can see the status of jobs, configuration, and summary of replay status by using the webservice on the orchestrator node. [Additional Documentation on the Control UI may be found here](docs/userinterface.md). 
 
 Many HTTP calls support HTML, JSON, and Text responses. Look at [HTTP Service Calls](docs/http-service-calls.md) for other URL options and Accept encoding options.
 
