@@ -18,6 +18,8 @@ DRY_RUN_CMPT=$(echo $DRY_RUN | tr -d  '-')
 
 # All instances
 if [ "$INSTANCE_ID" == "ALL" ]; then
+  # on termination remove user provided config 
+  rm /var/www/html/usernodeosconfig/user_provided_cmd_line.conf
   # check file exists and has contents
   if [[ -e "$INSTANCE_FILE" && -s "$INSTANCE_FILE" ]]; then
     ALL_INSTANCES=$(paste -s -d ' ' "$INSTANCE_FILE")
