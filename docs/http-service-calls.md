@@ -55,6 +55,18 @@ For the GET request when there are no parameters return statuses for all jobs. R
 ### POST
 When running replay tests we don't always known the expected integrity hash. For example when state database is updated, which may come as part of an update the leap version. For that reason we take the integrity hash, after loading a snapshot, as the known good integrity hash at that block height. The `/config` POST request used the `end_block_num` in the body to look up the configuration slice. Following that the POST updates the configuration in memory and flushes back to disk. This persists the integrity hash as the known good, and expected value at `end_block_num`.
 
+## UserConfig
+`/userconfig` allows custom nodeos options to be passed in chicken dance. 
+
+###POST
+POST JSON with one field `userconfigtxt` . This field contains all of the command line options to be passed to nodeos. After successful completion create the following asset `https://example.com/usernodeosconfig/user_provided_cmd_line.conf`
+
+## Clean
+Remove config 
+
+### POST
+Takes no arguments. Removes user provided nodoes configuration.
+
 ## Summary (Progress)
 
 ### GET
@@ -84,3 +96,49 @@ There are two request, `/oauthback` and `/logout`.
 ### GET
 Only get request is supported. Always returns body of `OK` with status `200`
 - Only returns `text/plain utf-8` encoded content.
+
+## config_file
+`/config_file` retrieves list of meta-data the contain the block intervals and configuration information for the jobs
+
+### GET
+Only get supported 
+
+## release_versions
+`/release_version` gets the list of release from git hub
+
+### GET 
+Using the Github API to pull the list of releases. Presented on the control script to pick the release version you want to use for the chicken-dance. 
+
+## restart
+`/restart` reloads the jobs and their configuration information into the orchestration service. Called `restart` because it effectively wipes out everything replacing it with new configuration. Perfectly fine and safe to outside of a normal run. 
+
+### PUT /POST
+Takes three values 
+- `config_file_path`  the path to the configuration file (job info and block intervals)
+- `target_version`  release branch or official release version to use
+- `forced` force the restart even if running jobs are detected. 
+
+## start
+`/start` starts a chicken dance and allocates AWS replay hosts based on the number of jobs. Redirects back to control with error messages 
+
+### GET PUT POST
+doesn't check method 
+
+## stop
+`/stop` stops a chicken dance terminating the running AWS replay hosts. Redirects back to control with error messages 
+
+### GET PUT POST
+doesn't check method 
+
+## repo_branches
+`/repo-branches` queries github the first 100 branches . Returns the list of release branches first followed by the other branches.
+
+### GET
+
+## deb_download URL
+`/deb_download_url` gets the deb package corresponding to the branch or release. This deb is downloaded and used to extract the nodeos software
+
+### GET
+
+
+
