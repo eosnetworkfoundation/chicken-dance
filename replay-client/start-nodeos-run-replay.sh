@@ -111,7 +111,7 @@ SPRING_VERSION=$(cat /tmp/job.conf.json | python3 ${REPLAY_CLIENT_DIR}/parse_jso
 SOURCE_TYPE=$(dirname "$SNAPSHOT_PATH"  | sed 's#s3://##' | cut -d'/' -f2)
 # fetch any command line options passed in from API or UI
 CONFIG_ARGS_PROVIDED=0
-curl -L --output ${CONFIG_DIR}/user_provided_cmd_line.conf http://${ORCH_IP}/usernodeosconfig/user_provided_cmd_line.conf
+curl -L -f --output ${CONFIG_DIR}/user_provided_cmd_line.conf http://${ORCH_IP}/usernodeosconfig/user_provided_cmd_line.conf
 if [ -s ${CONFIG_DIR}/user_provided_cmd_line.conf ]; then
     CONFIG_ARGS_PROVIDED=1
     CONFIG_ARGS=$(cat ${CONFIG_DIR}/user_provided_cmd_line.conf)
