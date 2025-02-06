@@ -49,6 +49,7 @@ class JobStatus:
     `replay_slice_id` integer FK linked to `BlockManger.replay_slice_id`
     `status` enum of waiting_4_worker, started, working, complete, error, timeout
         initialized to waiting_4_worker
+    `instance_id` is AWS instance ID of replay host
     `last_block_processed` block id of last block processed
         initialized to 0
     `start_time` date time job started
@@ -63,6 +64,7 @@ class JobStatus:
     def __init__(self, config):
         self.job_id = id(self)  # Using memory address as a simple unique identifier
         self.slice_config = config
+        self.instance_id = None
         self.status = JobStatusEnum.WAITING_4_WORKER
         self.last_block_processed = 0
         self.start_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
@@ -73,6 +75,7 @@ class JobStatus:
     def __repr__(self):
         return (f"JobStatus(job_id={self.job_id}, "
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
+                f"instance_id={self.instance_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
                 f"spring_version={self.slice_config.spring_version}, "
@@ -89,6 +92,7 @@ class JobStatus:
         """converts job object to string"""
         return (f"job_id={self.job_id}, "
                 f"replay_slice_id={self.slice_config.replay_slice_id}, "
+                f"instance_id={self.instance_id}, "
                 f"snapshot_path={self.slice_config.snapshot_path}, "
                 f"storage_type={self.slice_config.storage_type}, "
                 f"spring_version={self.slice_config.spring_version}, "
@@ -106,6 +110,7 @@ class JobStatus:
         this_dict = {}
         this_dict['job_id'] = self.job_id
         this_dict['replay_slice_id'] = self.slice_config.replay_slice_id
+        this_dict['instance_id'] = self.instance_id
         this_dict['snapshot_path'] = self.slice_config.snapshot_path
         this_dict['storage_type'] = self.slice_config.storage_type
         this_dict['spring_version'] = self.slice_config.spring_version
@@ -203,6 +208,8 @@ class JobManager:
             self.jobs[jobid].actual_integrity_hash = data['actual_integrity_hash']
         if 'error_message' in data:
             self.jobs[jobid].error_message = data['error_message']
+        if 'instance_id' in data:
+            self.jobs[jobid].instance_id = data['instance_id']
 
         # success
         return True

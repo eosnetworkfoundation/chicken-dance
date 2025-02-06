@@ -36,8 +36,8 @@ def proccess_job_update(base_url, max_tries, job_id, fields):
             'jobid': None,
             'json': None }
 
-    # 100 milisecs double every loop
-    backoff = 0.1
+    # 500 milisecs double every loop
+    backoff = 0.5
     update_complete = False
     # will increate by 1 each loop
     current_try = 0
@@ -94,10 +94,10 @@ def update_job(base_url, etag, job):
             'jobid': None,
             'json': None }
 
-    # 100 milisecs doubles every loop
-    backoff = 0.1
+    # 500 milisecs doubles every loop
+    backoff = 0.5
     update_complete = False
-    max_tries = 3
+    max_tries = 10
     # will increate by 1 each loop
     current_try = 0
 
@@ -174,17 +174,18 @@ def upload_error_log(base_url, job_id, log_type, log_path):
     return update_job_message
 
 
-def pop_job(base_url, max_tries):
+def pop_job(base_url, max_tries, instance_id):
     """Fetch a job (GET) that needs a worker; update status to STARTED"""
     fields_to_update = {
         'status': 'STARTED',
-        'start_time': datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        'start_time': datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+        'instance_id': instance_id
     }
     return proccess_job_update(base_url, max_tries, None, fields_to_update)
 
 def update_job_status(base_url, max_tries, job_id, status):
     """Fetch a job (GET) by id; update status to provided value"""
-    return proccess_job_update(base_url, max_tries, job_id, {'status':status})
+    return proccess_job_update(base_url, max_tries, job_id, {"status":status})
 
 def update_error_message(base_url, max_tries, job_id, error_message):
     """Fetch a job (GET) by id; set status to error and set error message"""
@@ -225,7 +226,7 @@ if __name__ == '__main__':
         type=str, default='127.0.0.1',
         help='Listening service name or ip, default 127.0.0.1')
     parser.add_argument('--max-tries',
-        type=int, default=20,
+        type=int, default=10,
         help='Number of attemps when HTTP call fails, default 10')
     parser.add_argument('--operation',
         type=str,
@@ -236,6 +237,9 @@ if __name__ == '__main__':
     parser.add_argument('--status',
         type=str,
         help='status to set job')
+    parser.add_argument('--instance-id',
+        type=str,
+        help='aws instance id of host')
     parser.add_argument('--error-message',
         type=str,
         help='error message')
@@ -272,7 +276,7 @@ if __name__ == '__main__':
 
     # which operation
     if args.operation == "pop":
-        job_message = pop_job(url, args.max_tries)
+        job_message = pop_job(url, args.max_tries, instance_id)
     elif args.operation == "update-status":
         job_message = update_job_status(url,
             args.max_tries,

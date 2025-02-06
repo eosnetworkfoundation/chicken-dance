@@ -43,6 +43,7 @@ if (jobId == undefined) {
   if (jobObj != undefined) {
     jobDetailList += '<ul class="jobdetails">'
     jobDetailList += '<li><strong>Internal Process Id<strong>: <p>'+jobId+'</p><li>'
+    jobDetailList += '<li><strong>Host Instance Id<strong>: <p>'+jobObj.instance_id+'</p><li>'
     jobDetailList += '<li><strong>Start Time<strong>: <p>'+formateDateTime(jobObj.start_time)+'</p><li>'
     jobDetailList += '<li><strong>End Time<strong>: <p>'+formateDateTime(jobObj.end_time)+'</p><li>'
     jobDetailList += '<li><strong>Current Block<strong>: <p>'+jobObj.last_block_processed+'</p><li>'

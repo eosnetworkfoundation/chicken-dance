@@ -72,6 +72,9 @@ if [ "$TUID" -eq 0 ]; then
   trap_exit "Cannot run as root user"
 fi
 
+## get current instance id ##
+aws_instance_id=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+
 ## cleanup previous runs ##
 "${REPLAY_CLIENT_DIR:?}"/replay-node-cleanup.sh "$USER"
 
@@ -89,7 +92,7 @@ fi
 # 2) http GET job details from orchestration service, incls. block range
 #################
 echo "Step 2 of 7: Getting job details from orchestration service"
-python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation pop > /tmp/job.conf.json
+python3 "${REPLAY_CLIENT_DIR:?}"/job_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} --operation pop --instance-id "${aws_instance_id}" > /tmp/job.conf.json
 
 # if json result is empty failed to aquire job
 if [[ ! -e "/tmp/job.conf.json" || ! -s "/tmp/job.conf.json" ]]; then
