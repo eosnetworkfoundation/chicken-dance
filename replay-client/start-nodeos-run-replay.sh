@@ -267,10 +267,10 @@ echo "$END_BLOCK_ACTUAL_INTEGRITY_HASH" > "$NODEOS_DIR"/log/end_integrity_hash.t
 # this updates the config and write out to a meta-data file on the server side
 # POST back to config with expected integrity hash
 if [ $START_BLOCK -gt 0 ]; then
-  echo "Updating Configuration with expected integrity hash Block $START_BLOCK Hash $START_BLOCK_ACTUAL_INTEGRITY_HASH "
+  echo "Updating Configuration with expected integrity hash Block $START_BLOCK Hash $START_BLOCK_ACTUAL_INTEGRITY_HASH With Version $SPRING_VERSION"
   python3 "${REPLAY_CLIENT_DIR:?}"/config_operations.py --host ${ORCH_IP} --port ${ORCH_PORT} \
     --end-block-num "$START_BLOCK" --integrity-hash "$START_BLOCK_ACTUAL_INTEGRITY_HASH" \
-    --spring-version "SPRING_VERSION"
+    --spring-version "$SPRING_VERSION"
 else
   echo "Processing from genesis no expected integrity hash to update"
 fi
