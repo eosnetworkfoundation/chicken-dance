@@ -42,6 +42,8 @@ def proccess_job_update(base_url, max_tries, job_id, fields):
     # will increate by 1 each loop
     current_try = 0
 
+    update_job_object = {}
+
     # loop getting and setting until success
     # etag is checksum to ensure content has not been updated by another process
     while not update_complete and current_try <= max_tries:
@@ -76,13 +78,8 @@ def proccess_job_update(base_url, max_tries, job_id, fields):
 
     # outside while loop
     # if job_id is None, this is get next job, return full json
-    if job_id is None:
-        if not update_job_object or 'status_code' not in  update_job_object:
-            update_job_object = {
-                'status_code': 'Complete Failure'
-            }
-        else:
-            update_job_object['status_code'] = process_job_message['status_code']
+    if not job_id:
+        update_job_object['status_code'] = process_job_message['status_code']
         return update_job_object
     return process_job_message
 
