@@ -192,7 +192,7 @@ if [ $START_BLOCK == 0 ]; then
     nodeos \
        --genesis-json "${NODEOS_DIR}"/genesis.json \
        --data-dir "${NODEOS_DIR}"/data/ \
-       --config "${CONFIG_DIR}"/sync-config.ini \
+       --config "${CONFIG_DIR}"/default-config.ini \
        --terminate-at-block ${END_BLOCK} \
        --integrity-hash-on-start \
        --integrity-hash-on-stop \
@@ -213,7 +213,7 @@ else
       nodeos \
       --snapshot "${NODEOS_DIR}"/snapshot/snapshot.bin \
       --data-dir "${NODEOS_DIR}"/data/ \
-      --config "${CONFIG_DIR}"/sync-config.ini \
+      --config "${CONFIG_DIR}"/default-config.ini \
       --terminate-at-block ${END_BLOCK} \
       --integrity-hash-on-start \
       --integrity-hash-on-stop \

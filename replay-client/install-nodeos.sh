@@ -32,7 +32,7 @@ if [[ "$SPRING_VERSION" =~ ^v?[1-9]\.[0-9]\.[0-9][\-rc0-9]*$ ]]; then
   wget --directory-prefix="${HOME}" "${DEB_URL}" 2> /dev/null
 else
   BRANCH="${SPRING_VERSION}"
-  response_json=$(curl -H 'Accept: application/json' http://${ORCH_IP}:${PORT:-4000}/deb_download_url?branch="${BRANCH}")
+  response_json=$(curl --get http://${ORCH_IP}:${PORT:-4000}/deb_download_url --data-urlencode "branch=${BRANCH}" -H 'Accept: application/json')
   CHECK=$(echo $response_json | jq .success | sed 's/"//g' )
   if [ "$CHECK" == "true" ]; then
     URL=$(echo $response_json | jq .url | sed 's/"//g' )
