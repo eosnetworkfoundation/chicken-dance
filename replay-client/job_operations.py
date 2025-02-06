@@ -276,7 +276,7 @@ if __name__ == '__main__':
 
     # which operation
     if args.operation == "pop":
-        job_message = pop_job(url, args.max_tries, instance_id)
+        job_message = pop_job(url, args.max_tries, args.instance_id)
     elif args.operation == "update-status":
         job_message = update_job_status(url,
             args.max_tries,
