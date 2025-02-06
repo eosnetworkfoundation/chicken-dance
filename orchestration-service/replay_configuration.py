@@ -121,10 +121,10 @@ class ReplayConfigManager:
                 return record
         return None
 
-    def return_record_by_end_block_id(self, end_block_id):
+    def return_record_by_end_block_id(self, end_block_id, spring_version):
         """get FIRST records by end block num"""
         for record in self.records:
-            if record.end_block_id == end_block_id:
+            if record.end_block_id == end_block_id and record.spring_version == spring_version:
                 return record
         return None
 

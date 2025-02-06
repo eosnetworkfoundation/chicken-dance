@@ -6,7 +6,7 @@ import time
 import requests
 
 
-def update_by_end_block(base_url, max_tries, end_block_num, integrity_hash):
+def update_by_end_block(base_url, max_tries, end_block_num, integrity_hash, nodeos_version):
     """Update Config Object, only updates by end_block_id"""
     # initialize params
     post_headers = {
@@ -34,13 +34,16 @@ def update_by_end_block(base_url, max_tries, end_block_num, integrity_hash):
         config = {
             "end_block_num": end_block_num,
             "integrity_hash": integrity_hash,
+            "spring_version": nodeos_version
         }
+
+        contents = json.dumps(config)
 
         # make POST call; json passed in as string
         update_config_response = requests.post(base_url + '/config',
             headers=post_headers,
             timeout=3,
-            data=json.dumps(config))
+            data=contents.encode('utf-8'))
 
         # populate data structure
         update_job_message['status_code'] = update_config_response.status_code
@@ -87,6 +90,9 @@ if __name__ == '__main__':
     parser.add_argument('--integrity-hash',
         type=str,
         help='integrity hash reported after processing completed')
+    parser.add_argument('--spring-version',
+        type=str,
+        help='software version to update')
 
     args = parser.parse_args()
 
@@ -107,10 +113,13 @@ if __name__ == '__main__':
         'message': None }
 
     # updates config using end block as a key
+    # spring version is needed to Disambiguate when multiple version 
+    #    are used with the same block ranges
     job_message = update_by_end_block(url,
         args.max_tries,
         args.end_block_num,
-        args.integrity_hash)
+        args.integrity_hash,
+        args.spring_version)
 
     # nicer print messages
     if job_message['status_code'] == 200:

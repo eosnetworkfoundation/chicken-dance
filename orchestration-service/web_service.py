@@ -242,7 +242,8 @@ class WebService:
                 if not data:
                     return Response("Invalid JSON data", status=400)
 
-                block = self.replay_config_manager.return_record_by_end_block_id(int(data['end_block_num']))
+                # search for block by end_block_num and by spring_version
+                block = self.replay_config_manager.return_record_by_end_block_id(int(data['end_block_num']),data['spring_version'])
                 if block is None:
                     return Response(f"Config Record with {data['end_block_num']} Not found", status=404)
                 block.expected_integrity_hash = data['integrity_hash']
