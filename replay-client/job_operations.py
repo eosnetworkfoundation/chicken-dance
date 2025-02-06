@@ -228,7 +228,7 @@ if __name__ == '__main__':
         type=str, default='127.0.0.1',
         help='Listening service name or ip, default 127.0.0.1')
     parser.add_argument('--max-tries',
-        type=int, default=10,
+        type=int, default=20,
         help='Number of attemps when HTTP call fails, default 10')
     parser.add_argument('--operation',
         type=str,
