@@ -15,13 +15,13 @@ NEW_BLOCK_NUM_FROM_LOG=$(tail -500 "${NODEOS_DIR}"/log/nodeos.log \
     | cut -d'#' -f2 | cut -d" " -f1 | tail -1)
 
 # set to new format
-if [ -z $OLD_BLOCK_NUM_FROM_LOG ] && [ -n "$NEW_BLOCK_NUM_FROM_LOG" ] ; then
+if [ -n "$NEW_BLOCK_NUM_FROM_LOG" ] ; then
   BLOCK_NUM_FROM_LOG="$NEW_BLOCK_NUM_FROM_LOG"
+else
+  if [ -n "$OLD_BLOCK_NUM_FROM_LOG" ] ; then
+    BLOCK_NUM_FROM_LOG="$OLD_BLOCK_NUM_FROM_LOG"
+  fi
 fi
-if [ -z $NEW_BLOCK_NUM_FROM_LOG ] && [ -n "$OLD_BLOCK_NUM_FROM_LOG" ] ; then
-  BLOCK_NUM_FROM_LOG="$OLD_BLOCK_NUM_FROM_LOG"
-fi
-
 
 # replay via peer
 BLOCK_NUM_FROM_REPLAY=$(tail -500 "${NODEOS_DIR}"/log/nodeos.log | grep 'net_plugin.cpp:' | \
