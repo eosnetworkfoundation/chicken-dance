@@ -77,7 +77,12 @@ def proccess_job_update(base_url, max_tries, job_id, fields):
     # outside while loop
     # if job_id is None, this is get next job, return full json
     if job_id is None:
-        update_job_object['status_code'] = process_job_message['status_code']
+        if not update_job_object or 'status_code' not in  update_job_object:
+            update_job_object = {
+                'status_code': 'Complete Failure'
+            }
+        else:
+            update_job_object['status_code'] = process_job_message['status_code']
         return update_job_object
     return process_job_message
 
@@ -165,7 +170,7 @@ def upload_error_log(base_url, job_id, log_type, log_path):
         contents = file.read()
 
     job_response = requests.post(base_url + upload_logpath,
-        data=contents,
+        data=contents.encode('utf-8'),
         timeout=10)
     update_job_message['status_code'] = job_response.status_code
     update_job_message['json'] = f'{{message:"process complete for {log_path}"}}'
